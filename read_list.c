@@ -2,8 +2,10 @@
 #include <curl/curl.h>
 #include <stdlib.h>
 #include <string.h>
+#include <unistd.h>
 
 #define INPUT_FILE_NAME "zip_code_list_nm_dona_ana.txt"
+#define BASE_URL "http://www.city-data.com/zips/"
 
 typedef struct ZipCode {
 	char* code;
@@ -63,7 +65,6 @@ void freeLinkedList(ZipCode* list_head) {
 int main(void) {
 	CURL *curl = curl_easy_init();
 	if (!curl) {
-		printf("you are here");
 		fprintf(stderr, "Failed to initialize curl.\n");
 		exit(EXIT_FAILURE);
 	}
@@ -78,12 +79,22 @@ int main(void) {
 		printf("%s \n", prev->code);
 	}
 
-	/* for (ZipCode* prev = list_head; prev->next != NULL; prev = prev->next ) {
-		//Fetch code here.
-
-	} */
+	for (ZipCode *prev = list_head; prev->next != NULL; prev = prev->next ) {
+		char url[64] = BASE_URL;
+		strcat(url, prev->code);
+		strcat(url, ".html");
+		printf("Fetching url %s \n", url);
+		curl_easy_setopt(curl, CURLOPT_URL, url);
+		CURLcode res = curl_easy_perform(curl);
+		if (res != CURLE_OK) {
+			fprintf(stderr, "worked mofo");
+		}
+		sleep(2);
+	}
 
 	freeLinkedList(list_head);
+
 	curl_easy_cleanup(curl);
+
 	return EXIT_SUCCESS;
 }
