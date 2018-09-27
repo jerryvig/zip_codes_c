@@ -120,7 +120,6 @@ int main(void) {
 
 		CURLcode res = curl_easy_perform(curl);
 
-		//printf("%s end of fucking data\n", (*chunk).memory);
 		char* token = strtok(chunk->memory, "\n");
 		while (token) {
 			printf("'%s EOL' \n", token);
