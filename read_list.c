@@ -12,6 +12,11 @@ typedef struct ZipCode {
 	struct ZipCode* next;
 } ZipCode;
 
+typedef struct MemoryBuffer {
+	char* memory;
+	size_t size;
+} MemoryBuffer;
+
 static FILE* openFile() {
 	FILE* fp = fopen(INPUT_FILE_NAME, "r");
 	if (!fp) {
@@ -62,6 +67,23 @@ static void freeLinkedList(ZipCode* list_head) {
 	}
 }
 
+static size_t writeCallback(void *contents, size_t size, size_t nmemb, void *userp) {
+	size_t rsz = size * nmemb;
+	MemoryBuffer* mem = (MemoryBuffer*)userp;
+	char* ptr = realloc(mem->memory, mem->size + rsz + 1);
+
+	if (ptr == NULL) {
+		fprintf(stderr, "Insufficient memory (realloc returned NULL)\n");
+		return 0;
+	}
+
+	mem->memory = ptr;
+	memcpy(&(mem->memory[mem->size]), contents, rsz);
+	mem->size += rsz;
+	mem->memory[mem->size] = 0;
+	return rsz;
+}
+
 int main(void) {
 	CURL *curl = curl_easy_init();
 	if (!curl) {
@@ -79,6 +101,10 @@ int main(void) {
 		printf("%s \n", prev->code);
 	}
 
+	MemoryBuffer chunk;
+	chunk.memory = malloc(1);
+	chunk.size = 0;
+
 	for (ZipCode *prev = list_head; prev->next != NULL; prev = prev->next ) {
 		char url[64] = BASE_URL;
 		strcat(url, prev->code);
@@ -87,6 +113,8 @@ int main(void) {
 
 		curl_easy_setopt(curl, CURLOPT_URL, url);
 		curl_easy_setopt(curl, CURLOPT_USERAGENT, "libcurl-agent/1.0");
+		curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, writeCallback);
+		curl_easy_setopt(curl, CURLOPT_WRITEDATA, (void*)&chunk);
 
 		CURLcode res = curl_easy_perform(curl);
 		if (res != CURLE_OK) {
