@@ -12,7 +12,7 @@ typedef struct ZipCode {
 	struct ZipCode* next;
 } ZipCode;
 
-FILE* openFile() {
+static FILE* openFile() {
 	FILE* fp = fopen(INPUT_FILE_NAME, "r");
 	if (!fp) {
 		fprintf(stderr, "File %s not found. Exiting...\n", INPUT_FILE_NAME);
@@ -21,14 +21,14 @@ FILE* openFile() {
 	return fp;
 }
 
-void closeFile(FILE* fp) {
+static void closeFile(FILE* fp) {
 	if (fclose(fp) == EOF) {
  		fprintf(stderr, "Failed to close file %s.\n", INPUT_FILE_NAME);
  		exit(EXIT_FAILURE);
 	}
 }
 
-ZipCode* loadLinkedList(FILE* fp) {
+static ZipCode* loadLinkedList(FILE* fp) {
 	char zip_code[8];
 	ZipCode* list_head = (ZipCode*)malloc(sizeof(struct ZipCode));
 	
@@ -46,7 +46,7 @@ ZipCode* loadLinkedList(FILE* fp) {
 	return list_head;
 }
 
-void freeLinkedList(ZipCode* list_head) {
+static void freeLinkedList(ZipCode* list_head) {
 	ZipCode* prevZip = list_head;
 	while (1) {
 		if (prevZip->next == NULL) {
@@ -84,7 +84,10 @@ int main(void) {
 		strcat(url, prev->code);
 		strcat(url, ".html");
 		printf("Fetching url %s \n", url);
+
 		curl_easy_setopt(curl, CURLOPT_URL, url);
+		curl_easy_setopt(curl, CURLOPT_USERAGENT, "libcurl-agent/1.0");
+
 		CURLcode res = curl_easy_perform(curl);
 		if (res != CURLE_OK) {
 			fprintf(stderr, "curl_easy_perform() failed: %s\n", curl_easy_strerror(res));
