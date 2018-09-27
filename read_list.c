@@ -89,7 +89,7 @@ int main(void) {
 		if (res != CURLE_OK) {
 			fprintf(stderr, "worked mofo");
 		}
-		sleep(2);
+		sleep(1);
 	}
 
 	freeLinkedList(list_head);
