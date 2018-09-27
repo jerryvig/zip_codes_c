@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <curl/curl.h>
 #include <stdlib.h>
 #include <string.h>
 
@@ -37,6 +38,7 @@ ZipCode* loadLinkedList(FILE* fp) {
 		prev->next = next;
 		prev = next;
 	}
+	prev->code = NULL;
 	prev->next = NULL;
 
 	return list_head;
@@ -59,17 +61,29 @@ void freeLinkedList(ZipCode* list_head) {
 }
 
 int main(void) {
+	CURL *curl = curl_easy_init();
+	if (!curl) {
+		printf("you are here");
+		fprintf(stderr, "Failed to initialize curl.\n");
+		exit(EXIT_FAILURE);
+	}
+
 	FILE* fp = openFile();
 
-	ZipCode* list_head = loadLinkedList(fp);
+	ZipCode *list_head = loadLinkedList(fp);
 
  	closeFile(fp);
 
-	for (ZipCode* prev = list_head; prev->next != NULL; prev = prev->next ) {
+	for (ZipCode *prev = list_head; prev->next != NULL; prev = prev->next ) {
 		printf("%s \n", prev->code);
 	}
 
-	freeLinkedList(list_head);
+	/* for (ZipCode* prev = list_head; prev->next != NULL; prev = prev->next ) {
+		//Fetch code here.
 
+	} */
+
+	freeLinkedList(list_head);
+	curl_easy_cleanup(curl);
 	return EXIT_SUCCESS;
 }
