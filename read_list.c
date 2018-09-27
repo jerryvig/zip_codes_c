@@ -40,7 +40,7 @@ static ZipCode* loadLinkedList(FILE* fp) {
 	ZipCode* prev = list_head;
 	for (; fscanf(fp, "%s", zip_code) != EOF; ) {
 		prev->code = (char*)malloc(8*sizeof(char));
-		memcpy(prev->code, zip_code, 8);
+		strcpy(prev->code, zip_code);
 		ZipCode* next = (ZipCode*)malloc(sizeof(struct ZipCode));
 		prev->next = next;
 		prev = next;
@@ -117,6 +117,9 @@ int main(void) {
 		curl_easy_setopt(curl, CURLOPT_WRITEDATA, (void*)&chunk);
 
 		CURLcode res = curl_easy_perform(curl);
+
+		printf("%s end of fucking data\n", chunk.memory);
+
 		if (res != CURLE_OK) {
 			fprintf(stderr, "curl_easy_perform() failed: %s\n", curl_easy_strerror(res));
 		}
