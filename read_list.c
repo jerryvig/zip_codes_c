@@ -101,11 +101,13 @@ int main(void) {
 		printf("%s \n", prev->code);
 	}
 
-	MemoryBuffer chunk;
-	chunk.memory = malloc(1);
-	chunk.size = 0;
+	MemoryBuffer* chunk;
 
 	for (ZipCode *prev = list_head; prev->next != NULL; prev = prev->next ) {
+		chunk = (MemoryBuffer*)malloc(sizeof(MemoryBuffer));
+		chunk->memory = malloc(1);
+		chunk->size = 0;
+
 		char url[64] = BASE_URL;
 		strcat(url, prev->code);
 		strcat(url, ".html");
@@ -114,15 +116,24 @@ int main(void) {
 		curl_easy_setopt(curl, CURLOPT_URL, url);
 		curl_easy_setopt(curl, CURLOPT_USERAGENT, "libcurl-agent/1.0");
 		curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, writeCallback);
-		curl_easy_setopt(curl, CURLOPT_WRITEDATA, (void*)&chunk);
+		curl_easy_setopt(curl, CURLOPT_WRITEDATA, (void*)chunk);
 
 		CURLcode res = curl_easy_perform(curl);
 
-		printf("%s end of fucking data\n", chunk.memory);
+		//printf("%s end of fucking data\n", (*chunk).memory);
+		char* token = strtok(chunk->memory, "\n");
+		while (token) {
+			printf("'%s EOL' \n", token);
+			token = strtok(NULL, "\n");
+		}
 
 		if (res != CURLE_OK) {
 			fprintf(stderr, "curl_easy_perform() failed: %s\n", curl_easy_strerror(res));
 		}
+
+		free(chunk->memory);
+		free(chunk);
+
 		sleep(1);
 	}
 
