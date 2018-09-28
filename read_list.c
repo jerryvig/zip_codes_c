@@ -84,12 +84,17 @@ static size_t writeCallback(void *contents, size_t size, size_t nmemb, void *use
 	return rsz;
 }
 
-int main(void) {
-	CURL *curl = curl_easy_init();
+CURL* initCurl(void) {
+	CURL* curl = curl_easy_init();
 	if (!curl) {
 		fprintf(stderr, "Failed to initialize curl.\n");
 		exit(EXIT_FAILURE);
 	}
+	return curl;
+}
+
+int main(void) {
+	CURL *curl = initCurl();
 
 	FILE* fp = openFile();
 
