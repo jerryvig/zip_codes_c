@@ -95,7 +95,6 @@ CURL* initCurl(void) {
 
 int main(void) {
 	CURL *curl = initCurl();
-
 	FILE* fp = openFile();
 
 	ZipCode *list_head = loadLinkedList(fp);
