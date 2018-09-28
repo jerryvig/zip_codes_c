@@ -126,7 +126,13 @@ int main(void) {
 
 		char* token = strtok(chunk->memory, "\n");
 		while (token) {
-			printf("'%s EOL' \n", token);
+			if (strstr(token, "Estimated zip code population in 2016:") != NULL) {
+				printf("'%s EOL'\n", token);
+			}
+			if (strstr(token, "Estimated median household income in 2016:") != NULL) {
+				//printf("'%s EOL'\n", token);
+			}
+
 			token = strtok(NULL, "\n");
 		}
 
@@ -137,11 +143,10 @@ int main(void) {
 		free(chunk->memory);
 		free(chunk);
 
-		sleep(1);
+		usleep(1500000);
 	}
 
 	freeLinkedList(list_head);
-
 	curl_easy_cleanup(curl);
 
 	return EXIT_SUCCESS;
