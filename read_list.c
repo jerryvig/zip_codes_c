@@ -73,7 +73,7 @@ static size_t writeCallback(void *contents, size_t size, size_t nmemb, void *use
 	char* ptr = realloc(mem->memory, mem->size + rsz + 1);
 
 	if (ptr == NULL) {
-		fprintf(stderr, "Insufficient memory (realloc returned NULL)\n");
+		fprintf(stderr, "Insufficient memory (realloc returned NULL)...\n");
 		return 0;
 	}
 
@@ -124,14 +124,21 @@ int main(void) {
 
 		CURLcode res = curl_easy_perform(curl);
 
-		char* token = strtok(chunk->memory, "\n");
+		char *token = strtok(chunk->memory, "\n");
 		while (token) {
-			if (strstr(token, "Estimated zip code population in 2016:") != NULL) {
-				printf("'%s EOL'\n", token);
+			char* zip_pop = strstr(token, "Estimated zip code population in 2016:");
+
+			if (zip_pop != NULL) {
+				printf("zip_pop len = %zu \n", strlen(zip_pop));
+				printf("zip_pop = %s\n", zip_pop);
+
+				char* zip_pop_b = strstr(zip_pop, "</b>");
+				char* zip_pop_end = strstr(zip_pop_b, " ");
+				char* zip_pop_end_copy = strtok(zip_pop_end, "<");
 			}
-			if (strstr(token, "Estimated median household income in 2016:") != NULL) {
+			/* if (astrstr(token, "Estimated median household income in 2016:") != NULL) {
 				//printf("'%s EOL'\n", token);
-			}
+			} */
 
 			token = strtok(NULL, "\n");
 		}
@@ -143,7 +150,7 @@ int main(void) {
 		free(chunk->memory);
 		free(chunk);
 
-		usleep(1500000);
+		usleep(1700000);
 	}
 
 	freeLinkedList(list_head);
