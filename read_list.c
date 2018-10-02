@@ -102,11 +102,11 @@ CURL* initCurl(void) {
 	return curl;
 }
 
-static void processLines(char* memory, char* code) {
+static void processLines(char* memory, char* code, ZipCodeRecord* record) {
 	char* token = strtok(memory, "\n");
 	printf("zip code = %s\n", code);
 
-	ZipCodeRecord* record = (ZipCodeRecord*)malloc(sizeof(ZipCodeRecord));
+	//ZipCodeRecord* record = (ZipCodeRecord*)malloc(sizeof(ZipCodeRecord));
 	record->code = (char*)malloc(8 * sizeof(char));
 	strcpy(record->code, code);
 	record->population = (char*)malloc(10 * sizeof(char));
@@ -174,11 +174,15 @@ int main(void) {
 
  	closeFile(fp);
 
+ 	int32_t zip_code_count = 0;
 	for (ZipCode *prev = list_head; prev->next != NULL; prev = prev->next ) {
 		printf("%s \n", prev->code);
+		zip_code_count++;
 	}
 
 	MemoryBuffer* chunk;
+	ZipCodeRecord zipCodeRecords[zip_code_count];
+	int32_t recordIndex = 0;
 
 	for (ZipCode *prev = list_head; prev->next != NULL; prev = prev->next ) {
 		chunk = (MemoryBuffer*)malloc(sizeof(MemoryBuffer));
@@ -197,7 +201,7 @@ int main(void) {
 
 		CURLcode res = curl_easy_perform(curl);
 
-		processLines(chunk->memory, prev->code);
+		processLines(chunk->memory, prev->code, &zipCodeRecords[recordIndex]);
 
 		if (res != CURLE_OK) {
 			fprintf(stderr, "curl_easy_perform() failed: %s\n", curl_easy_strerror(res));
@@ -207,6 +211,11 @@ int main(void) {
 		free(chunk);
 
 		usleep(1700000);
+		recordIndex++;
+	}
+
+	for (recordIndex = 0; recordIndex < zip_code_count; ++recordIndex) {
+		printf("record.code = %s\n", zipCodeRecords[recordIndex].code);
 	}
 
 	freeLinkedList(list_head);
