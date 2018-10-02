@@ -18,6 +18,11 @@ typedef struct MemoryBuffer {
 	size_t size;
 } MemoryBuffer;
 
+typedef struct ZipCodeRecord {
+	char* code;
+	char* population;
+} ZipCodeRecord;
+
 static FILE* openFile() {
 	FILE* fp = fopen(INPUT_FILE_NAME, "r");
 	if (!fp) {
@@ -94,8 +99,15 @@ CURL* initCurl(void) {
 	return curl;
 }
 
-static void processLines(char* memory) {
+static void processLines(char* memory, char* code) {
 	char* token = strtok(memory, "\n");
+	printf("zip code = %s\n", code);
+
+	ZipCodeRecord* record = (ZipCodeRecord*)malloc(sizeof(ZipCodeRecord));
+	record->code = (char*)malloc(8 * sizeof(char));
+	strcpy(record->code, code);
+	record->population = (char*)malloc(10 * sizeof(char));
+
 	while (token) {
 		char* zip_pop = strstr(token, "Estimated zip code population in 2016:");
 		char* zip_median_income = strstr(token, "Estimated median household income in 2016:");
@@ -110,6 +122,8 @@ static void processLines(char* memory) {
 			sds sds_zip_pop = sdsnew(zip_pop_end_copy);
 			sdstrim(sds_zip_pop, " ");
 			printf("zip population = %s\n", sds_zip_pop);
+			strcpy(record->population, sds_zip_pop);
+			printf("record->population = %s\n", record->population);
 		}
 		
 		if (zip_median_income != NULL) {
@@ -174,7 +188,7 @@ int main(void) {
 
 		CURLcode res = curl_easy_perform(curl);
 
-		processLines(chunk->memory);
+		processLines(chunk->memory, prev->code);
 
 		if (res != CURLE_OK) {
 			fprintf(stderr, "curl_easy_perform() failed: %s\n", curl_easy_strerror(res));
