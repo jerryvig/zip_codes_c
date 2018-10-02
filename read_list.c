@@ -102,17 +102,20 @@ CURL* initCurl(void) {
 	return curl;
 }
 
+static void allocateZipCodeRecords(int32_t recordCount, ZipCodeRecord records[]) {
+	for (int32_t i=0; i<recordCount; ++i) {
+		records[i].code = (char*)malloc(8 * sizeof(char));
+		records[i].population = (char*)malloc(10 * sizeof(char));
+		records[i].medianHouseholdIncome = (char*)malloc(12 * sizeof(char));
+		records[i].foreignBornPopulation = (char*)malloc(10 * sizeof(char));
+		records[i].medianHomePrice = (char*)malloc(12 * sizeof(char));
+	}
+}
+
 static void processLines(char* memory, char* code, ZipCodeRecord* record) {
 	char* token = strtok(memory, "\n");
 	printf("zip code = %s\n", code);
-
-	//ZipCodeRecord* record = (ZipCodeRecord*)malloc(sizeof(ZipCodeRecord));
-	record->code = (char*)malloc(8 * sizeof(char));
 	strcpy(record->code, code);
-	record->population = (char*)malloc(10 * sizeof(char));
-	record->medianHouseholdIncome = (char*)malloc(12 * sizeof(char));
-	record->foreignBornPopulation = (char*)malloc(10 * sizeof(char));
-	record->medianHomePrice = (char*)malloc(12 * sizeof(char));
 
 	while (token) {
 		char* zip_pop = strstr(token, "Estimated zip code population in 2016:");
@@ -182,6 +185,8 @@ int main(void) {
 
 	MemoryBuffer* chunk;
 	ZipCodeRecord zipCodeRecords[zip_code_count];
+
+	allocateZipCodeRecords(zip_code_count, zipCodeRecords);
 	int32_t recordIndex = 0;
 
 	for (ZipCode *prev = list_head; prev->next != NULL; prev = prev->next ) {
