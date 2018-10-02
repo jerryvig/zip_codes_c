@@ -98,7 +98,8 @@ void processLines(char* memory) {
 	char* token = strtok(memory, "\n");
 	while (token) {
 		char* zip_pop = strstr(token, "Estimated zip code population in 2016:");
-		char* zip_median_income = strstr(token, "Estimated median household income in 2016:"); 
+		char* zip_median_income = strstr(token, "Estimated median household income in 2016:");
+		char* foreign_born_pop = strstr(token, "Foreign born population:"); 
 
 		if (zip_pop != NULL) {
 			char* zip_pop_b = strstr(zip_pop, "</b>");
@@ -116,7 +117,16 @@ void processLines(char* memory) {
 			char* p4_td = strstr(this_zip_code_p4, "</td>");
 			char median_income_str[16] = {'\0'};
 			strncpy(median_income_str, this_zip_code_p4, strlen(this_zip_code_p4) - strlen(p4_td));
-			printf("med income = '%s' \n", median_income_str);
+			printf("median household income = %s\n", median_income_str);
+		}
+		if (foreign_born_pop != NULL) {
+			char* fb_b = strstr(foreign_born_pop, "</b>");
+			char* fb_b_open_parens = strstr(fb_b, "(");
+			char* fb_b_close_parens = strstr(fb_b_open_parens, ")");
+			char fb_out[10] = {'\0'};
+			strncpy(fb_out, fb_b_open_parens, strlen(fb_b_open_parens) - strlen(fb_b_close_parens));
+			char* fb_population = &fb_out[1];
+			printf("foreign born population = %s\n", fb_population);
 		}
 
 		token = strtok(NULL, "\n");
