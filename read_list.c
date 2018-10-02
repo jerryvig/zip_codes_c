@@ -2,6 +2,7 @@
 #include <curl/curl.h>
 #include <stdlib.h>
 #include <string.h>
+#include <sds.h>
 #include <unistd.h>
 
 #define INPUT_FILE_NAME "zip_code_list_nm_dona_ana.txt"
@@ -93,6 +94,29 @@ CURL* initCurl(void) {
 	return curl;
 }
 
+void processLines(char* memory) {
+	char* token = strtok(memory, "\n");
+	while (token) {
+		char* zip_pop = strstr(token, "Estimated zip code population in 2016:");
+		char* zip_median_income = strstr(token, "Estimated median household income in 2016:"); 
+
+		if (zip_pop != NULL) {
+			char* zip_pop_b = strstr(zip_pop, "</b>");
+			char* zip_pop_end = strstr(zip_pop_b, " ");
+			char zip_pop_end_copy[10] = {'\0'};
+			strncpy(zip_pop_end_copy, zip_pop_end, strlen(zip_pop_end) - 5);
+			sds sds_zip_pop = sdsnew(zip_pop_end_copy);
+			sdstrim(sds_zip_pop, " ");
+			printf("zip population = %s\n", sds_zip_pop);
+		}
+		if (zip_median_income != NULL) {
+			printf("zip_median_income = %s \n", zip_median_income);
+		}
+
+		token = strtok(NULL, "\n");
+	}
+}
+
 int main(void) {
 	CURL *curl = initCurl();
 	FILE* fp = openFile();
@@ -124,24 +148,7 @@ int main(void) {
 
 		CURLcode res = curl_easy_perform(curl);
 
-		char *token = strtok(chunk->memory, "\n");
-		while (token) {
-			char* zip_pop = strstr(token, "Estimated zip code population in 2016:");
-
-			if (zip_pop != NULL) {
-				printf("zip_pop len = %zu \n", strlen(zip_pop));
-				printf("zip_pop = %s\n", zip_pop);
-
-				char* zip_pop_b = strstr(zip_pop, "</b>");
-				char* zip_pop_end = strstr(zip_pop_b, " ");
-				char* zip_pop_end_copy = strtok(zip_pop_end, "<");
-			}
-			/* if (astrstr(token, "Estimated median household income in 2016:") != NULL) {
-				//printf("'%s EOL'\n", token);
-			} */
-
-			token = strtok(NULL, "\n");
-		}
+		processLines(chunk->memory);
 
 		if (res != CURLE_OK) {
 			fprintf(stderr, "curl_easy_perform() failed: %s\n", curl_easy_strerror(res));
