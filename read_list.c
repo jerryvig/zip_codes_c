@@ -21,6 +21,9 @@ typedef struct MemoryBuffer {
 typedef struct ZipCodeRecord {
 	char* code;
 	char* population;
+	char* medianHouseholdIncome;
+	char* foreignBornPopulation;
+	char* medianHomePrice;
 } ZipCodeRecord;
 
 static FILE* openFile() {
@@ -107,6 +110,9 @@ static void processLines(char* memory, char* code) {
 	record->code = (char*)malloc(8 * sizeof(char));
 	strcpy(record->code, code);
 	record->population = (char*)malloc(10 * sizeof(char));
+	record->medianHouseholdIncome = (char*)malloc(12 * sizeof(char));
+	record->foreignBornPopulation = (char*)malloc(10 * sizeof(char));
+	record->medianHomePrice = (char*)malloc(12 * sizeof(char));
 
 	while (token) {
 		char* zip_pop = strstr(token, "Estimated zip code population in 2016:");
@@ -133,7 +139,8 @@ static void processLines(char* memory, char* code) {
 			char* p4_td = strstr(this_zip_code_p4, "</td>");
 			char median_income_str[16] = {'\0'};
 			strncpy(median_income_str, this_zip_code_p4, strlen(this_zip_code_p4) - strlen(p4_td));
-			printf("median household income = %s\n", median_income_str);
+			strcpy(record->medianHouseholdIncome, median_income_str);
+			printf("median household income = %s\n", record->medianHouseholdIncome);
 		}
 
 		if (foreign_born_pop != NULL) {
@@ -143,6 +150,7 @@ static void processLines(char* memory, char* code) {
 			char fb_out[10] = {'\0'};
 			strncpy(fb_out, fb_b_open_parens, strlen(fb_b_open_parens) - strlen(fb_b_close_parens));
 			char* fb_population = &fb_out[1];
+			strcpy(record->foreignBornPopulation, fb_population);
 			printf("foreign born population = %s\n", fb_population);
 		}
 
@@ -150,6 +158,7 @@ static void processLines(char* memory, char* code) {
 			char* med_home_price_b = strstr(median_home_price, "</b>");
 			sds med_home_price = sdsnew(&med_home_price_b[4]);
 			sdstrim(med_home_price, "\r");
+			strcpy(record->medianHomePrice, med_home_price);
 			printf("med home price = %s\n", med_home_price);
 		}
 
