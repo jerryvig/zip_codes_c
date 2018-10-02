@@ -110,7 +110,13 @@ void processLines(char* memory) {
 			printf("zip population = %s\n", sds_zip_pop);
 		}
 		if (zip_median_income != NULL) {
-			printf("zip_median_income = %s \n", zip_median_income);
+			char* this_zip_code = strstr(zip_median_income, "This zip code:");
+			char* this_zip_code_p = strstr(this_zip_code, "</p>");
+			char* this_zip_code_p4 = &this_zip_code_p[4];
+			char* p4_td = strstr(this_zip_code_p4, "</td>");
+			char median_income_str[16] = {'\0'};
+			strncpy(median_income_str, this_zip_code_p4, strlen(this_zip_code_p4) - strlen(p4_td));
+			printf("med income = '%s' \n", median_income_str);
 		}
 
 		token = strtok(NULL, "\n");
