@@ -94,7 +94,7 @@ CURL* initCurl(void) {
 	return curl;
 }
 
-void processLines(char* memory) {
+static void processLines(char* memory) {
 	char* token = strtok(memory, "\n");
 	while (token) {
 		char* zip_pop = strstr(token, "Estimated zip code population in 2016:");
