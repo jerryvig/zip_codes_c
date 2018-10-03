@@ -24,6 +24,7 @@ typedef struct ZipCodeRecord {
 	char* medianHouseholdIncome;
 	char* foreignBornPopulation;
 	char* medianHomePrice;
+	char* landArea;
 } ZipCodeRecord;
 
 static FILE* openFile() {
@@ -109,6 +110,7 @@ static void allocateZipCodeRecords(int32_t recordCount, ZipCodeRecord records[])
 		records[i].medianHouseholdIncome = (char*)malloc(12 * sizeof(char));
 		records[i].foreignBornPopulation = (char*)malloc(10 * sizeof(char));
 		records[i].medianHomePrice = (char*)malloc(12 * sizeof(char));
+		records[i].landArea = (char*)malloc(10 * sizeof(char));
 	}
 }
 
@@ -163,7 +165,13 @@ static void processLines(char* memory, char* code, ZipCodeRecord* record) {
 		}
 
 		if (land_area_base != NULL) {
-			
+			char* land_area_b = strstr(land_area_base, "</b>");
+			char* sqmi_start = &land_area_b[5];
+			char* sqmi_end = strstr(sqmi_start, " ");
+			char sqmi[10] = {'\0'};
+			strncpy(sqmi, sqmi_start, strlen(sqmi_start) - strlen(sqmi_end));
+			strcpy(record->landArea, sqmi);
+			printf("zip land area = %s\n", record->landArea);
 		}
 
 		token = strtok(NULL, "\n");
