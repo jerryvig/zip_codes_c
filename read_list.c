@@ -175,7 +175,9 @@ static void processLines(char* memory, char* code, ZipCodeRecord* record) {
 			char* zp_2010_b_end = strstr(&zp_2010_b[4], "<");
 			char zip_population_2010[10] = {'\0'};
 			strncpy(zip_population_2010, &zp_2010_b[4], strlen(&zp_2010_b[4]) - strlen(zp_2010_b_end));
-			strcpy(record->population2010, zip_population_2010);
+			sds sds_zp_2010 = sdsnew(zip_population_2010);
+			sdstrim(sds_zp_2010, " ");
+			strcpy(record->population2010, sds_zp_2010);
 			printf("zip population 2010 = %s\n", record->population2010);
 		}
 		
@@ -303,15 +305,24 @@ int main(void) {
 	}
 
 	FILE* outputFile = fopen(OUTPUT_FILE_NAME, "w");
-	fputs("\"Zip Code\",\"Population 2016\",\"Population 2010\",\"Median Household Income\"\n", outputFile);
+	fputs("\"Zip Code\",\"Population 2016\",\"Population 2010\",\"Land Area\","
+		"\"Foreign Born Population\",\"Median Household Income\",\"Median Home Price\","
+		"\"Median Resident Age\",\"White Population\",\"Hispanic/Latino Population\"\n", 
+		outputFile);
 
 	for (recordIndex = 0; recordIndex < zip_code_count; ++recordIndex) {
 		fprintf(outputFile,
-			"\"%s\",\"%s\",\"%s\",\"%s\"\n",
+			"\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\"\n",
 			zipCodeRecords[recordIndex].code,
 			zipCodeRecords[recordIndex].population,
 			zipCodeRecords[recordIndex].population2010,
-			zipCodeRecords[recordIndex].medianHouseholdIncome);
+			zipCodeRecords[recordIndex].landArea,
+			zipCodeRecords[recordIndex].foreignBornPopulation,
+			zipCodeRecords[recordIndex].medianHouseholdIncome,
+			zipCodeRecords[recordIndex].medianHomePrice,
+			zipCodeRecords[recordIndex].medianResidentAge,
+			zipCodeRecords[recordIndex].whitePopulation,
+			zipCodeRecords[recordIndex].hispanicLatinoPopulation);
 	}
 
 	fclose(outputFile);
