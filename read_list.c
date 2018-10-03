@@ -4,9 +4,9 @@
 #include <string.h>
 #include <sds.h>
 #include <unistd.h>
-#include <csv.h>
 
 #define INPUT_FILE_NAME "zip_code_list_nm_dona_ana.txt"
+#define OUTPUT_FILE_NAME "zip_code_data_nm_dona_ana.csv"
 #define BASE_URL "http://www.city-data.com/zips/"
 
 typedef struct ZipCode {
@@ -302,12 +302,18 @@ int main(void) {
 		recordIndex++;
 	}
 
+	FILE* outputFile = fopen(OUTPUT_FILE_NAME, "w");
+	fputs("\"Zip Code\",\"Population 2016\",\"Median Household Income\"\n", outputFile);
+
 	for (recordIndex = 0; recordIndex < zip_code_count; ++recordIndex) {
-		printf("record.code = %s\n", zipCodeRecords[recordIndex].code);
-		printf("record.population = %s\n", zipCodeRecords[recordIndex].population);
-		printf("record.medianHouseholdIncome = %s\n", zipCodeRecords[recordIndex].medianHouseholdIncome);
+		fprintf(outputFile,
+			"\"%s\",\"%s\",\"%s\"\n",
+			zipCodeRecords[recordIndex].code,
+			zipCodeRecords[recordIndex].population,
+			zipCodeRecords[recordIndex].medianHouseholdIncome);
 	}
 
+	fclose(outputFile);
 	freeLinkedList(list_head);
 	curl_easy_cleanup(curl);
 
