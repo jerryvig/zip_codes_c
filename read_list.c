@@ -303,13 +303,14 @@ int main(void) {
 	}
 
 	FILE* outputFile = fopen(OUTPUT_FILE_NAME, "w");
-	fputs("\"Zip Code\",\"Population 2016\",\"Median Household Income\"\n", outputFile);
+	fputs("\"Zip Code\",\"Population 2016\",\"Population 2010\",\"Median Household Income\"\n", outputFile);
 
 	for (recordIndex = 0; recordIndex < zip_code_count; ++recordIndex) {
 		fprintf(outputFile,
-			"\"%s\",\"%s\",\"%s\"\n",
+			"\"%s\",\"%s\",\"%s\",\"%s\"\n",
 			zipCodeRecords[recordIndex].code,
 			zipCodeRecords[recordIndex].population,
+			zipCodeRecords[recordIndex].population2010,
 			zipCodeRecords[recordIndex].medianHouseholdIncome);
 	}
 
