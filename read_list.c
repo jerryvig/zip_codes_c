@@ -125,6 +125,7 @@ static void processLines(char* memory, char* code, ZipCodeRecord* record) {
 		char* foreign_born_pop = strstr(token, "Foreign born population:");
 		char* median_home_price = strstr(token, "Estimated median house or condo value in 2016:");
 		char* land_area_base = strstr(token, "Land area:");
+		char* median_age_base = strstr(token, "Median resident age:");
 
 		if (zip_pop != NULL) {
 			char* zip_pop_b = strstr(zip_pop, "</b>");
@@ -172,6 +173,15 @@ static void processLines(char* memory, char* code, ZipCodeRecord* record) {
 			strncpy(sqmi, sqmi_start, strlen(sqmi_start) - strlen(sqmi_end));
 			strcpy(record->landArea, sqmi);
 			printf("zip land area = %s\n", record->landArea);
+		}
+
+		if (median_age_base != NULL) {
+			char* med_age_p = strstr(median_age_base, "</p>");
+			char* med_age_start = &med_age_p[4];
+			char* med_age_space = strstr(med_age_start, " ");
+			char median_age[8] = {'\0'};
+			strncpy(median_age, med_age_start, strlen(med_age_start) - strlen(med_age_space));
+			printf("med age = %s\n", median_age);
 		}
 
 		token = strtok(NULL, "\n");
