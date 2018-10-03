@@ -28,6 +28,7 @@ typedef struct ZipCodeRecord {
 	char* landArea;
 	char* medianResidentAge;
 	char* whitePopulation;
+	char* hispanicLatinoPopulation;
 } ZipCodeRecord;
 
 static FILE* openFile() {
@@ -117,6 +118,7 @@ static void allocateZipCodeRecords(int32_t recordCount, ZipCodeRecord records[])
 		records[i].landArea = (char*)malloc(10 * sizeof(char));
 		records[i].medianResidentAge = (char*)malloc(8 * sizeof(char));
 		records[i].whitePopulation = (char*)malloc(10 * sizeof(char));
+		records[i].hispanicLatinoPopulation = (char*)malloc(10 * sizeof(char));
 	}
 }
 
@@ -134,6 +136,7 @@ static void processLines(char* memory, char* code, ZipCodeRecord* record) {
 		char* land_area_base = strstr(token, "Land area:");
 		char* median_age_base = strstr(token, "Median resident age:");
 		char* white_pop_base = strstr(token, "White population");
+		char* hispanic_pop_base = strstr(token, "Hispanic or Latino population");
 
 		if (zip_pop != NULL) {
 			char* zip_pop_b = strstr(zip_pop, "</b>");
@@ -210,6 +213,16 @@ static void processLines(char* memory, char* code, ZipCodeRecord* record) {
 			strncpy(white_population, &gt[1], strlen(&gt[1]) - strlen(lt));
 			strcpy(record->whitePopulation, white_population);
 			printf("white population = %s\n", record->whitePopulation);
+		}
+
+		if (hispanic_pop_base != NULL) {
+			char* h_pop_start_1 = strstr(token, "'badge'>");
+			char* gt = strstr(h_pop_start_1, ">");
+			char* lt = strstr(h_pop_start_1, "<");
+			char hispanic_population[10] = {'\0'};
+			strncpy(hispanic_population, &gt[1], strlen(&gt[1]) - strlen(lt));
+			strcpy(record->hispanicLatinoPopulation, hispanic_population);
+			printf("hispanic/latino population = %s\n", record->hispanicLatinoPopulation);
 		}
 
 		token = strtok(NULL, "\n");
