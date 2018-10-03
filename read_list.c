@@ -108,14 +108,27 @@ CURL* initCurl(void) {
 }
 
 static void allocateZipCodeRecords(int32_t recordCount, ZipCodeRecord records[]) {
+	char nullStr[12] = {'\0'};
 	for (int32_t i = 0; i < recordCount; ++i) {
 		records[i].code = (char*)malloc(8 * sizeof(char));
 		records[i].population = (char*)malloc(10 * sizeof(char));
+		strncpy(records[i].population, nullStr, 10);
+
 		records[i].population2010 = (char*)malloc(10 * sizeof(char));
+		strncpy(records[i].population2010, nullStr, 10);
+
 		records[i].medianHouseholdIncome = (char*)malloc(12 * sizeof(char));
+		strcpy(records[i].medianHouseholdIncome, nullStr);
+
 		records[i].foreignBornPopulation = (char*)malloc(10 * sizeof(char));
+		strncpy(records[i].foreignBornPopulation, nullStr, 10);
+
 		records[i].medianHomePrice = (char*)malloc(12 * sizeof(char));
+		strcpy(records[i].medianHomePrice, nullStr);
+
 		records[i].landArea = (char*)malloc(10 * sizeof(char));
+		strncpy(records[i].landArea, nullStr, 10);
+		
 		records[i].medianResidentAge = (char*)malloc(8 * sizeof(char));
 		records[i].whitePopulation = (char*)malloc(10 * sizeof(char));
 		records[i].hispanicLatinoPopulation = (char*)malloc(10 * sizeof(char));
@@ -197,12 +210,14 @@ static void processLines(char* memory, char* code, ZipCodeRecord* record) {
 
 		if (median_age_base != NULL) {
 			char* med_age_p = strstr(median_age_base, "</p>");
-			char* med_age_start = &med_age_p[4];
-			char* med_age_space = strstr(med_age_start, " ");
-			char median_age[8] = {'\0'};
-			strncpy(median_age, med_age_start, strlen(med_age_start) - strlen(med_age_space));
-			strcpy(record->medianResidentAge, median_age);
-			printf("med age = %s\n", record->medianResidentAge);
+			if (med_age_p) {
+				char* med_age_start = &med_age_p[4];
+				char* med_age_space = strstr(med_age_start, " ");
+				char median_age[8] = {'\0'};
+				strncpy(median_age, med_age_start, strlen(med_age_start) - strlen(med_age_space));
+				strcpy(record->medianResidentAge, median_age);
+				printf("med age = %s\n", record->medianResidentAge);
+			}
 		}
 
 		if (white_pop_base != NULL) {
@@ -281,6 +296,8 @@ int main(void) {
 
 	for (recordIndex = 0; recordIndex < zip_code_count; ++recordIndex) {
 		printf("record.code = %s\n", zipCodeRecords[recordIndex].code);
+		printf("record.population = %s\n", zipCodeRecords[recordIndex].population);
+		printf("record.medianHouseholdIncome = %s\n", zipCodeRecords[recordIndex].medianHouseholdIncome);
 	}
 
 	freeLinkedList(list_head);
