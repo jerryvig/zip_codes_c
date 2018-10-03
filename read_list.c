@@ -149,9 +149,8 @@ static void processLines(char* memory, char* code, ZipCodeRecord* record) {
 			char* fb_b_close_parens = strstr(fb_b_open_parens, ")");
 			char fb_out[10] = {'\0'};
 			strncpy(fb_out, fb_b_open_parens, strlen(fb_b_open_parens) - strlen(fb_b_close_parens));
-			char* fb_population = &fb_out[1];
-			strcpy(record->foreignBornPopulation, fb_population);
-			printf("foreign born population = %s\n", fb_population);
+			strcpy(record->foreignBornPopulation, &fb_out[1]);
+			printf("foreign born population = %s\n", record->foreignBornPopulation);
 		}
 
 		if (median_home_price != NULL) {
@@ -159,7 +158,7 @@ static void processLines(char* memory, char* code, ZipCodeRecord* record) {
 			sds med_home_price = sdsnew(&med_home_price_b[4]);
 			sdstrim(med_home_price, "\r");
 			strcpy(record->medianHomePrice, med_home_price);
-			printf("med home price = %s\n", med_home_price);
+			printf("med home price = %s\n", record->medianHomePrice);
 		}
 
 		token = strtok(NULL, "\n");
