@@ -4,6 +4,7 @@
 #include <string.h>
 #include <sds.h>
 #include <unistd.h>
+#include <csv.h>
 
 #define INPUT_FILE_NAME "zip_code_list_nm_dona_ana.txt"
 #define BASE_URL "http://www.city-data.com/zips/"
