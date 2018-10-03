@@ -21,6 +21,7 @@ typedef struct MemoryBuffer {
 typedef struct ZipCodeRecord {
 	char* code;
 	char* population;
+	char* population2010;
 	char* medianHouseholdIncome;
 	char* foreignBornPopulation;
 	char* medianHomePrice;
@@ -109,6 +110,7 @@ static void allocateZipCodeRecords(int32_t recordCount, ZipCodeRecord records[])
 	for (int32_t i = 0; i < recordCount; ++i) {
 		records[i].code = (char*)malloc(8 * sizeof(char));
 		records[i].population = (char*)malloc(10 * sizeof(char));
+		records[i].population2010 = (char*)malloc(10 * sizeof(char));
 		records[i].medianHouseholdIncome = (char*)malloc(12 * sizeof(char));
 		records[i].foreignBornPopulation = (char*)malloc(10 * sizeof(char));
 		records[i].medianHomePrice = (char*)malloc(12 * sizeof(char));
@@ -125,6 +127,7 @@ static void processLines(char* memory, char* code, ZipCodeRecord* record) {
 
 	while (token) {
 		char* zip_pop = strstr(token, "Estimated zip code population in 2016:");
+		char* zip_pop_2010 = strstr(token, "Zip code population in 2010:");
 		char* zip_median_income = strstr(token, "Estimated median household income in 2016:");
 		char* foreign_born_pop = strstr(token, "Foreign born population:");
 		char* median_home_price = strstr(token, "Estimated median house or condo value in 2016:");
@@ -141,6 +144,15 @@ static void processLines(char* memory, char* code, ZipCodeRecord* record) {
 			sdstrim(sds_zip_pop, " ");
 			strcpy(record->population, sds_zip_pop);
 			printf("zip population = %s\n", record->population);
+		}
+
+		if (zip_pop_2010 != NULL) {
+			char* zp_2010_b = strstr(zip_pop_2010, "</b>");
+			char* zp_2010_b_end = strstr(&zp_2010_b[4], "<");
+			char zip_population_2010[10] = {'\0'};
+			strncpy(zip_population_2010, &zp_2010_b[4], strlen(&zp_2010_b[4]) - strlen(zp_2010_b_end));
+			strcpy(record->population2010, zip_population_2010);
+			printf("zip population 2010 = %s\n", record->population2010);
 		}
 		
 		if (zip_median_income != NULL) {
