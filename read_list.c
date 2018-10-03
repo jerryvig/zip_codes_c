@@ -103,7 +103,7 @@ CURL* initCurl(void) {
 }
 
 static void allocateZipCodeRecords(int32_t recordCount, ZipCodeRecord records[]) {
-	for (int32_t i=0; i<recordCount; ++i) {
+	for (int32_t i = 0; i < recordCount; ++i) {
 		records[i].code = (char*)malloc(8 * sizeof(char));
 		records[i].population = (char*)malloc(10 * sizeof(char));
 		records[i].medianHouseholdIncome = (char*)malloc(12 * sizeof(char));
@@ -130,9 +130,8 @@ static void processLines(char* memory, char* code, ZipCodeRecord* record) {
 			strncpy(zip_pop_end_copy, zip_pop_end, strlen(zip_pop_end) - 5);
 			sds sds_zip_pop = sdsnew(zip_pop_end_copy);
 			sdstrim(sds_zip_pop, " ");
-			printf("zip population = %s\n", sds_zip_pop);
 			strcpy(record->population, sds_zip_pop);
-			printf("record->population = %s\n", record->population);
+			printf("zip population = %s\n", record->population);
 		}
 		
 		if (zip_median_income != NULL) {
@@ -140,9 +139,7 @@ static void processLines(char* memory, char* code, ZipCodeRecord* record) {
 			char* this_zip_code_p = strstr(this_zip_code, "</p>");
 			char* this_zip_code_p4 = &this_zip_code_p[4];
 			char* p4_td = strstr(this_zip_code_p4, "</td>");
-			char median_income_str[16] = {'\0'};
-			strncpy(median_income_str, this_zip_code_p4, strlen(this_zip_code_p4) - strlen(p4_td));
-			strcpy(record->medianHouseholdIncome, median_income_str);
+			strncpy(record->medianHouseholdIncome, this_zip_code_p4, strlen(this_zip_code_p4) - strlen(p4_td));
 			printf("median household income = %s\n", record->medianHouseholdIncome);
 		}
 
