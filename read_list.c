@@ -122,6 +122,7 @@ static void processLines(char* memory, char* code, ZipCodeRecord* record) {
 		char* zip_median_income = strstr(token, "Estimated median household income in 2016:");
 		char* foreign_born_pop = strstr(token, "Foreign born population:");
 		char* median_home_price = strstr(token, "Estimated median house or condo value in 2016:");
+		char* land_area_base = strstr(token, "Land area:");
 
 		if (zip_pop != NULL) {
 			char* zip_pop_b = strstr(zip_pop, "</b>");
@@ -159,6 +160,10 @@ static void processLines(char* memory, char* code, ZipCodeRecord* record) {
 			sdstrim(med_home_price, "\r");
 			strcpy(record->medianHomePrice, med_home_price);
 			printf("med home price = %s\n", record->medianHomePrice);
+		}
+
+		if (land_area_base != NULL) {
+			
 		}
 
 		token = strtok(NULL, "\n");
