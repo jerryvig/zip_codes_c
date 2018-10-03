@@ -111,6 +111,8 @@ static void allocateZipCodeRecords(int32_t recordCount, ZipCodeRecord records[])
 	char nullStr[12] = {'\0'};
 	for (int32_t i = 0; i < recordCount; ++i) {
 		records[i].code = (char*)malloc(8 * sizeof(char));
+		strncpy(records[i].code, nullStr, 8);
+
 		records[i].population = (char*)malloc(10 * sizeof(char));
 		strncpy(records[i].population, nullStr, 10);
 
@@ -130,7 +132,7 @@ static void allocateZipCodeRecords(int32_t recordCount, ZipCodeRecord records[])
 		strncpy(records[i].landArea, nullStr, 10);
 
 		records[i].medianResidentAge = (char*)malloc(8 * sizeof(char));
-		strncpy(records[i].medianResidentAge, nullStr, 10);
+		strncpy(records[i].medianResidentAge, nullStr, 8);
 
 		records[i].whitePopulation = (char*)malloc(10 * sizeof(char));
 		strncpy(records[i].whitePopulation, nullStr, 10);
