@@ -301,7 +301,12 @@ static void processLines(char* memory, char* code, ZipCodeRecord* record) {
 		}
 
 		if (bachelors_degree_base != NULL) {
-			printf("bachelors degree base = %s\n", bachelors_degree_base);
+			char* bs_degree_b = strstr(bachelors_degree_base, "</b>");
+			char* lt = strstr(&bs_degree_b[5], "<");
+			char bs_degree_val[8] = {'\0'};
+			strncpy(bs_degree_val, &bs_degree_b[5], strlen(&bs_degree_b[5]) - strlen(lt));
+			strcpy(record->bachelorsDegree, bs_degree_val);
+			printf("bachelors degree pct = %s\n", record->bachelorsDegree);
 		}
 
 		token = strtok(NULL, "\n");
@@ -362,12 +367,12 @@ int main(void) {
 	fputs("\"Zip Code\",\"Population 2016\",\"Population 2010\",\"Land Area\","
 		"\"Foreign Born Population\",\"Median Household Income\",\"Median Home Price\","
 		"\"Median Resident Age\",\"White Population\",\"Hispanic/Latino Population\","
-		"\"Black Population\",\"Asian Population\",\"American Indian Population\"\n", 
+		"\"Black Population\",\"Asian Population\",\"American Indian Population\",\"Bachelor's Degree\"\n", 
 		outputFile);
 
 	for (recordIndex = 0; recordIndex < zip_code_count; ++recordIndex) {
 		fprintf(outputFile,
-			"\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\"\n",
+			"\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\"\n",
 			zipCodeRecords[recordIndex].code,
 			zipCodeRecords[recordIndex].population,
 			zipCodeRecords[recordIndex].population2010,
@@ -380,7 +385,8 @@ int main(void) {
 			zipCodeRecords[recordIndex].hispanicLatinoPopulation,
 			zipCodeRecords[recordIndex].blackPopulation,
 			zipCodeRecords[recordIndex].asianPopulation,
-			zipCodeRecords[recordIndex].americanIndianPopulation);
+			zipCodeRecords[recordIndex].americanIndianPopulation,
+			zipCodeRecords[recordIndex].bachelorsDegree);
 	}
 
 	fclose(outputFile);
