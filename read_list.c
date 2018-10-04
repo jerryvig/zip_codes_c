@@ -31,6 +31,8 @@ typedef struct ZipCodeRecord {
 	char* whitePopulation;
 	char* hispanicLatinoPopulation;
 	char* blackPopulation;
+	char* asianPopulation;
+	char* americanIndianPopulation;
 } ZipCodeRecord;
 
 static FILE* openFile() {
@@ -144,6 +146,12 @@ static void allocateZipCodeRecords(int32_t recordCount, ZipCodeRecord records[])
 
 		records[i].blackPopulation = (char*)malloc(10 * sizeof(char));
 		strncpy(records[i].blackPopulation, nullStr, 10);
+
+		records[i].asianPopulation = (char*)malloc(10 * sizeof(char));
+		strncpy(records[i].asianPopulation, nullStr, 10);
+
+		records[i].americanIndianPopulation = (char*)malloc(10 * sizeof(char));
+		strncpy(records[i].americanIndianPopulation, nullStr, 10);
 	}
 }
 
@@ -163,6 +171,8 @@ static void processLines(char* memory, char* code, ZipCodeRecord* record) {
 		char* white_pop_base = strstr(token, "White population");
 		char* hispanic_pop_base = strstr(token, "Hispanic or Latino population");
 		char* black_pop_base = strstr(token, "Black population");
+		char* asian_pop_base = strstr(token, "Asian population");
+		char* american_indian_pop_base = strstr(token, "American Indian population");
 
 		if (zip_pop != NULL) {
 			char* zip_pop_b = strstr(zip_pop, "</b>");
@@ -265,6 +275,25 @@ static void processLines(char* memory, char* code, ZipCodeRecord* record) {
 			printf("black population = %s\n", record->blackPopulation);
 		}
 
+		if (asian_pop_base != NULL) {
+			char* asian_pop_start = strstr(token, "'badge'>");
+			char* gt = strstr(asian_pop_start, ">");
+			char* lt = strstr(&gt[1], "<");
+			char asian_population[10] = {'\0'};
+			strncpy(asian_population, &gt[1], strlen(&gt[1]) - strlen(lt));
+			strcpy(record->asianPopulation, asian_population);
+			printf("asian population = %s\n", record->asianPopulation);
+		}
+
+		if (american_indian_pop_base != NULL) {
+			char* american_indian_start = strstr(token, "'badge'>");
+			char* gt = strstr(american_indian_start, ">");
+			char* lt = strstr(&gt[1], "<");
+			char americanIndianPop[10] = {'\0'};
+			strncpy(americanIndianPop, &gt[1], strlen(&gt[1]) - strlen(lt));
+			strcpy(record->americanIndianPopulation, americanIndianPop);
+			printf("american indian population = %s\n", record->americanIndianPopulation);
+		}
 
 		token = strtok(NULL, "\n");
 	}
@@ -324,12 +353,12 @@ int main(void) {
 	fputs("\"Zip Code\",\"Population 2016\",\"Population 2010\",\"Land Area\","
 		"\"Foreign Born Population\",\"Median Household Income\",\"Median Home Price\","
 		"\"Median Resident Age\",\"White Population\",\"Hispanic/Latino Population\","
-		"\"Black Population\"\n", 
+		"\"Black Population\",\"Asian Population\",\"American Indian Population\"\n", 
 		outputFile);
 
 	for (recordIndex = 0; recordIndex < zip_code_count; ++recordIndex) {
 		fprintf(outputFile,
-			"\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\"\n",
+			"\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\"\n",
 			zipCodeRecords[recordIndex].code,
 			zipCodeRecords[recordIndex].population,
 			zipCodeRecords[recordIndex].population2010,
@@ -340,7 +369,9 @@ int main(void) {
 			zipCodeRecords[recordIndex].medianResidentAge,
 			zipCodeRecords[recordIndex].whitePopulation,
 			zipCodeRecords[recordIndex].hispanicLatinoPopulation,
-			zipCodeRecords[recordIndex].blackPopulation);
+			zipCodeRecords[recordIndex].blackPopulation,
+			zipCodeRecords[recordIndex].asianPopulation,
+			zipCodeRecords[recordIndex].americanIndianPopulation);
 	}
 
 	fclose(outputFile);
