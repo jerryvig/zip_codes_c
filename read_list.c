@@ -34,6 +34,7 @@ typedef struct ZipCodeRecord {
 	char* asianPopulation;
 	char* americanIndianPopulation;
 	char* bachelorsDegree;
+	char* graduateDegree;
 } ZipCodeRecord;
 
 static FILE* openFile() {
@@ -156,6 +157,9 @@ static void allocateZipCodeRecords(int32_t recordCount, ZipCodeRecord records[])
 
 		records[i].bachelorsDegree = (char*)malloc(8 * sizeof(char));
 		strncpy(records[i].bachelorsDegree, nullStr, 8);
+
+		records[i].graduateDegree = (char*)malloc(8 * sizeof(char));
+		strncpy(records[i].graduateDegree, nullStr, 8);
 	}
 }
 
@@ -178,6 +182,7 @@ static void processLines(char* memory, char* code, ZipCodeRecord* record) {
 		char* asian_pop_base = strstr(token, "Asian population");
 		char* american_indian_pop_base = strstr(token, "American Indian population");
 		char* bachelors_degree_base = strstr(token, "Bachelor's degree or higher:");
+		char* graduate_degree_base = strstr(token, "Graduate or professional degree:");
 
 		if (zip_pop != NULL) {
 			char* zip_pop_b = strstr(zip_pop, "</b>");
@@ -309,6 +314,15 @@ static void processLines(char* memory, char* code, ZipCodeRecord* record) {
 			printf("bachelors degree pct = %s\n", record->bachelorsDegree);
 		}
 
+		if (graduate_degree_base != NULL) {
+			char* graduate_degree_b = strstr(graduate_degree_base, "</b>");
+			char* lt = strstr(&graduate_degree_b[5], "<");
+			char graduate_degree_val[8] = {'\0'};
+			strncpy(graduate_degree_val, &graduate_degree_b[5], strlen(&graduate_degree_b[5]) - strlen(lt));
+			strcpy(record->graduateDegree, graduate_degree_val);
+			printf("graduate degree = %s\n", record->graduateDegree);
+		}
+
 		token = strtok(NULL, "\n");
 	}
 }
@@ -366,12 +380,13 @@ int main(void) {
 	fputs("\"Zip Code\",\"Population 2016\",\"Population 2010\",\"Land Area\","
 		"\"Foreign Born Population\",\"Median Household Income\",\"Median Home Price\","
 		"\"Median Resident Age\",\"White Population\",\"Hispanic/Latino Population\","
-		"\"Black Population\",\"Asian Population\",\"American Indian Population\",\"Bachelor's Degree\"\n", 
+		"\"Black Population\",\"Asian Population\",\"American Indian Population\","
+		"\"Bachelor's Degree\",\"Graduate Degree\"\n", 
 		outputFile);
 
 	for (recordIndex = 0; recordIndex < zip_code_count; ++recordIndex) {
 		fprintf(outputFile,
-			"\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\"\n",
+			"\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\"\n",
 			zipCodeRecords[recordIndex].code,
 			zipCodeRecords[recordIndex].population,
 			zipCodeRecords[recordIndex].population2010,
@@ -385,7 +400,8 @@ int main(void) {
 			zipCodeRecords[recordIndex].blackPopulation,
 			zipCodeRecords[recordIndex].asianPopulation,
 			zipCodeRecords[recordIndex].americanIndianPopulation,
-			zipCodeRecords[recordIndex].bachelorsDegree);
+			zipCodeRecords[recordIndex].bachelorsDegree,
+			zipCodeRecords[recordIndex].graduateDegree);
 	}
 
 	fclose(outputFile);
