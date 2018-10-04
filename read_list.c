@@ -28,6 +28,8 @@ typedef struct ZipCodeRecord {
 	char* medianHomePrice;
 	char* landArea;
 	char* medianResidentAge;
+	char* malePercent;
+	char* femalePercent;
 	char* whitePopulation;
 	char* hispanicLatinoPopulation;
 	char* blackPopulation;
@@ -164,6 +166,12 @@ static void allocateZipCodeRecords(int32_t recordCount, ZipCodeRecord records[])
 
 		records[i].graduateDegree = (char*)malloc(8 * sizeof(char));
 		strncpy(records[i].graduateDegree, nullStr, 8);
+
+		records[i].malePercent = (char*)malloc(8 * sizeof(char));
+		strncpy(records[i].malePercent, nullStr, 8);
+
+		records[i].femalePercent = (char*)malloc(8 * sizeof(char));
+		strncpy(records[i].femalePercent, nullStr, 8);
 	}
 }
 
@@ -188,6 +196,8 @@ static void processLines(char* memory, char* code, ZipCodeRecord* record) {
 		char* high_school_base = strstr(token, "High school or higher:");
 		char* bachelors_degree_base = strstr(token, "Bachelor's degree or higher:");
 		char* graduate_degree_base = strstr(token, "Graduate or professional degree:");
+		char* male_base = strstr(token, "Males:");
+		char* female_base = strstr(token, "Females:");
 
 		if (zip_pop != NULL) {
 			char* zip_pop_b = strstr(zip_pop, "</b>");
@@ -337,6 +347,24 @@ static void processLines(char* memory, char* code, ZipCodeRecord* record) {
 			printf("graduate degree = %s\n", record->graduateDegree);
 		}
 
+		if (male_base != NULL) {
+			char* male_parens = strstr(male_base, "&nbsp;(");
+			char* close_parens = strstr(&male_parens[7], ")");
+			char male_val[8] = {'\0'};
+			strncpy(male_val, &male_parens[7], strlen(&male_parens[7]) -  strlen(close_parens));
+			strcpy(record->malePercent, male_val);
+			printf("male percent = %s\n", record->malePercent);
+		}
+
+		if (female_base != NULL) {
+			char* female_parens = strstr(female_base, "&nbsp;(");
+			char* close_parens = strstr(&female_parens[7], ")");
+			char female_val[8] = {'\0'};
+			strncpy(female_val, &female_parens[7], strlen(&female_parens[7]) -  strlen(close_parens));
+			strcpy(record->femalePercent, female_val);
+			printf("female percent = %s\n", record->malePercent);
+		}
+
 		token = strtok(NULL, "\n");
 	}
 }
@@ -395,12 +423,14 @@ int main(void) {
 		"\"Foreign Born Population\",\"Median Household Income\",\"Median Home Price\","
 		"\"Median Resident Age\",\"White Population\",\"Hispanic/Latino Population\","
 		"\"Black Population\",\"Asian Population\",\"American Indian Population\","
-		"\"High School Diploma\",\"Bachelor's Degree\",\"Graduate Degree\"\n", 
+		"\"High School Diploma\",\"Bachelor's Degree\",\"Graduate Degree\",\"Male Percent\","
+		"\"Female Percent\"\n", 
 		outputFile);
 
 	for (recordIndex = 0; recordIndex < zip_code_count; ++recordIndex) {
 		fprintf(outputFile,
-			"\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\"\n",
+			"\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\""
+			",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\"\n",
 			zipCodeRecords[recordIndex].code,
 			zipCodeRecords[recordIndex].population,
 			zipCodeRecords[recordIndex].population2010,
@@ -416,7 +446,9 @@ int main(void) {
 			zipCodeRecords[recordIndex].americanIndianPopulation,
 			zipCodeRecords[recordIndex].highSchool,
 			zipCodeRecords[recordIndex].bachelorsDegree,
-			zipCodeRecords[recordIndex].graduateDegree);
+			zipCodeRecords[recordIndex].graduateDegree,
+			zipCodeRecords[recordIndex].malePercent,
+			zipCodeRecords[recordIndex].femalePercent);
 	}
 
 	fclose(outputFile);
