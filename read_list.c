@@ -33,6 +33,7 @@ typedef struct ZipCodeRecord {
 	char* blackPopulation;
 	char* asianPopulation;
 	char* americanIndianPopulation;
+	char* bachelorsDegree;
 } ZipCodeRecord;
 
 static FILE* openFile() {
@@ -152,6 +153,9 @@ static void allocateZipCodeRecords(int32_t recordCount, ZipCodeRecord records[])
 
 		records[i].americanIndianPopulation = (char*)malloc(10 * sizeof(char));
 		strncpy(records[i].americanIndianPopulation, nullStr, 10);
+
+		records[i].bachelorsDegree = (char*)malloc(8 * sizeof(char));
+		strncpy(records[i].bachelorsDegree, nullStr, 8);
 	}
 }
 
@@ -173,6 +177,7 @@ static void processLines(char* memory, char* code, ZipCodeRecord* record) {
 		char* black_pop_base = strstr(token, "Black population");
 		char* asian_pop_base = strstr(token, "Asian population");
 		char* american_indian_pop_base = strstr(token, "American Indian population");
+		char* bachelors_degree_base = strstr(token, "Bachelor's degree or higher:");
 
 		if (zip_pop != NULL) {
 			char* zip_pop_b = strstr(zip_pop, "</b>");
@@ -293,6 +298,10 @@ static void processLines(char* memory, char* code, ZipCodeRecord* record) {
 			strncpy(americanIndianPop, &gt[1], strlen(&gt[1]) - strlen(lt));
 			strcpy(record->americanIndianPopulation, americanIndianPop);
 			printf("american indian population = %s\n", record->americanIndianPopulation);
+		}
+
+		if (bachelors_degree_base != NULL) {
+			printf("bachelors degree base = %s\n", bachelors_degree_base);
 		}
 
 		token = strtok(NULL, "\n");
