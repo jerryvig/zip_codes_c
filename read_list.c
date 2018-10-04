@@ -23,6 +23,7 @@ typedef struct ZipCodeRecord {
 	char* code;
 	char* population;
 	char* population2010;
+	char* population2000;
 	char* medianHouseholdIncome;
 	char* foreignBornPopulation;
 	char* medianHomePrice;
@@ -128,6 +129,9 @@ static void allocateZipCodeRecords(int32_t recordCount, ZipCodeRecord records[])
 		records[i].population2010 = (char*)malloc(10 * sizeof(char));
 		strncpy(records[i].population2010, nullStr, 10);
 
+		records[i].population2000 = (char*)malloc(10 * sizeof(char));
+		strncpy(records[i].population2000, nullStr, 10);
+
 		records[i].medianHouseholdIncome = (char*)malloc(12 * sizeof(char));
 		strcpy(records[i].medianHouseholdIncome, nullStr);
 
@@ -183,6 +187,7 @@ static void processLines(char* memory, char* code, ZipCodeRecord* record) {
 	while (token) {
 		char* zip_pop = strstr(token, "Estimated zip code population in 2016:");
 		char* zip_pop_2010 = strstr(token, "Zip code population in 2010:");
+		char* zip_pop_2000 = strstr(token, "Zip code population in 2000:");
 		char* zip_median_income = strstr(token, "Estimated median household income in 2016:");
 		char* foreign_born_pop = strstr(token, "Foreign born population:");
 		char* median_home_price = strstr(token, "Estimated median house or condo value in 2016:");
@@ -219,6 +224,17 @@ static void processLines(char* memory, char* code, ZipCodeRecord* record) {
 			sdstrim(sds_zp_2010, " ");
 			strcpy(record->population2010, sds_zp_2010);
 			printf("zip population 2010 = %s\n", record->population2010);
+		}
+
+		if (zip_pop_2000 != NULL) {
+			char* zp_2000_b = strstr(zip_pop_2000, "</b>");
+			char* zp_2000_b_end = strstr(&zp_2000_b[4], "<");
+			char zip_population_2000[10] = {'\0'};
+			strncpy(zip_population_2000, &zp_2000_b[4], strlen(&zp_2000_b[4]) - strlen(zp_2000_b_end));
+			sds sds_zp_2000 = sdsnew(zip_population_2000);
+			sdstrim(sds_zp_2000, " ");
+			strcpy(record->population2000, sds_zp_2000);
+			printf("zip population 2000 = %s\n", record->population2000);
 		}
 		
 		if (zip_median_income != NULL) {
@@ -419,7 +435,7 @@ int main(void) {
 	}
 
 	FILE* outputFile = fopen(OUTPUT_FILE_NAME, "w");
-	fputs("\"Zip Code\",\"Population 2016\",\"Population 2010\",\"Land Area\","
+	fputs("\"Zip Code\",\"Population 2016\",\"Population 2010\",\"Population 2000\",\"Land Area\","
 		"\"Foreign Born Population\",\"Median Household Income\",\"Median Home Price\","
 		"\"Median Resident Age\",\"White Population\",\"Hispanic/Latino Population\","
 		"\"Black Population\",\"Asian Population\",\"American Indian Population\","
@@ -430,10 +446,11 @@ int main(void) {
 	for (recordIndex = 0; recordIndex < zip_code_count; ++recordIndex) {
 		fprintf(outputFile,
 			"\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\""
-			",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\"\n",
+			",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\"\n",
 			zipCodeRecords[recordIndex].code,
 			zipCodeRecords[recordIndex].population,
 			zipCodeRecords[recordIndex].population2010,
+			zipCodeRecords[recordIndex].population2000,
 			zipCodeRecords[recordIndex].landArea,
 			zipCodeRecords[recordIndex].foreignBornPopulation,
 			zipCodeRecords[recordIndex].medianHouseholdIncome,
