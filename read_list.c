@@ -33,6 +33,7 @@ typedef struct ZipCodeRecord {
 	char* blackPopulation;
 	char* asianPopulation;
 	char* americanIndianPopulation;
+	char* highSchool;
 	char* bachelorsDegree;
 	char* graduateDegree;
 } ZipCodeRecord;
@@ -155,6 +156,9 @@ static void allocateZipCodeRecords(int32_t recordCount, ZipCodeRecord records[])
 		records[i].americanIndianPopulation = (char*)malloc(10 * sizeof(char));
 		strncpy(records[i].americanIndianPopulation, nullStr, 10);
 
+		records[i].highSchool = (char*)malloc(8 * sizeof(char));
+		strncpy(records[i].highSchool, nullStr, 8);
+
 		records[i].bachelorsDegree = (char*)malloc(8 * sizeof(char));
 		strncpy(records[i].bachelorsDegree, nullStr, 8);
 
@@ -181,6 +185,7 @@ static void processLines(char* memory, char* code, ZipCodeRecord* record) {
 		char* black_pop_base = strstr(token, "Black population");
 		char* asian_pop_base = strstr(token, "Asian population");
 		char* american_indian_pop_base = strstr(token, "American Indian population");
+		char* high_school_base = strstr(token, "High school or higher:");
 		char* bachelors_degree_base = strstr(token, "Bachelor's degree or higher:");
 		char* graduate_degree_base = strstr(token, "Graduate or professional degree:");
 
@@ -305,6 +310,15 @@ static void processLines(char* memory, char* code, ZipCodeRecord* record) {
 			printf("american indian population = %s\n", record->americanIndianPopulation);
 		}
 
+		if (high_school_base != NULL) {
+			char* hs_b = strstr(high_school_base, "</b>");
+			char* lt = strstr(&hs_b[5], "<");
+			char hs_val[8] = {'\0'};
+			strncpy(hs_val, &hs_b[5], strlen(&hs_b[5]) - strlen(lt));
+			strcpy(record->highSchool, hs_val);
+			printf("high school = %s\n", record->highSchool);
+		}
+
 		if (bachelors_degree_base != NULL) {
 			char* bs_degree_b = strstr(bachelors_degree_base, "</b>");
 			char* lt = strstr(&bs_degree_b[5], "<");
@@ -381,7 +395,7 @@ int main(void) {
 		"\"Foreign Born Population\",\"Median Household Income\",\"Median Home Price\","
 		"\"Median Resident Age\",\"White Population\",\"Hispanic/Latino Population\","
 		"\"Black Population\",\"Asian Population\",\"American Indian Population\","
-		"\"Bachelor's Degree\",\"Graduate Degree\"\n", 
+		"\"High School Diploma\",\"Bachelor's Degree\",\"Graduate Degree\"\n", 
 		outputFile);
 
 	for (recordIndex = 0; recordIndex < zip_code_count; ++recordIndex) {
@@ -400,6 +414,7 @@ int main(void) {
 			zipCodeRecords[recordIndex].blackPopulation,
 			zipCodeRecords[recordIndex].asianPopulation,
 			zipCodeRecords[recordIndex].americanIndianPopulation,
+			zipCodeRecords[recordIndex].highSchool,
 			zipCodeRecords[recordIndex].bachelorsDegree,
 			zipCodeRecords[recordIndex].graduateDegree);
 	}
