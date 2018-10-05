@@ -5,8 +5,8 @@
 #include <sds.h>
 #include <unistd.h>
 
-#define INPUT_FILE_NAME "zip_code_list_ny_onandaga.txt"
-#define OUTPUT_FILE_NAME "zip_code_data_ny_onandaga.csv"
+#define INPUT_FILE_NAME "zip_code_list_tx_montgomery.txt"
+#define OUTPUT_FILE_NAME "zip_code_data_tx_montgomery.csv"
 #define BASE_URL "http://www.city-data.com/zips/"
 
 typedef struct ZipCode {
@@ -288,52 +288,62 @@ static void processLines(char* memory, char* code, ZipCodeRecord* record) {
 
 		if (white_pop_base != NULL) {
 			char* white_pop_start_1 = strstr(token, "'badge'>");
-			char* gt = strstr(white_pop_start_1, ">");
-			char* lt = strstr(white_pop_start_1, "<");
-			char white_population[10] = {'\0'};
-			strncpy(white_population, &gt[1], strlen(&gt[1]) - strlen(lt));
-			strcpy(record->whitePopulation, white_population);
-			printf("white population = %s\n", record->whitePopulation);
+			if (white_pop_start_1) {
+				char* gt = strstr(white_pop_start_1, ">");
+				char* lt = strstr(white_pop_start_1, "<");
+				char white_population[10] = {'\0'};
+				strncpy(white_population, &gt[1], strlen(&gt[1]) - strlen(lt));
+				strcpy(record->whitePopulation, white_population);
+				printf("white population = %s\n", record->whitePopulation);
+			}
 		}
 
 		if (hispanic_pop_base != NULL) {
 			char* h_pop_start_1 = strstr(token, "'badge'>");
-			char* gt = strstr(h_pop_start_1, ">");
-			char* lt = strstr(h_pop_start_1, "<");
-			char hispanic_population[10] = {'\0'};
-			strncpy(hispanic_population, &gt[1], strlen(&gt[1]) - strlen(lt));
-			strcpy(record->hispanicLatinoPopulation, hispanic_population);
-			printf("hispanic/latino population = %s\n", record->hispanicLatinoPopulation);
+			if (h_pop_start_1) {
+				char* gt = strstr(h_pop_start_1, ">");
+				char* lt = strstr(h_pop_start_1, "<");
+				char hispanic_population[10] = {'\0'};
+				strncpy(hispanic_population, &gt[1], strlen(&gt[1]) - strlen(lt));
+				strcpy(record->hispanicLatinoPopulation, hispanic_population);
+				printf("hispanic/latino population = %s\n", record->hispanicLatinoPopulation);
+			}
 		}
 
 		if (black_pop_base != NULL) {
 			char* b_pop_start = strstr(token, "'badge'>");
-			char* gt = strstr(b_pop_start, ">");
-			char* lt = strstr(b_pop_start, "<");
-			char black_population[10] = {'\0'};
-			strncpy(black_population, &gt[1], strlen(&gt[1]) - strlen(lt));
-			strcpy(record->blackPopulation, black_population);
-			printf("black population = %s\n", record->blackPopulation);
+			if (b_pop_start) {
+				char* gt = strstr(b_pop_start, ">");
+				char* lt = strstr(b_pop_start, "<");
+				char black_population[10] = {'\0'};
+				strncpy(black_population, &gt[1], strlen(&gt[1]) - strlen(lt));
+				strcpy(record->blackPopulation, black_population);
+				printf("black population = %s\n", record->blackPopulation);
+			}
 		}
 
 		if (asian_pop_base != NULL) {
 			char* asian_pop_start = strstr(token, "'badge'>");
-			char* gt = strstr(asian_pop_start, ">");
-			char* lt = strstr(&gt[1], "<");
-			char asian_population[10] = {'\0'};
-			strncpy(asian_population, &gt[1], strlen(&gt[1]) - strlen(lt));
-			strcpy(record->asianPopulation, asian_population);
-			printf("asian population = %s\n", record->asianPopulation);
+			if (asian_pop_start) {
+				char* gt = strstr(asian_pop_start, ">");
+				char* lt = strstr(&gt[1], "<");
+				char asian_population[10] = {'\0'};
+				strncpy(asian_population, &gt[1], strlen(&gt[1]) - strlen(lt));
+				strcpy(record->asianPopulation, asian_population);
+				printf("asian population = %s\n", record->asianPopulation);
+			}
 		}
 
 		if (american_indian_pop_base != NULL) {
 			char* american_indian_start = strstr(token, "'badge'>");
-			char* gt = strstr(american_indian_start, ">");
-			char* lt = strstr(&gt[1], "<");
-			char americanIndianPop[10] = {'\0'};
-			strncpy(americanIndianPop, &gt[1], strlen(&gt[1]) - strlen(lt));
-			strcpy(record->americanIndianPopulation, americanIndianPop);
-			printf("american indian population = %s\n", record->americanIndianPopulation);
+			if (american_indian_start) {
+				char* gt = strstr(american_indian_start, ">");
+				char* lt = strstr(&gt[1], "<");
+				char americanIndianPop[10] = {'\0'};
+				strncpy(americanIndianPop, &gt[1], strlen(&gt[1]) - strlen(lt));
+				strcpy(record->americanIndianPopulation, americanIndianPop);
+				printf("american indian population = %s\n", record->americanIndianPopulation);
+			}
 		}
 
 		if (high_school_base != NULL) {
@@ -382,6 +392,9 @@ static void processLines(char* memory, char* code, ZipCodeRecord* record) {
 		}
 
 		token = strtok(NULL, "\n");
+		if (!token) {
+			break;
+		}
 	}
 }
 
