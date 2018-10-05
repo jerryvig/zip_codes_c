@@ -5,8 +5,8 @@
 #include <sds.h>
 #include <unistd.h>
 
-#define INPUT_FILE_NAME "zip_code_list_tx_lubbock.txt"
-#define OUTPUT_FILE_NAME "zip_code_data_tx_lubbock.csv"
+#define INPUT_FILE_NAME "zip_code_list_ny_onandaga.txt"
+#define OUTPUT_FILE_NAME "zip_code_data_ny_onandaga.csv"
 #define BASE_URL "http://www.city-data.com/zips/"
 
 typedef struct ZipCode {
