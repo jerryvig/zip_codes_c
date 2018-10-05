@@ -39,6 +39,7 @@ typedef struct ZipCodeRecord {
 	char* highSchool;
 	char* bachelorsDegree;
 	char* graduateDegree;
+	char* averageHouseholdSize;
 } ZipCodeRecord;
 
 static FILE* openFile() {
@@ -176,6 +177,9 @@ static void allocateZipCodeRecords(int32_t recordCount, ZipCodeRecord records[])
 
 		records[i].femalePercent = (char*)malloc(8 * sizeof(char));
 		strncpy(records[i].femalePercent, nullStr, 8);
+
+		records[i].averageHouseholdSize = (char*)malloc(8 * sizeof(char));
+		strncpy(records[i].averageHouseholdSize, nullStr, 8);
 	}
 }
 
@@ -203,6 +207,7 @@ static void processLines(char* memory, char* code, ZipCodeRecord* record) {
 		char* graduate_degree_base = strstr(token, "Graduate or professional degree:");
 		char* male_base = strstr(token, "Males:");
 		char* female_base = strstr(token, "Females:");
+		char* avg_household_base = strstr(token, "Average household size:");
 
 		if (zip_pop != NULL) {
 			char* zip_pop_b = strstr(zip_pop, "</b>");
@@ -286,7 +291,7 @@ static void processLines(char* memory, char* code, ZipCodeRecord* record) {
 				char median_age[8] = {'\0'};
 				strncpy(median_age, med_age_start, strlen(med_age_start) - strlen(med_age_space));
 				strcpy(record->medianResidentAge, median_age);
-				printf("med age = %s\n", record->medianResidentAge);
+				printf("median age = %s\n", record->medianResidentAge);
 			}
 		}
 
@@ -395,6 +400,16 @@ static void processLines(char* memory, char* code, ZipCodeRecord* record) {
 			printf("female percent = %s\n", record->malePercent);
 		}
 
+		if (avg_household_base != NULL) {
+			char* avg_household_p = strstr(avg_household_base, "</p>");
+			char* avg_household_peeps = strstr(&avg_household_p[4], " people");
+			char avg_household_size[8] = {'\0'};
+			strncpy(avg_household_size, &avg_household_p[4],
+				strlen(&avg_household_p[4]) - strlen(avg_household_peeps));
+			strcpy(record->averageHouseholdSize, avg_household_size);
+			printf("avg household size = %s\n", record->averageHouseholdSize);
+		}
+
 		token = strtok(NULL, "\n");
 		if (!token) {
 			break;
@@ -457,13 +472,13 @@ int main(void) {
 		"\"Median Resident Age\",\"White Population\",\"Hispanic/Latino Population\","
 		"\"Black Population\",\"Asian Population\",\"American Indian Population\","
 		"\"High School Diploma\",\"Bachelor's Degree\",\"Graduate Degree\",\"Male Percent\","
-		"\"Female Percent\"\n", 
+		"\"Female Percent\",\"Average Household Size\"\n", 
 		outputFile);
 
 	for (recordIndex = 0; recordIndex < zip_code_count; ++recordIndex) {
 		fprintf(outputFile,
 			"\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\""
-			",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\"\n",
+			",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\"\n",
 			zipCodeRecords[recordIndex].code,
 			zipCodeRecords[recordIndex].population,
 			zipCodeRecords[recordIndex].population2010,
@@ -482,7 +497,8 @@ int main(void) {
 			zipCodeRecords[recordIndex].bachelorsDegree,
 			zipCodeRecords[recordIndex].graduateDegree,
 			zipCodeRecords[recordIndex].malePercent,
-			zipCodeRecords[recordIndex].femalePercent);
+			zipCodeRecords[recordIndex].femalePercent,
+			zipCodeRecords[recordIndex].averageHouseholdSize);
 	}
 
 	fclose(outputFile);
