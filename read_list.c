@@ -242,8 +242,12 @@ static void processLines(char* memory, char* code, ZipCodeRecord* record) {
 			char* this_zip_code_p = strstr(this_zip_code, "</p>");
 			char* this_zip_code_p4 = &this_zip_code_p[4];
 			char* p4_td = strstr(this_zip_code_p4, "</td>");
-			strncpy(record->medianHouseholdIncome, this_zip_code_p4, strlen(this_zip_code_p4) - strlen(p4_td));
-			printf("median household income = %s\n", record->medianHouseholdIncome);
+			char mhi[12] = {'\0'};
+			strncpy(mhi, this_zip_code_p4, strlen(this_zip_code_p4) - strlen(p4_td));
+			sds median_income_trim = sdsnew(mhi);
+			sdstrim(median_income_trim, "\r");
+			strcpy(record->medianHouseholdIncome, median_income_trim);
+			printf("median household income = %s\n", median_income_trim);
 		}
 
 		if (foreign_born_pop != NULL) {
