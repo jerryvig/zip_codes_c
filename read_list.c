@@ -119,6 +119,15 @@ CURL* initCurl(void) {
 	return curl;
 }
 
+static void openDb(sqlite3* db) {
+	int rc = sqlite3_open("zip_codes_db.sqlite3", &db);
+	if ( rc ) {
+		fprintf(stderr, "Failed to open database zip_codes_db.sqlite3.");
+		sqlite3_close( db );
+		exit( EXIT_FAILURE );
+	}
+}
+
 static void allocateZipCodeRecords(int32_t recordCount, ZipCodeRecord records[]) {
 	char nullStr[12] = {'\0'};
 	for (int32_t i = 0; i < recordCount; ++i) {
@@ -421,14 +430,9 @@ static void processLines(char* memory, char* code, ZipCodeRecord* record) {
 int main(void) {
 	CURL *curl = initCurl();
 	FILE* fp = openFile();
-	sqlite3* db;
+	sqlite3* db = NULL;
 
-	int rc = sqlite3_open("zip_codes_db.sqlite3", &db);
-	if ( rc ) {
-		fprintf(stderr, "Failed to open database zip_codes_db.sqlite3.");
-		sqlite3_close( db );
-		exit( EXIT_FAILURE );
-	}
+	openDb(db);
 
 	ZipCode *list_head = loadLinkedList(fp);
 
