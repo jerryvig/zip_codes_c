@@ -6,8 +6,8 @@
 #include <unistd.h>
 #include <sqlite3.h>
 
-#define INPUT_FILE_NAME "zip_code_list_ny_suffolk.txt"
-#define OUTPUT_FILE_NAME "zip_code_data_ny_suffolk.csv"
+#define INPUT_FILE_NAME "zip_code_list_ks_shawnee.txt"
+#define OUTPUT_FILE_NAME "zip_code_data_ks_shawnee.csv"
 #define BASE_URL "http://www.city-data.com/zips/"
 
 typedef struct ZipCode {
@@ -423,7 +423,12 @@ int main(void) {
 	FILE* fp = openFile();
 	sqlite3* db;
 
-	sqlite3_open("zip_codes_db", &db);
+	int rc = sqlite3_open("zip_codes_db.sqlite3", &db);
+	if ( rc ) {
+		fprintf(stderr, "Failed to open database zip_codes_db.sqlite3.");
+		sqlite3_close( db );
+		exit( EXIT_FAILURE );
+	}
 
 	ZipCode *list_head = loadLinkedList(fp);
 
@@ -506,7 +511,7 @@ int main(void) {
 	}
 
 	sqlite3_close(db);
-	
+
 	fclose(outputFile);
 	freeLinkedList(list_head);
 	curl_easy_cleanup(curl);
