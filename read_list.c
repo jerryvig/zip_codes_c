@@ -4,9 +4,10 @@
 #include <string.h>
 #include <sds.h>
 #include <unistd.h>
+#include <sqlite3.h>
 
-#define INPUT_FILE_NAME "zip_code_list_ny_onandaga.txt"
-#define OUTPUT_FILE_NAME "zip_code_data_ny_onandaga.csv"
+#define INPUT_FILE_NAME "zip_code_list_ny_suffolk.txt"
+#define OUTPUT_FILE_NAME "zip_code_data_ny_suffolk.csv"
 #define BASE_URL "http://www.city-data.com/zips/"
 
 typedef struct ZipCode {
@@ -420,6 +421,9 @@ static void processLines(char* memory, char* code, ZipCodeRecord* record) {
 int main(void) {
 	CURL *curl = initCurl();
 	FILE* fp = openFile();
+	sqlite3* db;
+
+	sqlite3_open("zip_codes_db", &db);
 
 	ZipCode *list_head = loadLinkedList(fp);
 
@@ -501,6 +505,8 @@ int main(void) {
 			zipCodeRecords[recordIndex].averageHouseholdSize);
 	}
 
+	sqlite3_close(db);
+	
 	fclose(outputFile);
 	freeLinkedList(list_head);
 	curl_easy_cleanup(curl);
