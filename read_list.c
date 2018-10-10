@@ -141,7 +141,8 @@ static void initDb(sqlite3** db) {
 		"population_2000 INTEGER, "
 		"land_area REAL, "
 		"foreign_born_population REAL, "
-		"median_household_income INTEGER );";
+		"median_household_income INTEGER, "
+		"median_home_price INTEGER );";
 	int rc = sqlite3_exec(*db, create_stmt, NULL, NULL, &error_message);
 	if ( rc != SQLITE_OK ) {
 		fputs("SOME SQL ERROR OCURRED.\n", stderr);
@@ -236,6 +237,7 @@ static void allocateZipCodeRecords(int32_t recordCount, ZipCodeRecord records[])
 
 		records[i].medianHomePrice = (char*)malloc(12 * sizeof(char));
 		strcpy(records[i].medianHomePrice, nullStr);
+		strcpy(records[i].medianHomePrice, "0");
 
 		records[i].landArea = (char*)malloc(10 * sizeof(char));
 		strncpy(records[i].landArea, nullStr, 10);
@@ -395,7 +397,12 @@ static void processLines(char* memory, char* code, ZipCodeRecord* record) {
 			char* med_home_price_b = strstr(median_home_price, "</b>");
 			sds med_home_price = sdsnew(&med_home_price_b[4]);
 			sdstrim(med_home_price, "\r");
-			strcpy(record->medianHomePrice, med_home_price);
+
+			char *noComma = (char*)malloc((strlen(med_home_price) + 1) * sizeof(char));
+			strncpy(noComma, nullStr, strlen(med_home_price) + 1);
+			removeCommasFromNumber(noComma, &med_home_price[1]);
+
+			strcpy(record->medianHomePrice, noComma);
 			printf("med home price = %s\n", record->medianHomePrice);
 			sdsfree(med_home_price);
 		}
@@ -612,7 +619,7 @@ int main(void) {
 		outputFile);
 
 	beginTransaction(db);
-	char* insert_format = "INSERT INTO zip_codes VALUES ( %s, %s, %s, %s, %s, %s, %s );";
+	char* insert_format = "INSERT INTO zip_codes VALUES ( %s, %s, %s, %s, %s, %s, %s, %s );";
 	char insert_stmt[128] = {'\0'};
 
 	for (recordIndex = 0; recordIndex < zip_code_count; ++recordIndex) {
@@ -647,7 +654,8 @@ int main(void) {
 			zipCodeRecords[recordIndex].population2000,
 			zipCodeRecords[recordIndex].landArea,
 			zipCodeRecords[recordIndex].foreignBornPopulation,
-			zipCodeRecords[recordIndex].medianHouseholdIncome);
+			zipCodeRecords[recordIndex].medianHouseholdIncome,
+			zipCodeRecords[recordIndex].medianHomePrice);
 
 		doInsert(db, insert_stmt);
 	}
