@@ -140,7 +140,8 @@ static void initDb(sqlite3** db) {
 		"population_2010 INTEGER, "
 		"population_2000 INTEGER, "
 		"land_area REAL, "
-		"foreign_born_population REAL );";
+		"foreign_born_population REAL, "
+		"median_household_income INTEGER );";
 	int rc = sqlite3_exec(*db, create_stmt, NULL, NULL, &error_message);
 	if ( rc != SQLITE_OK ) {
 		fputs("SOME SQL ERROR OCURRED.\n", stderr);
@@ -227,6 +228,7 @@ static void allocateZipCodeRecords(int32_t recordCount, ZipCodeRecord records[])
 
 		records[i].medianHouseholdIncome = (char*)malloc(12 * sizeof(char));
 		strcpy(records[i].medianHouseholdIncome, nullStr);
+		strcpy(records[i].medianHouseholdIncome, "0");
 
 		records[i].foreignBornPopulation = (char*)malloc(10 * sizeof(char));
 		strncpy(records[i].foreignBornPopulation, nullStr, 10);
@@ -367,8 +369,13 @@ static void processLines(char* memory, char* code, ZipCodeRecord* record) {
 			strncpy(mhi, this_zip_code_p4, strlen(this_zip_code_p4) - strlen(p4_td));
 			sds median_income_trim = sdsnew(mhi);
 			sdstrim(median_income_trim, "\r");
-			strcpy(record->medianHouseholdIncome, median_income_trim);
-			printf("median household income = %s\n", median_income_trim);
+
+			char *noComma = (char*)malloc((strlen(median_income_trim) + 1) * sizeof(char));
+			strncpy(noComma, nullStr, strlen(median_income_trim) + 1);
+			removeCommasFromNumber(noComma, &median_income_trim[1]);
+
+			strcpy(record->medianHouseholdIncome, noComma);
+			printf("median household income = %s\n", record->medianHouseholdIncome);
 			sdsfree(median_income_trim);
 		}
 
@@ -605,7 +612,7 @@ int main(void) {
 		outputFile);
 
 	beginTransaction(db);
-	char* insert_format = "INSERT INTO zip_codes VALUES ( %s, %s, %s, %s, %s, %s );";
+	char* insert_format = "INSERT INTO zip_codes VALUES ( %s, %s, %s, %s, %s, %s, %s );";
 	char insert_stmt[128] = {'\0'};
 
 	for (recordIndex = 0; recordIndex < zip_code_count; ++recordIndex) {
@@ -639,7 +646,8 @@ int main(void) {
 			zipCodeRecords[recordIndex].population2010,
 			zipCodeRecords[recordIndex].population2000,
 			zipCodeRecords[recordIndex].landArea,
-			zipCodeRecords[recordIndex].foreignBornPopulation);
+			zipCodeRecords[recordIndex].foreignBornPopulation,
+			zipCodeRecords[recordIndex].medianHouseholdIncome);
 
 		doInsert(db, insert_stmt);
 	}
