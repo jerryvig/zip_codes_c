@@ -148,7 +148,10 @@ static void initDb(sqlite3** db) {
 		"hispanic_population INTEGER, "
 		"black_population INTEGER, "
 		"asian_population INTEGER,"
-		"american_indian_population INTEGER );";
+		"american_indian_population INTEGER,"
+		"high_school REAL,"
+		"bachelors_degree REAL,"
+		"graduate_degree REAL );";
 	int rc = sqlite3_exec(*db, create_stmt, NULL, NULL, &error_message);
 	if ( rc != SQLITE_OK ) {
 		fputs("SOME SQL ERROR OCURRED.\n", stderr);
@@ -275,12 +278,15 @@ static void allocateZipCodeRecords(int32_t recordCount, ZipCodeRecord records[])
 
 		records[i].highSchool = (char*)malloc(8 * sizeof(char));
 		strncpy(records[i].highSchool, nullStr, 8);
+		strcpy(records[i].highSchool, "0.0");
 
 		records[i].bachelorsDegree = (char*)malloc(8 * sizeof(char));
 		strncpy(records[i].bachelorsDegree, nullStr, 8);
+		strcpy(records[i].bachelorsDegree, "0.0");
 
 		records[i].graduateDegree = (char*)malloc(8 * sizeof(char));
 		strncpy(records[i].graduateDegree, nullStr, 8);
+		strcpy(records[i].graduateDegree, "0.0");
 
 		records[i].malePercent = (char*)malloc(8 * sizeof(char));
 		strncpy(records[i].malePercent, nullStr, 8);
@@ -540,7 +546,11 @@ static void processLines(char* memory, char* code, ZipCodeRecord* record) {
 			char* lt = strstr(&hs_b[5], "<");
 			char hs_val[8] = {'\0'};
 			strncpy(hs_val, &hs_b[5], strlen(&hs_b[5]) - strlen(lt));
-			strcpy(record->highSchool, hs_val);
+
+			char hs_fraction[8] = {'\0'};
+			percentToFraction(hs_fraction, hs_val);
+
+			strcpy(record->highSchool, hs_fraction);
 			printf("high school = %s\n", record->highSchool);
 		}
 
@@ -549,7 +559,11 @@ static void processLines(char* memory, char* code, ZipCodeRecord* record) {
 			char* lt = strstr(&bs_degree_b[5], "<");
 			char bs_degree_val[8] = {'\0'};
 			strncpy(bs_degree_val, &bs_degree_b[5], strlen(&bs_degree_b[5]) - strlen(lt));
-			strcpy(record->bachelorsDegree, bs_degree_val);
+
+			char bs_fraction[8] = {'\0'};
+			percentToFraction(bs_fraction, bs_degree_val);
+
+			strcpy(record->bachelorsDegree, bs_fraction);
 			printf("bachelors degree pct = %s\n", record->bachelorsDegree);
 		}
 
@@ -558,7 +572,11 @@ static void processLines(char* memory, char* code, ZipCodeRecord* record) {
 			char* lt = strstr(&graduate_degree_b[5], "<");
 			char graduate_degree_val[8] = {'\0'};
 			strncpy(graduate_degree_val, &graduate_degree_b[5], strlen(&graduate_degree_b[5]) - strlen(lt));
-			strcpy(record->graduateDegree, graduate_degree_val);
+
+			char graduate_degree_fraction[8] = {'\0'};
+			percentToFraction(graduate_degree_fraction, graduate_degree_val);
+
+			strcpy(record->graduateDegree, graduate_degree_fraction);
 			printf("graduate degree = %s\n", record->graduateDegree);
 		}
 
@@ -661,7 +679,7 @@ int main(void) {
 
 	beginTransaction(db);
 	char* insert_format = "INSERT INTO zip_codes VALUES ("
-		" %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s );";
+		" %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s );";
 	char insert_stmt[128] = {'\0'};
 
 	for (recordIndex = 0; recordIndex < zip_code_count; ++recordIndex) {
@@ -703,7 +721,10 @@ int main(void) {
 			zipCodeRecords[recordIndex].hispanicLatinoPopulation,
 			zipCodeRecords[recordIndex].blackPopulation,
 			zipCodeRecords[recordIndex].asianPopulation,
-			zipCodeRecords[recordIndex].americanIndianPopulation );
+			zipCodeRecords[recordIndex].americanIndianPopulation,
+			zipCodeRecords[recordIndex].highSchool,
+			zipCodeRecords[recordIndex].bachelorsDegree,
+			zipCodeRecords[recordIndex].graduateDegree );
 
 		doInsert(db, insert_stmt);
 	}
