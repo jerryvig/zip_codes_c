@@ -151,7 +151,9 @@ static void initDb(sqlite3** db) {
 		"american_indian_population INTEGER, "
 		"high_school REAL, "
 		"bachelors_degree REAL, "
-		"graduate_degree REAL );";
+		"graduate_degree REAL, "
+		"male_percent REAL, "
+		"female_percent REAL );";
 	int rc = sqlite3_exec(*db, create_stmt, NULL, NULL, &error_message);
 	if ( rc != SQLITE_OK ) {
 		fputs("SOME SQL ERROR OCURRED.\n", stderr);
@@ -290,12 +292,15 @@ static void allocateZipCodeRecords(int32_t recordCount, ZipCodeRecord records[])
 
 		records[i].malePercent = (char*)malloc(8 * sizeof(char));
 		strncpy(records[i].malePercent, nullStr, 8);
+		strcpy(records[i].malePercent, "0.0");
 
 		records[i].femalePercent = (char*)malloc(8 * sizeof(char));
 		strncpy(records[i].femalePercent, nullStr, 8);
+		strcpy(records[i].femalePercent, "0.0");
 
 		records[i].averageHouseholdSize = (char*)malloc(8 * sizeof(char));
 		strncpy(records[i].averageHouseholdSize, nullStr, 8);
+		strcpy(records[i].averageHouseholdSize, "0.0");
 	}
 }
 
@@ -588,7 +593,11 @@ static void processLines(char* memory, char* code, ZipCodeRecord* record) {
 			char* close_parens = strstr(&male_parens[7], ")");
 			char male_val[8] = {'\0'};
 			strncpy(male_val, &male_parens[7], strlen(&male_parens[7]) -  strlen(close_parens));
-			strcpy(record->malePercent, male_val);
+			
+			char male_fraction[8] = {'\0'};
+			percentToFraction(male_fraction, male_val);
+
+			strcpy(record->malePercent, male_fraction);
 			printf("male percent = %s\n", record->malePercent);
 		}
 
@@ -597,7 +606,11 @@ static void processLines(char* memory, char* code, ZipCodeRecord* record) {
 			char* close_parens = strstr(&female_parens[7], ")");
 			char female_val[8] = {'\0'};
 			strncpy(female_val, &female_parens[7], strlen(&female_parens[7]) -  strlen(close_parens));
-			strcpy(record->femalePercent, female_val);
+			
+			char female_fraction[8] = {'\0'};
+			percentToFraction(female_fraction, female_val);
+
+			strcpy(record->femalePercent, female_fraction);
 			printf("female percent = %s\n", record->malePercent);
 		}
 
@@ -682,7 +695,7 @@ int main(void) {
 
 	beginTransaction(db);
 	char insert_format[] = "INSERT INTO zip_codes VALUES ("
-		" %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s );";
+		" %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s );";
 	char insert_stmt[256] = {'\0'};
 
 	for (recordIndex = 0; recordIndex < zip_code_count; ++recordIndex) {
@@ -727,7 +740,9 @@ int main(void) {
 			zipCodeRecords[recordIndex].americanIndianPopulation,
 			zipCodeRecords[recordIndex].highSchool,
 			zipCodeRecords[recordIndex].bachelorsDegree,
-			zipCodeRecords[recordIndex].graduateDegree );
+			zipCodeRecords[recordIndex].graduateDegree,
+			zipCodeRecords[recordIndex].malePercent,
+			zipCodeRecords[recordIndex].femalePercent );
 
 		doInsert(db, insert_stmt);
 	}
@@ -737,7 +752,7 @@ int main(void) {
 
 	fclose(outputFile);
 	freeLinkedList(list_head);
-	
+
 	curl_easy_cleanup(curl);
 
 	return EXIT_SUCCESS;
