@@ -152,6 +152,34 @@ static void initDb(sqlite3** db) {
 	}
 }
 
+static void beginTransaction(sqlite3* db) {
+	char *error_message = NULL;
+	int rc = sqlite3_exec(db, "BEGIN TRANSACTION", NULL, NULL, &error_message);
+	if ( rc != SQLITE_OK ) {
+		fprintf(stderr, "Failed to 'BEGIN TRANSACTION' with error: %s\n", error_message);
+		sqlite3_free(error_message);
+	}
+}
+
+static void commitTransaction(sqlite3* db) {
+	char *error_message = NULL;
+	int rc = sqlite3_exec(db, "COMMIT", NULL, NULL, &error_message);
+	if ( rc != SQLITE_OK ) {
+		fprintf(stderr, "Failed to commit transaction with error: %s\n", error_message);
+		sqlite3_free(error_message);
+	}
+}
+
+static void doInsert(sqlite3* db, char* stmt) {
+	char *error_message = NULL;
+	printf("insert stmt = %s\n", stmt);
+	int rc = sqlite3_exec(db, stmt, NULL, NULL, &error_message);
+	if ( rc != SQLITE_OK ) {
+		fprintf(stderr, "Failed to execute insert stmt with error: %s\n", error_message);
+		sqlite3_free(error_message);
+	}
+}
+
 static void removeCommasFromNumber(char* output, char* input) {
 	char *rest = input;
 	char *token = strtok_r(rest, ",", &rest);
@@ -496,6 +524,8 @@ static void processLines(char* memory, char* code, ZipCodeRecord* record) {
 	}
 }
 
+
+
 int main(void) {
 	CURL *curl = initCurl();
 	FILE* fp = openFile();
@@ -558,13 +588,7 @@ int main(void) {
 		"\"Female Percent\",\"Average Household Size\"\n", 
 		outputFile);
 
-	char *error_message = NULL;
-	int rc = sqlite3_exec(db, "BEGIN TRANSACTION", NULL, NULL, &error_message);
-	if ( rc != SQLITE_OK ) {
-		fprintf(stderr, "Failed to 'BEGIN TRANSACTION' with error: %s\n", error_message);
-		sqlite3_free(error_message);
-	}
-
+	beginTransaction(db);
 	char* insert_format = "INSERT INTO zip_codes VALUES ( %s, %s, %s, %s, %s );";
 	char insert_stmt[128] = {'\0'};
 
@@ -600,20 +624,10 @@ int main(void) {
 			zipCodeRecords[recordIndex].population2000,
 			zipCodeRecords[recordIndex].landArea);
 
-		printf("insert stmt = %s\n", insert_stmt);
-		rc = sqlite3_exec(db, insert_stmt, NULL, NULL, &error_message);
-		if ( rc != SQLITE_OK ) {
-			fprintf(stderr, "Failed to execute insert stmt with error: %s\n", error_message);
-			sqlite3_free(error_message);
-		}
+		doInsert(db, insert_stmt);
 	}
 
-	rc = sqlite3_exec(db, "COMMIT", NULL, NULL, &error_message);
-	if ( rc != SQLITE_OK ) {
-		fprintf(stderr, "Failed to commit transaction with error: %s\n", error_message);
-		sqlite3_free(error_message);
-	}
-
+	commitTransaction(db);
 	sqlite3_close(db);
 
 	fclose(outputFile);
