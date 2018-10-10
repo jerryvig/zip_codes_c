@@ -247,6 +247,7 @@ static void processLines(char* memory, char* code, ZipCodeRecord* record) {
 			sdstrim(sds_zip_pop, " ");
 			strcpy(record->population, sds_zip_pop);
 			printf("zip population = %s\n", record->population);
+			sdsfree(sds_zip_pop);
 		}
 
 		if (zip_pop_2010 != NULL) {
@@ -258,6 +259,7 @@ static void processLines(char* memory, char* code, ZipCodeRecord* record) {
 			sdstrim(sds_zp_2010, " ");
 			strcpy(record->population2010, sds_zp_2010);
 			printf("zip population 2010 = %s\n", record->population2010);
+			sdsfree(sds_zp_2010);
 		}
 
 		if (zip_pop_2000 != NULL) {
@@ -269,6 +271,7 @@ static void processLines(char* memory, char* code, ZipCodeRecord* record) {
 			sdstrim(sds_zp_2000, " ");
 			strcpy(record->population2000, sds_zp_2000);
 			printf("zip population 2000 = %s\n", record->population2000);
+			sdsfree(sds_zp_2000);
 		}
 		
 		if (zip_median_income != NULL) {
@@ -282,6 +285,7 @@ static void processLines(char* memory, char* code, ZipCodeRecord* record) {
 			sdstrim(median_income_trim, "\r");
 			strcpy(record->medianHouseholdIncome, median_income_trim);
 			printf("median household income = %s\n", median_income_trim);
+			sdsfree(median_income_trim);
 		}
 
 		if (foreign_born_pop != NULL) {
@@ -300,6 +304,7 @@ static void processLines(char* memory, char* code, ZipCodeRecord* record) {
 			sdstrim(med_home_price, "\r");
 			strcpy(record->medianHomePrice, med_home_price);
 			printf("med home price = %s\n", record->medianHomePrice);
+			sdsfree(med_home_price);
 		}
 
 		if (land_area_base != NULL) {
@@ -454,8 +459,6 @@ int main(void) {
 	openDb(&db);
 	initDb(&db);
 
-	exit( EXIT_SUCCESS );
-
 	ZipCode *list_head = loadLinkedList(fp);
 
  	closeFile(fp);
@@ -510,6 +513,16 @@ int main(void) {
 		"\"Female Percent\",\"Average Household Size\"\n", 
 		outputFile);
 
+	char *error_message = NULL;
+	int rc = sqlite3_exec(db, "BEGIN TRANSACTION", NULL, NULL, &error_message);
+	if ( rc != SQLITE_OK ) {
+		fprintf(stderr, "some error occurred %s\n", error_message);
+		sqlite3_free(error_message);
+	}
+
+	char* insert_format = "INSERT INTO zip_codes VALUES ( %s, %s );";
+	char insert_stmt[128];
+
 	for (recordIndex = 0; recordIndex < zip_code_count; ++recordIndex) {
 		fprintf(outputFile,
 			"\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\""
@@ -534,6 +547,25 @@ int main(void) {
 			zipCodeRecords[recordIndex].malePercent,
 			zipCodeRecords[recordIndex].femalePercent,
 			zipCodeRecords[recordIndex].averageHouseholdSize);
+
+
+
+		sprintf(insert_stmt, insert_format,
+			zipCodeRecords[recordIndex].code,
+			zipCodeRecords[recordIndex].population);
+		printf("insert statement = %s\n", insert_stmt);
+		rc = sqlite3_exec(db, insert_stmt, NULL, NULL, &error_message);
+		if ( rc != SQLITE_OK ) {
+			fprintf(stderr, "some error occurred %s\n", error_message);
+			sqlite3_free(error_message);
+		}
+	}
+
+
+	rc = sqlite3_exec(db, "COMMIT", NULL, NULL, &error_message);
+	if ( rc != SQLITE_OK ) {
+		fprintf(stderr, "SOME ERROR MESSAGE OCCURRED.\n");
+		sqlite3_free(error_message);
 	}
 
 	sqlite3_close(db);
