@@ -145,7 +145,8 @@ static void initDb(sqlite3** db) {
 		"median_home_price INTEGER, "
 		"median_resident_age REAL, "
 		"white_population INTEGER, "
-		"hispanic_population INTEGER );";
+		"hispanic_population INTEGER, "
+		"black_population INTEGER );";
 	int rc = sqlite3_exec(*db, create_stmt, NULL, NULL, &error_message);
 	if ( rc != SQLITE_OK ) {
 		fputs("SOME SQL ERROR OCURRED.\n", stderr);
@@ -484,7 +485,12 @@ static void processLines(char* memory, char* code, ZipCodeRecord* record) {
 				char* lt = strstr(b_pop_start, "<");
 				char black_population[10] = {'\0'};
 				strncpy(black_population, &gt[1], strlen(&gt[1]) - strlen(lt));
-				strcpy(record->blackPopulation, black_population);
+
+				char *noComma = (char*)malloc((strlen(black_population) + 1) * sizeof(char));
+				strncpy(noComma, nullStr, strlen(black_population) + 1);
+				removeCommasFromNumber(noComma, black_population);
+
+				strcpy(record->blackPopulation, noComma);
 				printf("black population = %s\n", record->blackPopulation);
 			}
 		}
@@ -638,7 +644,8 @@ int main(void) {
 		outputFile);
 
 	beginTransaction(db);
-	char* insert_format = "INSERT INTO zip_codes VALUES ( %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s );";
+	char* insert_format = "INSERT INTO zip_codes VALUES ("
+		" %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s );";
 	char insert_stmt[128] = {'\0'};
 
 	for (recordIndex = 0; recordIndex < zip_code_count; ++recordIndex) {
@@ -677,7 +684,8 @@ int main(void) {
 			zipCodeRecords[recordIndex].medianHomePrice,
 			zipCodeRecords[recordIndex].medianResidentAge,
 			zipCodeRecords[recordIndex].whitePopulation,
-			zipCodeRecords[recordIndex].hispanicLatinoPopulation );
+			zipCodeRecords[recordIndex].hispanicLatinoPopulation,
+			zipCodeRecords[recordIndex].blackPopulation );
 
 		doInsert(db, insert_stmt);
 	}
