@@ -532,7 +532,7 @@ int main(void) {
 		sqlite3_free(error_message);
 	}
 
-	char* insert_format = "INSERT INTO zip_codes VALUES ( %s, %s );";
+	char* insert_format = "INSERT INTO zip_codes VALUES ( %s, %s, %s, %s );";
 	char insert_stmt[128] = {'\0'};
 
 	for (recordIndex = 0; recordIndex < zip_code_count; ++recordIndex) {
@@ -561,13 +561,15 @@ int main(void) {
 			zipCodeRecords[recordIndex].averageHouseholdSize);
 
 		char nullStr[24] = {'\0'};
-		char *populationNoComma = (char*)malloc((strlen(zipCodeRecords[recordIndex].population) + 1) * sizeof(char));
-		strncpy(populationNoComma, nullStr, strlen(zipCodeRecords[recordIndex].population) + 1);
-		removeCommasFromNumber(populationNoComma, zipCodeRecords[recordIndex].population);
+		char *popNoComma = (char*)malloc((strlen(zipCodeRecords[recordIndex].population) + 1) * sizeof(char));
+		strncpy(popNoComma, nullStr, strlen(zipCodeRecords[recordIndex].population) + 1);
+		removeCommasFromNumber(popNoComma, zipCodeRecords[recordIndex].population);
 		
 		sprintf(insert_stmt, insert_format,
 			zipCodeRecords[recordIndex].code,
-			populationNoComma);
+			popNoComma,
+			zipCodeRecords[recordIndex].population2010,
+			zipCodeRecords[recordIndex].population2000);
 
 		printf("insert stmt = %s\n", insert_stmt);
 		rc = sqlite3_exec(db, insert_stmt, NULL, NULL, &error_message);
@@ -576,7 +578,7 @@ int main(void) {
 			sqlite3_free(error_message);
 		}
 
-		free(populationNoComma);
+		free(popNoComma);
 	}
 
 
