@@ -559,15 +559,6 @@ int main(void) {
 			zipCodeRecords[recordIndex].femalePercent,
 			zipCodeRecords[recordIndex].averageHouseholdSize);
 
-		/* char populationNoComma[12] = "";
-		char *token = strtok(zipCodeRecords[recordIndex].population, ",");
-		while (token) {
-			strcat(populationNoComma, token);
-			token = strtok(NULL, ",");
-		} 
-		if (strlen(populationNoComma) == 0) {
-			strcat(populationNoComma, "0");
-		} */
 		char nullStr[24] = {'\0'};
 		char *populationNoComma = (char*)malloc((strlen(zipCodeRecords[recordIndex].population) + 1) * sizeof(char));
 		strncpy(populationNoComma, nullStr, strlen(zipCodeRecords[recordIndex].population) + 1);
