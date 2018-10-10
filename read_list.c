@@ -132,7 +132,7 @@ static void openDb(sqlite3** db) {
 }
 
 static void initDb(sqlite3** db) {
-	puts("About to create the table named 'test_table'.");
+	fprintf(stderr, "About to create the table named 'test_table'.\n");
 	char *error_message = NULL;
 	char *create_stmt = "CREATE TABLE IF NOT EXISTS test_table ( test TEXT );"; 
 	int rc = sqlite3_exec(*db, create_stmt, NULL, NULL, &error_message);
@@ -143,7 +143,7 @@ static void initDb(sqlite3** db) {
 		sqlite3_close( *db );
 		exit( EXIT_FAILURE );
 	} else {
-		fprintf(stderr, "Failed to init database.");
+		fprintf(stderr, "Successfully initialized the database.\n");
 	}
 }
 
