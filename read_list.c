@@ -147,10 +147,10 @@ static void initDb(sqlite3** db) {
 		"white_population INTEGER, "
 		"hispanic_population INTEGER, "
 		"black_population INTEGER, "
-		"asian_population INTEGER,"
-		"american_indian_population INTEGER,"
-		"high_school REAL,"
-		"bachelors_degree REAL,"
+		"asian_population INTEGER, "
+		"american_indian_population INTEGER, "
+		"high_school REAL, "
+		"bachelors_degree REAL, "
 		"graduate_degree REAL );";
 	int rc = sqlite3_exec(*db, create_stmt, NULL, NULL, &error_message);
 	if ( rc != SQLITE_OK ) {
@@ -397,6 +397,7 @@ static void processLines(char* memory, char* code, ZipCodeRecord* record) {
 			strcpy(record->medianHouseholdIncome, noComma);
 			printf("median household income = %s\n", record->medianHouseholdIncome);
 			sdsfree(median_income_trim);
+			free(noComma);
 		}
 
 		if (foreign_born_pop != NULL) {
@@ -423,6 +424,7 @@ static void processLines(char* memory, char* code, ZipCodeRecord* record) {
 			strcpy(record->medianHomePrice, noComma);
 			printf("med home price = %s\n", record->medianHomePrice);
 			sdsfree(med_home_price);
+			free(noComma);
 		}
 
 		if (land_area_base != NULL) {
@@ -438,6 +440,7 @@ static void processLines(char* memory, char* code, ZipCodeRecord* record) {
 
 			strcpy(record->landArea, noComma);
 			printf("zip land area = %s\n", record->landArea);
+			free(noComma);
 		}
 
 		if (median_age_base != NULL) {
@@ -678,9 +681,9 @@ int main(void) {
 		outputFile);
 
 	beginTransaction(db);
-	char* insert_format = "INSERT INTO zip_codes VALUES ("
+	char insert_format[] = "INSERT INTO zip_codes VALUES ("
 		" %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s );";
-	char insert_stmt[128] = {'\0'};
+	char insert_stmt[256] = {'\0'};
 
 	for (recordIndex = 0; recordIndex < zip_code_count; ++recordIndex) {
 		fprintf(outputFile,
@@ -734,6 +737,7 @@ int main(void) {
 
 	fclose(outputFile);
 	freeLinkedList(list_head);
+	
 	curl_easy_cleanup(curl);
 
 	return EXIT_SUCCESS;
