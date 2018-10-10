@@ -516,12 +516,12 @@ int main(void) {
 	char *error_message = NULL;
 	int rc = sqlite3_exec(db, "BEGIN TRANSACTION", NULL, NULL, &error_message);
 	if ( rc != SQLITE_OK ) {
-		fprintf(stderr, "some error occurred %s\n", error_message);
+		fprintf(stderr, "Failed to 'BEGIN TRANSACTION' with error: %s\n", error_message);
 		sqlite3_free(error_message);
 	}
 
 	char* insert_format = "INSERT INTO zip_codes VALUES ( %s, %s );";
-	char insert_stmt[128];
+	char insert_stmt[128] = {'\0'};
 
 	for (recordIndex = 0; recordIndex < zip_code_count; ++recordIndex) {
 		fprintf(outputFile,
@@ -548,15 +548,24 @@ int main(void) {
 			zipCodeRecords[recordIndex].femalePercent,
 			zipCodeRecords[recordIndex].averageHouseholdSize);
 
-
+		char populationNoComma[12] = "";
+		char *token = strtok(zipCodeRecords[recordIndex].population, ",");
+		while (token) {
+			strcat(populationNoComma, token);
+			token = strtok(NULL, ",");
+		} 
+		if (strlen(populationNoComma) == 0) {
+			strcat(populationNoComma, "0");
+		}
 
 		sprintf(insert_stmt, insert_format,
 			zipCodeRecords[recordIndex].code,
-			zipCodeRecords[recordIndex].population);
-		printf("insert statement = %s\n", insert_stmt);
+			populationNoComma);
+
+		printf("insert stmt = %s\n", insert_stmt);
 		rc = sqlite3_exec(db, insert_stmt, NULL, NULL, &error_message);
 		if ( rc != SQLITE_OK ) {
-			fprintf(stderr, "some error occurred %s\n", error_message);
+			fprintf(stderr, "Failed to execute insert statement with error: %s\n", error_message);
 			sqlite3_free(error_message);
 		}
 	}
@@ -564,7 +573,7 @@ int main(void) {
 
 	rc = sqlite3_exec(db, "COMMIT", NULL, NULL, &error_message);
 	if ( rc != SQLITE_OK ) {
-		fprintf(stderr, "SOME ERROR MESSAGE OCCURRED.\n");
+		fprintf(stderr, "Failed to commit transaction with error: %s\n", error_message);
 		sqlite3_free(error_message);
 	}
 
