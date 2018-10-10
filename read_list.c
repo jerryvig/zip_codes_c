@@ -149,10 +149,11 @@ static void initDb(sqlite3** db) {
 }
 
 static void removeCommasFromNumber(char* output, char* input) {
-	char *token = strtok(input, ",");
+	char *rest = input;
+	char *token = strtok_r(rest, ",", &rest);
 	while (token) {
 		strcat(output, token);
-		token = strtok(NULL, ",");
+		token = strtok_r(rest, ",", &rest);
 	} 
 	if (strlen(output) == 0) {
 		strcat(output, "0");
@@ -167,12 +168,15 @@ static void allocateZipCodeRecords(int32_t recordCount, ZipCodeRecord records[])
 
 		records[i].population = (char*)malloc(10 * sizeof(char));
 		strncpy(records[i].population, nullStr, 10);
+		strcpy(records[i].population, "0");
 
 		records[i].population2010 = (char*)malloc(10 * sizeof(char));
 		strncpy(records[i].population2010, nullStr, 10);
+		strcpy(records[i].population2010, "0");
 
 		records[i].population2000 = (char*)malloc(10 * sizeof(char));
 		strncpy(records[i].population2000, nullStr, 10);
+		strcpy(records[i].population2000, "0");
 
 		records[i].medianHouseholdIncome = (char*)malloc(12 * sizeof(char));
 		strcpy(records[i].medianHouseholdIncome, nullStr);
@@ -226,6 +230,7 @@ static void allocateZipCodeRecords(int32_t recordCount, ZipCodeRecord records[])
 
 static void processLines(char* memory, char* code, ZipCodeRecord* record) {
 	char* token = strtok(memory, "\n");
+	char nullStr[24] = {'\0'};
 	printf("zip code = %s\n", code);
 	strcpy(record->code, code);
 
@@ -257,9 +262,15 @@ static void processLines(char* memory, char* code, ZipCodeRecord* record) {
 			strncpy(zip_pop_end_copy, zip_pop_end, strlen(zip_pop_end) - 5);
 			sds sds_zip_pop = sdsnew(zip_pop_end_copy);
 			sdstrim(sds_zip_pop, " ");
-			strcpy(record->population, sds_zip_pop);
+
+			char *noComma = (char*)malloc((strlen(sds_zip_pop) + 1) * sizeof(char));
+			strncpy(noComma, nullStr, strlen(sds_zip_pop) + 1);
+			removeCommasFromNumber(noComma, sds_zip_pop);
+
+			strcpy(record->population, noComma);
 			printf("zip population = %s\n", record->population);
 			sdsfree(sds_zip_pop);
+			free(noComma);
 		}
 
 		if (zip_pop_2010 != NULL) {
@@ -269,9 +280,15 @@ static void processLines(char* memory, char* code, ZipCodeRecord* record) {
 			strncpy(zip_population_2010, &zp_2010_b[4], strlen(&zp_2010_b[4]) - strlen(zp_2010_b_end));
 			sds sds_zp_2010 = sdsnew(zip_population_2010);
 			sdstrim(sds_zp_2010, " ");
-			strcpy(record->population2010, sds_zp_2010);
+
+			char *noComma = (char*)malloc((strlen(sds_zp_2010) + 1) * sizeof(char));
+			strncpy(noComma, nullStr, strlen(sds_zp_2010) + 1);
+			removeCommasFromNumber(noComma, sds_zp_2010);
+
+			strcpy(record->population2010, noComma);
 			printf("zip population 2010 = %s\n", record->population2010);
 			sdsfree(sds_zp_2010);
+			free(noComma);
 		}
 
 		if (zip_pop_2000 != NULL) {
@@ -281,9 +298,15 @@ static void processLines(char* memory, char* code, ZipCodeRecord* record) {
 			strncpy(zip_population_2000, &zp_2000_b[4], strlen(&zp_2000_b[4]) - strlen(zp_2000_b_end));
 			sds sds_zp_2000 = sdsnew(zip_population_2000);
 			sdstrim(sds_zp_2000, " ");
-			strcpy(record->population2000, sds_zp_2000);
+
+			char *noComma = (char*)malloc((strlen(sds_zp_2000) + 1) * sizeof(char));
+			strncpy(noComma, nullStr, strlen(sds_zp_2000) + 1);
+			removeCommasFromNumber(noComma, sds_zp_2000);
+
+			strcpy(record->population2000, noComma);
 			printf("zip population 2000 = %s\n", record->population2000);
 			sdsfree(sds_zp_2000);
+			free(noComma);
 		}
 		
 		if (zip_median_income != NULL) {
@@ -560,24 +583,11 @@ int main(void) {
 			zipCodeRecords[recordIndex].femalePercent,
 			zipCodeRecords[recordIndex].averageHouseholdSize);
 
-		char nullStr[24] = {'\0'};
-		char *popNoComma = (char*)malloc((strlen(zipCodeRecords[recordIndex].population) + 1) * sizeof(char));
-		strncpy(popNoComma, nullStr, strlen(zipCodeRecords[recordIndex].population) + 1);
-		removeCommasFromNumber(popNoComma, zipCodeRecords[recordIndex].population);
-		
-		char *pop2010NoComma = (char*)malloc((strlen(zipCodeRecords[recordIndex].population2010) + 1) * sizeof(char));
-		strncpy(pop2010NoComma, nullStr, strlen(zipCodeRecords[recordIndex].population2010) + 1);
-		removeCommasFromNumber(pop2010NoComma, zipCodeRecords[recordIndex].population2010);
-
-		char *pop2000NoComma = (char*)malloc((strlen(zipCodeRecords[recordIndex].population2000) + 1) * sizeof(char));
-		strncpy(pop2000NoComma, nullStr, strlen(zipCodeRecords[recordIndex].population2000) + 1);
-		removeCommasFromNumber(pop2000NoComma, zipCodeRecords[recordIndex].population2000);
-
 		sprintf(insert_stmt, insert_format,
 			zipCodeRecords[recordIndex].code,
-			popNoComma,
-			pop2010NoComma,
-			pop2000NoComma);
+			zipCodeRecords[recordIndex].population,
+			zipCodeRecords[recordIndex].population2010,
+			zipCodeRecords[recordIndex].population2000);
 
 		printf("insert stmt = %s\n", insert_stmt);
 		rc = sqlite3_exec(db, insert_stmt, NULL, NULL, &error_message);
@@ -585,11 +595,7 @@ int main(void) {
 			fprintf(stderr, "Failed to execute insert statement with error: %s\n", error_message);
 			sqlite3_free(error_message);
 		}
-
-		free(popNoComma);
-		free(pop2010NoComma);
 	}
-
 
 	rc = sqlite3_exec(db, "COMMIT", NULL, NULL, &error_message);
 	if ( rc != SQLITE_OK ) {
