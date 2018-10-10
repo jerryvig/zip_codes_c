@@ -142,7 +142,8 @@ static void initDb(sqlite3** db) {
 		"land_area REAL, "
 		"foreign_born_population REAL, "
 		"median_household_income INTEGER, "
-		"median_home_price INTEGER );";
+		"median_home_price INTEGER, "
+		"median_resident_age REAL );";
 	int rc = sqlite3_exec(*db, create_stmt, NULL, NULL, &error_message);
 	if ( rc != SQLITE_OK ) {
 		fputs("SOME SQL ERROR OCURRED.\n", stderr);
@@ -245,6 +246,7 @@ static void allocateZipCodeRecords(int32_t recordCount, ZipCodeRecord records[])
 
 		records[i].medianResidentAge = (char*)malloc(8 * sizeof(char));
 		strncpy(records[i].medianResidentAge, nullStr, 8);
+		strcpy(records[i].medianResidentAge, "0.0");
 
 		records[i].whitePopulation = (char*)malloc(10 * sizeof(char));
 		strncpy(records[i].whitePopulation, nullStr, 10);
@@ -619,7 +621,7 @@ int main(void) {
 		outputFile);
 
 	beginTransaction(db);
-	char* insert_format = "INSERT INTO zip_codes VALUES ( %s, %s, %s, %s, %s, %s, %s, %s );";
+	char* insert_format = "INSERT INTO zip_codes VALUES ( %s, %s, %s, %s, %s, %s, %s, %s, %s );";
 	char insert_stmt[128] = {'\0'};
 
 	for (recordIndex = 0; recordIndex < zip_code_count; ++recordIndex) {
@@ -655,7 +657,8 @@ int main(void) {
 			zipCodeRecords[recordIndex].landArea,
 			zipCodeRecords[recordIndex].foreignBornPopulation,
 			zipCodeRecords[recordIndex].medianHouseholdIncome,
-			zipCodeRecords[recordIndex].medianHomePrice);
+			zipCodeRecords[recordIndex].medianHomePrice,
+			zipCodeRecords[recordIndex].medianResidentAge);
 
 		doInsert(db, insert_stmt);
 	}
