@@ -9,6 +9,7 @@
 #define INPUT_FILE_NAME "zip_code_list_nm_chaves.txt"
 #define OUTPUT_FILE_NAME "zip_code_data_nm_chaves.csv"
 #define BASE_URL "http://www.city-data.com/zips/"
+#define SQLITE3_DB_NAME "zip_codes_db.sqlite3"
 
 typedef struct ZipCode {
 	char* code;
@@ -119,23 +120,30 @@ CURL* initCurl(void) {
 	return curl;
 }
 
-static void openDb(sqlite3* db) {
-	int rc = sqlite3_open("zip_codes_db.sqlite3", &db);
+static void openDb(sqlite3** db) {
+	int rc = sqlite3_open(SQLITE3_DB_NAME, db);
 	if ( rc ) {
-		fprintf(stderr, "Failed to open database zip_codes_db.sqlite3.");
-		sqlite3_close( db );
+		fprintf(stderr, "Failed to open database " SQLITE3_DB_NAME);
+		sqlite3_close( *db );
 		exit( EXIT_FAILURE );
+	} else {
+		fprintf(stderr, "Opened database " SQLITE3_DB_NAME " for writing.\n");
 	}
 }
 
-static void initDb(sqlite3* db) {
+static void initDb(sqlite3** db) {
 	puts("About to create the table named 'test_table'.");
-	char error_message[250];
-	char** err = &error_message;
-	int rc = sqlite3_exec(db, "CREATE TABLE test_table ( test TEXT )", NULL, NULL, err);
-	if ( rc ) {
-		puts("SOME SQL ERROR OCURRED.");
-		printf("error message = %s\n", error_message);
+	char *error_message = NULL;
+	char *create_stmt = "CREATE TABLE IF NOT EXISTS test_table ( test TEXT );"; 
+	int rc = sqlite3_exec(*db, create_stmt, NULL, NULL, &error_message);
+	if ( rc != SQLITE_OK ) {
+		fputs("SOME SQL ERROR OCURRED.\n", stderr);
+		fprintf(stderr, "error message = %s\n", error_message);
+		sqlite3_free(error_message);
+		sqlite3_close( *db );
+		exit( EXIT_FAILURE );
+	} else {
+		fprintf(stderr, "Failed to init database.");
 	}
 }
 
@@ -443,8 +451,10 @@ int main(void) {
 	FILE* fp = openFile();
 	sqlite3* db = NULL;
 
-	openDb(db);
-	initDb(db);
+	openDb(&db);
+	initDb(&db);
+
+	exit( EXIT_SUCCESS );
 
 	ZipCode *list_head = loadLinkedList(fp);
 
