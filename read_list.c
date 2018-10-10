@@ -565,15 +565,19 @@ int main(void) {
 		strncpy(popNoComma, nullStr, strlen(zipCodeRecords[recordIndex].population) + 1);
 		removeCommasFromNumber(popNoComma, zipCodeRecords[recordIndex].population);
 		
-		char *pop2010NoComma = (char*)malloc((strlen(zipCodeRecords[recordIndex].population2010)+1) * sizeof(char));
-		strncpy(pop2010NoComma, nullStr, strlen(zipCodeRecords[recordIndex].population2010)+1);
+		char *pop2010NoComma = (char*)malloc((strlen(zipCodeRecords[recordIndex].population2010) + 1) * sizeof(char));
+		strncpy(pop2010NoComma, nullStr, strlen(zipCodeRecords[recordIndex].population2010) + 1);
 		removeCommasFromNumber(pop2010NoComma, zipCodeRecords[recordIndex].population2010);
+
+		char *pop2000NoComma = (char*)malloc((strlen(zipCodeRecords[recordIndex].population2000) + 1) * sizeof(char));
+		strncpy(pop2000NoComma, nullStr, strlen(zipCodeRecords[recordIndex].population2000) + 1);
+		removeCommasFromNumber(pop2000NoComma, zipCodeRecords[recordIndex].population2000);
 
 		sprintf(insert_stmt, insert_format,
 			zipCodeRecords[recordIndex].code,
 			popNoComma,
 			pop2010NoComma,
-			zipCodeRecords[recordIndex].population2000);
+			pop2000NoComma);
 
 		printf("insert stmt = %s\n", insert_stmt);
 		rc = sqlite3_exec(db, insert_stmt, NULL, NULL, &error_message);
