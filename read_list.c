@@ -475,6 +475,7 @@ static void processLines(char* memory, char* code, ZipCodeRecord* record) {
 
 				strcpy(record->whitePopulation, noComma);
 				printf("white population = %s\n", record->whitePopulation);
+				free(noComma);
 			}
 		}
 
