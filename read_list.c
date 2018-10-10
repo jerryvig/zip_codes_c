@@ -153,7 +153,8 @@ static void initDb(sqlite3** db) {
 		"bachelors_degree REAL, "
 		"graduate_degree REAL, "
 		"male_percent REAL, "
-		"female_percent REAL );";
+		"female_percent REAL, "
+		"average_household_size REAL );";
 	int rc = sqlite3_exec(*db, create_stmt, NULL, NULL, &error_message);
 	if ( rc != SQLITE_OK ) {
 		fputs("SOME SQL ERROR OCURRED.\n", stderr);
@@ -695,7 +696,7 @@ int main(void) {
 
 	beginTransaction(db);
 	char insert_format[] = "INSERT INTO zip_codes VALUES ("
-		" %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s );";
+		" %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s );";
 	char insert_stmt[256] = {'\0'};
 
 	for (recordIndex = 0; recordIndex < zip_code_count; ++recordIndex) {
@@ -742,7 +743,8 @@ int main(void) {
 			zipCodeRecords[recordIndex].bachelorsDegree,
 			zipCodeRecords[recordIndex].graduateDegree,
 			zipCodeRecords[recordIndex].malePercent,
-			zipCodeRecords[recordIndex].femalePercent );
+			zipCodeRecords[recordIndex].femalePercent,
+			zipCodeRecords[recordIndex].averageHouseholdSize);
 
 		doInsert(db, insert_stmt);
 	}
