@@ -132,9 +132,9 @@ static void openDb(sqlite3** db) {
 }
 
 static void initDb(sqlite3** db) {
-	fprintf(stderr, "About to create the table named 'test_table'.\n");
+	fprintf(stderr, "About to create the table named 'zip_codes'.\n");
 	char *error_message = NULL;
-	char *create_stmt = "CREATE TABLE IF NOT EXISTS test_table ( test TEXT );"; 
+	char *create_stmt = "CREATE TABLE IF NOT EXISTS zip_codes ( zip_code INTEGER, population INTEGER );"; 
 	int rc = sqlite3_exec(*db, create_stmt, NULL, NULL, &error_message);
 	if ( rc != SQLITE_OK ) {
 		fputs("SOME SQL ERROR OCURRED.\n", stderr);
@@ -143,7 +143,7 @@ static void initDb(sqlite3** db) {
 		sqlite3_close( *db );
 		exit( EXIT_FAILURE );
 	} else {
-		fprintf(stderr, "Successfully initialized the database.\n");
+		fprintf(stderr, "Table 'zip_codes' created successfully.\n");
 	}
 }
 
