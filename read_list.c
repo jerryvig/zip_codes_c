@@ -134,8 +134,12 @@ static void openDb(sqlite3** db) {
 static void initDb(sqlite3** db) {
 	fprintf(stderr, "About to create the table named 'zip_codes'.\n");
 	char *error_message = NULL;
-	char *create_stmt = "CREATE TABLE IF NOT EXISTS zip_codes ( zip_code INTEGER, "
-		"population INTEGER, population_2010 INTEGER, population_2000 INTEGER );"; 
+	char *create_stmt = "CREATE TABLE IF NOT EXISTS zip_codes ( "
+		"zip_code INTEGER PRIMARY KEY, "
+		"population INTEGER, "
+		"population_2010 INTEGER, "
+		"population_2000 INTEGER, "
+		"land_area REAL );";
 	int rc = sqlite3_exec(*db, create_stmt, NULL, NULL, &error_message);
 	if ( rc != SQLITE_OK ) {
 		fputs("SOME SQL ERROR OCURRED.\n", stderr);
@@ -189,6 +193,7 @@ static void allocateZipCodeRecords(int32_t recordCount, ZipCodeRecord records[])
 
 		records[i].landArea = (char*)malloc(10 * sizeof(char));
 		strncpy(records[i].landArea, nullStr, 10);
+		strcpy(records[i].landArea, "0");
 
 		records[i].medianResidentAge = (char*)malloc(8 * sizeof(char));
 		strncpy(records[i].medianResidentAge, nullStr, 8);
@@ -348,7 +353,12 @@ static void processLines(char* memory, char* code, ZipCodeRecord* record) {
 			char* sqmi_end = strstr(sqmi_start, " ");
 			char sqmi[10] = {'\0'};
 			strncpy(sqmi, sqmi_start, strlen(sqmi_start) - strlen(sqmi_end));
-			strcpy(record->landArea, sqmi);
+
+			char *noComma = (char*)malloc((strlen(sqmi) + 1) * sizeof(char));
+			strncpy(noComma, nullStr, strlen(sqmi) + 1);
+			removeCommasFromNumber(noComma, sqmi);
+
+			strcpy(record->landArea, noComma);
 			printf("zip land area = %s\n", record->landArea);
 		}
 
@@ -555,7 +565,7 @@ int main(void) {
 		sqlite3_free(error_message);
 	}
 
-	char* insert_format = "INSERT INTO zip_codes VALUES ( %s, %s, %s, %s );";
+	char* insert_format = "INSERT INTO zip_codes VALUES ( %s, %s, %s, %s, %s );";
 	char insert_stmt[128] = {'\0'};
 
 	for (recordIndex = 0; recordIndex < zip_code_count; ++recordIndex) {
@@ -587,12 +597,13 @@ int main(void) {
 			zipCodeRecords[recordIndex].code,
 			zipCodeRecords[recordIndex].population,
 			zipCodeRecords[recordIndex].population2010,
-			zipCodeRecords[recordIndex].population2000);
+			zipCodeRecords[recordIndex].population2000,
+			zipCodeRecords[recordIndex].landArea);
 
 		printf("insert stmt = %s\n", insert_stmt);
 		rc = sqlite3_exec(db, insert_stmt, NULL, NULL, &error_message);
 		if ( rc != SQLITE_OK ) {
-			fprintf(stderr, "Failed to execute insert statement with error: %s\n", error_message);
+			fprintf(stderr, "Failed to execute insert stmt with error: %s\n", error_message);
 			sqlite3_free(error_message);
 		}
 	}
