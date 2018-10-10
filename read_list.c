@@ -263,9 +263,11 @@ static void allocateZipCodeRecords(int32_t recordCount, ZipCodeRecord records[])
 
 		records[i].asianPopulation = (char*)malloc(10 * sizeof(char));
 		strncpy(records[i].asianPopulation, nullStr, 10);
+		strcpy(records[i].asianPopulation, "0");
 
 		records[i].americanIndianPopulation = (char*)malloc(10 * sizeof(char));
 		strncpy(records[i].americanIndianPopulation, nullStr, 10);
+		strcpy(records[i].americanIndianPopulation, "0");
 
 		records[i].highSchool = (char*)malloc(8 * sizeof(char));
 		strncpy(records[i].highSchool, nullStr, 8);
