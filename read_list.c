@@ -146,7 +146,9 @@ static void initDb(sqlite3** db) {
 		"median_resident_age REAL, "
 		"white_population INTEGER, "
 		"hispanic_population INTEGER, "
-		"black_population INTEGER );";
+		"black_population INTEGER, "
+		"asian_population INTEGER,"
+		"american_indian_population INTEGER );";
 	int rc = sqlite3_exec(*db, create_stmt, NULL, NULL, &error_message);
 	if ( rc != SQLITE_OK ) {
 		fputs("SOME SQL ERROR OCURRED.\n", stderr);
@@ -475,6 +477,7 @@ static void processLines(char* memory, char* code, ZipCodeRecord* record) {
 
 				strcpy(record->hispanicLatinoPopulation, noComma);
 				printf("hispanic/latino population = %s\n", record->hispanicLatinoPopulation);
+				free(noComma);
 			}
 		}
 
@@ -492,6 +495,7 @@ static void processLines(char* memory, char* code, ZipCodeRecord* record) {
 
 				strcpy(record->blackPopulation, noComma);
 				printf("black population = %s\n", record->blackPopulation);
+				free(noComma);
 			}
 		}
 
@@ -502,8 +506,14 @@ static void processLines(char* memory, char* code, ZipCodeRecord* record) {
 				char* lt = strstr(&gt[1], "<");
 				char asian_population[10] = {'\0'};
 				strncpy(asian_population, &gt[1], strlen(&gt[1]) - strlen(lt));
-				strcpy(record->asianPopulation, asian_population);
+
+				char *noComma = (char*)malloc((strlen(asian_population) + 1) * sizeof(char));
+				strncpy(noComma, nullStr, strlen(asian_population) + 1);
+				removeCommasFromNumber(noComma, asian_population);
+
+				strcpy(record->asianPopulation, noComma);
 				printf("asian population = %s\n", record->asianPopulation);
+				free(noComma);
 			}
 		}
 
@@ -514,8 +524,14 @@ static void processLines(char* memory, char* code, ZipCodeRecord* record) {
 				char* lt = strstr(&gt[1], "<");
 				char americanIndianPop[10] = {'\0'};
 				strncpy(americanIndianPop, &gt[1], strlen(&gt[1]) - strlen(lt));
-				strcpy(record->americanIndianPopulation, americanIndianPop);
+
+				char *noComma = (char*)malloc((strlen(americanIndianPop) + 1) * sizeof(char));
+				strncpy(noComma, nullStr, strlen(americanIndianPop) + 1);
+				removeCommasFromNumber(noComma, americanIndianPop);
+
+				strcpy(record->americanIndianPopulation, noComma);
 				printf("american indian population = %s\n", record->americanIndianPopulation);
+				free(noComma);
 			}
 		}
 
@@ -645,7 +661,7 @@ int main(void) {
 
 	beginTransaction(db);
 	char* insert_format = "INSERT INTO zip_codes VALUES ("
-		" %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s );";
+		" %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s );";
 	char insert_stmt[128] = {'\0'};
 
 	for (recordIndex = 0; recordIndex < zip_code_count; ++recordIndex) {
@@ -685,7 +701,9 @@ int main(void) {
 			zipCodeRecords[recordIndex].medianResidentAge,
 			zipCodeRecords[recordIndex].whitePopulation,
 			zipCodeRecords[recordIndex].hispanicLatinoPopulation,
-			zipCodeRecords[recordIndex].blackPopulation );
+			zipCodeRecords[recordIndex].blackPopulation,
+			zipCodeRecords[recordIndex].asianPopulation,
+			zipCodeRecords[recordIndex].americanIndianPopulation );
 
 		doInsert(db, insert_stmt);
 	}
