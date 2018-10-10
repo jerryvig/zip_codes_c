@@ -139,7 +139,8 @@ static void initDb(sqlite3** db) {
 		"population INTEGER, "
 		"population_2010 INTEGER, "
 		"population_2000 INTEGER, "
-		"land_area REAL );";
+		"land_area REAL, "
+		"foreign_born_population REAL );";
 	int rc = sqlite3_exec(*db, create_stmt, NULL, NULL, &error_message);
 	if ( rc != SQLITE_OK ) {
 		fputs("SOME SQL ERROR OCURRED.\n", stderr);
@@ -192,6 +193,20 @@ static void removeCommasFromNumber(char* output, char* input) {
 	}
 }
 
+static void percentToFraction(char* output, char* input) {
+	if (strlen(input) == 0) {
+		output = "0.0";
+		return;
+	}
+
+	char intermediate[8] = {'\0'};
+	char* end;
+	strncpy(intermediate, input, strlen(input) - 1);
+	float intermediateFloat = strtof(intermediate, &end);
+	intermediateFloat /= 100.0f;
+	sprintf(output, "%.4f", intermediateFloat);
+}
+
 static void allocateZipCodeRecords(int32_t recordCount, ZipCodeRecord records[]) {
 	char nullStr[12] = {'\0'};
 	for (int32_t i = 0; i < recordCount; ++i) {
@@ -215,6 +230,7 @@ static void allocateZipCodeRecords(int32_t recordCount, ZipCodeRecord records[])
 
 		records[i].foreignBornPopulation = (char*)malloc(10 * sizeof(char));
 		strncpy(records[i].foreignBornPopulation, nullStr, 10);
+		strcpy(records[i].foreignBornPopulation, "0.0");
 
 		records[i].medianHomePrice = (char*)malloc(12 * sizeof(char));
 		strcpy(records[i].medianHomePrice, nullStr);
@@ -362,7 +378,9 @@ static void processLines(char* memory, char* code, ZipCodeRecord* record) {
 			char* fb_b_close_parens = strstr(fb_b_open_parens, ")");
 			char fb_out[10] = {'\0'};
 			strncpy(fb_out, fb_b_open_parens, strlen(fb_b_open_parens) - strlen(fb_b_close_parens));
-			strcpy(record->foreignBornPopulation, &fb_out[1]);
+			char fb_fraction[10] = {'\0'};
+			percentToFraction(fb_fraction, &fb_out[1]);
+			strcpy(record->foreignBornPopulation, fb_fraction);
 			printf("foreign born population = %s\n", record->foreignBornPopulation);
 		}
 
@@ -524,8 +542,6 @@ static void processLines(char* memory, char* code, ZipCodeRecord* record) {
 	}
 }
 
-
-
 int main(void) {
 	CURL *curl = initCurl();
 	FILE* fp = openFile();
@@ -589,7 +605,7 @@ int main(void) {
 		outputFile);
 
 	beginTransaction(db);
-	char* insert_format = "INSERT INTO zip_codes VALUES ( %s, %s, %s, %s, %s );";
+	char* insert_format = "INSERT INTO zip_codes VALUES ( %s, %s, %s, %s, %s, %s );";
 	char insert_stmt[128] = {'\0'};
 
 	for (recordIndex = 0; recordIndex < zip_code_count; ++recordIndex) {
@@ -622,7 +638,8 @@ int main(void) {
 			zipCodeRecords[recordIndex].population,
 			zipCodeRecords[recordIndex].population2010,
 			zipCodeRecords[recordIndex].population2000,
-			zipCodeRecords[recordIndex].landArea);
+			zipCodeRecords[recordIndex].landArea,
+			zipCodeRecords[recordIndex].foreignBornPopulation);
 
 		doInsert(db, insert_stmt);
 	}
