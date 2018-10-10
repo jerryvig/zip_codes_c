@@ -565,10 +565,14 @@ int main(void) {
 		strncpy(popNoComma, nullStr, strlen(zipCodeRecords[recordIndex].population) + 1);
 		removeCommasFromNumber(popNoComma, zipCodeRecords[recordIndex].population);
 		
+		char *pop2010NoComma = (char*)malloc((strlen(zipCodeRecords[recordIndex].population2010)+1) * sizeof(char));
+		strncpy(pop2010NoComma, nullStr, strlen(zipCodeRecords[recordIndex].population2010)+1);
+		removeCommasFromNumber(pop2010NoComma, zipCodeRecords[recordIndex].population2010);
+
 		sprintf(insert_stmt, insert_format,
 			zipCodeRecords[recordIndex].code,
 			popNoComma,
-			zipCodeRecords[recordIndex].population2010,
+			pop2010NoComma,
 			zipCodeRecords[recordIndex].population2000);
 
 		printf("insert stmt = %s\n", insert_stmt);
@@ -579,6 +583,7 @@ int main(void) {
 		}
 
 		free(popNoComma);
+		free(pop2010NoComma);
 	}
 
 
