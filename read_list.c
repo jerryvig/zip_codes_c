@@ -609,6 +609,7 @@ static void processLines(char* memory, char* code, ZipCodeRecord* record) {
 }
 
 int main(void) {
+	MemoryBuffer* chunk;
 	CURL *curl = initCurl();
 	FILE* fp = openFile();
 	sqlite3* db = NULL;
@@ -621,16 +622,13 @@ int main(void) {
  	closeFile(fp);
 
  	int32_t zip_code_count = 0;
-	for (ZipCode *prev = list_head; prev->next != NULL; prev = prev->next ) {
+	for (ZipCode *prev = list_head; prev->next != NULL; prev = prev->next) {
 		zip_code_count++;
 	}
-
-	MemoryBuffer* chunk;
 	ZipCodeRecord zipCodeRecords[zip_code_count];
-
 	allocateZipCodeRecords(zip_code_count, zipCodeRecords);
+	
 	int32_t recordIndex = 0;
-
 	for (ZipCode *prev = list_head; prev->next != NULL; prev = prev->next ) {
 		chunk = (MemoryBuffer*)malloc(sizeof(MemoryBuffer));
 		chunk->memory = malloc(1);
