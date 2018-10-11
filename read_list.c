@@ -221,23 +221,23 @@ static void percentToFraction(char* output, char* input) {
 	sprintf(output, "%.4f", intermediateFloat);
 }
 
+static void allocateRecordField(char** field, size_t size, char initialValue[]) {
+	char nullStr[12] = {'\0'};
+	*field = (char*)malloc(size * sizeof(char));
+	strncpy(*field, nullStr, size);
+	if (initialValue != NULL) {
+		strcpy(*field, initialValue);
+	}
+}
+
 static void allocateZipCodeRecords(int32_t recordCount, ZipCodeRecord records[]) {
 	char nullStr[12] = {'\0'};
 	for (int32_t i = 0; i < recordCount; ++i) {
-		records[i].code = (char*)malloc(8 * sizeof(char));
-		strncpy(records[i].code, nullStr, 8);
 
-		records[i].population = (char*)malloc(10 * sizeof(char));
-		strncpy(records[i].population, nullStr, 10);
-		strcpy(records[i].population, "0");
-
-		records[i].population2010 = (char*)malloc(10 * sizeof(char));
-		strncpy(records[i].population2010, nullStr, 10);
-		strcpy(records[i].population2010, "0");
-
-		records[i].population2000 = (char*)malloc(10 * sizeof(char));
-		strncpy(records[i].population2000, nullStr, 10);
-		strcpy(records[i].population2000, "0");
+		allocateRecordField(&records[i].code, 8, NULL);
+		allocateRecordField(&records[i].population, 10, "0");
+		allocateRecordField(&records[i].population2010, 10, "0");
+		allocateRecordField(&records[i].population2000, 10, "0");
 
 		records[i].medianHouseholdIncome = (char*)malloc(12 * sizeof(char));
 		strcpy(records[i].medianHouseholdIncome, nullStr);
