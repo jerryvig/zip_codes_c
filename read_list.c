@@ -255,6 +255,31 @@ static void allocateZipCodeRecords(int32_t recordCount, ZipCodeRecord records[])
 	}
 }
 
+static void freeZipCodeRecords(int32_t zip_code_count, ZipCodeRecord records[]) {
+	for (int32_t i = 0; i < zip_code_count; ++i) {
+		free(records[i].code);
+		free(records[i].population);
+		free(records[i].population2010);
+		free(records[i].population2000);
+		free(records[i].landArea);
+		free(records[i].foreignBornPopulation);
+		free(records[i].medianHouseholdIncome);
+		free(records[i].medianHomePrice);
+		free(records[i].medianResidentAge);
+		free(records[i].whitePopulation);
+		free(records[i].hispanicLatinoPopulation);
+		free(records[i].blackPopulation);
+		free(records[i].asianPopulation);
+		free(records[i].americanIndianPopulation);
+		free(records[i].highSchool);
+		free(records[i].bachelorsDegree);
+		free(records[i].graduateDegree);
+		free(records[i].malePercent);
+		free(records[i].femalePercent);
+		free(records[i].averageHouseholdSize);
+	}
+}
+
 static void processLines(char* memory, char* code, ZipCodeRecord* record) {
 	char* token = strtok(memory, "\n");
 	char nullStr[24] = {'\0'};
@@ -704,30 +729,7 @@ int main(void) {
 	sqlite3_close(db);
 
 	fclose(outputFile);
-
-	for (recordIndex = 0; recordIndex < zip_code_count; ++recordIndex) {
-		free(zipCodeRecords[recordIndex].code);
-		free(zipCodeRecords[recordIndex].population);
-		free(zipCodeRecords[recordIndex].population2010);
-		free(zipCodeRecords[recordIndex].population2000);
-		free(zipCodeRecords[recordIndex].landArea);
-		free(zipCodeRecords[recordIndex].foreignBornPopulation);
-		free(zipCodeRecords[recordIndex].medianHouseholdIncome);
-		free(zipCodeRecords[recordIndex].medianHomePrice);
-		free(zipCodeRecords[recordIndex].medianResidentAge);
-		free(zipCodeRecords[recordIndex].whitePopulation);
-		free(zipCodeRecords[recordIndex].hispanicLatinoPopulation);
-		free(zipCodeRecords[recordIndex].blackPopulation);
-		free(zipCodeRecords[recordIndex].asianPopulation);
-		free(zipCodeRecords[recordIndex].americanIndianPopulation);
-		free(zipCodeRecords[recordIndex].highSchool);
-		free(zipCodeRecords[recordIndex].bachelorsDegree);
-		free(zipCodeRecords[recordIndex].graduateDegree);
-		free(zipCodeRecords[recordIndex].malePercent);
-		free(zipCodeRecords[recordIndex].femalePercent);
-		free(zipCodeRecords[recordIndex].averageHouseholdSize);
-	}
-
+	freeZipCodeRecords(zip_code_count, zipCodeRecords);
 	freeLinkedList(list_head);
 
 	curl_easy_cleanup(curl);
