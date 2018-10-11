@@ -231,77 +231,27 @@ static void allocateRecordField(char** field, size_t size, char initialValue[]) 
 }
 
 static void allocateZipCodeRecords(int32_t recordCount, ZipCodeRecord records[]) {
-	char nullStr[12] = {'\0'};
 	for (int32_t i = 0; i < recordCount; ++i) {
-
 		allocateRecordField(&records[i].code, 8, NULL);
 		allocateRecordField(&records[i].population, 10, "0");
 		allocateRecordField(&records[i].population2010, 10, "0");
 		allocateRecordField(&records[i].population2000, 10, "0");
-
-		records[i].medianHouseholdIncome = (char*)malloc(12 * sizeof(char));
-		strcpy(records[i].medianHouseholdIncome, nullStr);
-		strcpy(records[i].medianHouseholdIncome, "0");
-
-		records[i].foreignBornPopulation = (char*)malloc(10 * sizeof(char));
-		strncpy(records[i].foreignBornPopulation, nullStr, 10);
-		strcpy(records[i].foreignBornPopulation, "0.0");
-
-		records[i].medianHomePrice = (char*)malloc(12 * sizeof(char));
-		strcpy(records[i].medianHomePrice, nullStr);
-		strcpy(records[i].medianHomePrice, "0");
-
-		records[i].landArea = (char*)malloc(10 * sizeof(char));
-		strncpy(records[i].landArea, nullStr, 10);
-		strcpy(records[i].landArea, "0");
-
-		records[i].medianResidentAge = (char*)malloc(8 * sizeof(char));
-		strncpy(records[i].medianResidentAge, nullStr, 8);
-		strcpy(records[i].medianResidentAge, "0.0");
-
-		records[i].whitePopulation = (char*)malloc(10 * sizeof(char));
-		strncpy(records[i].whitePopulation, nullStr, 10);
-		strcpy(records[i].whitePopulation, "0");
-
-		records[i].hispanicLatinoPopulation = (char*)malloc(10 * sizeof(char));
-		strncpy(records[i].hispanicLatinoPopulation, nullStr, 10);
-		strcpy(records[i].hispanicLatinoPopulation, "0");
-
-		records[i].blackPopulation = (char*)malloc(10 * sizeof(char));
-		strncpy(records[i].blackPopulation, nullStr, 10);
-		strcpy(records[i].blackPopulation, "0");
-
-		records[i].asianPopulation = (char*)malloc(10 * sizeof(char));
-		strncpy(records[i].asianPopulation, nullStr, 10);
-		strcpy(records[i].asianPopulation, "0");
-
-		records[i].americanIndianPopulation = (char*)malloc(10 * sizeof(char));
-		strncpy(records[i].americanIndianPopulation, nullStr, 10);
-		strcpy(records[i].americanIndianPopulation, "0");
-
-		records[i].highSchool = (char*)malloc(8 * sizeof(char));
-		strncpy(records[i].highSchool, nullStr, 8);
-		strcpy(records[i].highSchool, "0.0");
-
-		records[i].bachelorsDegree = (char*)malloc(8 * sizeof(char));
-		strncpy(records[i].bachelorsDegree, nullStr, 8);
-		strcpy(records[i].bachelorsDegree, "0.0");
-
-		records[i].graduateDegree = (char*)malloc(8 * sizeof(char));
-		strncpy(records[i].graduateDegree, nullStr, 8);
-		strcpy(records[i].graduateDegree, "0.0");
-
-		records[i].malePercent = (char*)malloc(8 * sizeof(char));
-		strncpy(records[i].malePercent, nullStr, 8);
-		strcpy(records[i].malePercent, "0.0");
-
-		records[i].femalePercent = (char*)malloc(8 * sizeof(char));
-		strncpy(records[i].femalePercent, nullStr, 8);
-		strcpy(records[i].femalePercent, "0.0");
-
-		records[i].averageHouseholdSize = (char*)malloc(8 * sizeof(char));
-		strncpy(records[i].averageHouseholdSize, nullStr, 8);
-		strcpy(records[i].averageHouseholdSize, "0.0");
+		allocateRecordField(&records[i].medianHouseholdIncome, 12, "0");
+		allocateRecordField(&records[i].foreignBornPopulation, 10, "0.0");
+		allocateRecordField(&records[i].medianHomePrice, 12, "0");
+		allocateRecordField(&records[i].landArea, 10, "0");
+		allocateRecordField(&records[i].medianResidentAge, 8, "0.0");
+		allocateRecordField(&records[i].whitePopulation, 10, "0");
+		allocateRecordField(&records[i].hispanicLatinoPopulation, 10, "0");
+		allocateRecordField(&records[i].blackPopulation, 10, "0");
+		allocateRecordField(&records[i].asianPopulation, 10, "0");
+		allocateRecordField(&records[i].americanIndianPopulation, 10, "0");
+		allocateRecordField(&records[i].highSchool, 8, "0.0");
+		allocateRecordField(&records[i].bachelorsDegree, 8, "0.0");
+		allocateRecordField(&records[i].graduateDegree, 8, "0.0");
+		allocateRecordField(&records[i].malePercent, 8, "0.0");
+		allocateRecordField(&records[i].femalePercent, 8, "0.0");
+		allocateRecordField(&records[i].averageHouseholdSize, 8, "0.0");
 	}
 }
 
