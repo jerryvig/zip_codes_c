@@ -8,8 +8,8 @@
 #include <unistd.h>
 #include <sqlite3.h>
 
-#define INPUT_FILE_NAME "zip_code_list_nm_chaves.txt"
-#define OUTPUT_FILE_NAME "zip_code_data_nm_chaves.csv"
+#define STATE_NAME "ny"
+#define COUNTY_NAME "suffolk"
 #define BASE_URL "http://www.city-data.com/zips/"
 #define SQLITE3_DB_NAME "zip_codes_db.sqlite3"
 
@@ -45,6 +45,9 @@ typedef struct ZipCodeRecord {
 	char* graduateDegree;
 	char* averageHouseholdSize;
 } ZipCodeRecord;
+
+const char INPUT_FILE_NAME[] = "zip_code_list_" STATE_NAME "_" COUNTY_NAME ".txt";
+const char OUTPUT_FILE_NAME[] = "zip_code_data_" STATE_NAME "_" COUNTY_NAME ".csv";
 
 static FILE* openFile() {
 	FILE* fp = fopen(INPUT_FILE_NAME, "r");
@@ -614,8 +617,8 @@ int main(void) {
 	MemoryBuffer* chunk;
 	CURL *curl = initCurl();
 	FILE* fp = openFile();
-	sqlite3* db = NULL;
 
+	sqlite3* db = NULL;
 	openDb(&db);
 	initDb(&db);
 
