@@ -8,8 +8,8 @@
 #include <unistd.h>
 #include <sqlite3.h>
 
-#define STATE_NAME "ny"
-#define COUNTY_NAME "suffolk"
+#define STATE_NAME "nm"
+#define COUNTY_NAME "chaves"
 #define BASE_URL "http://www.city-data.com/zips/"
 #define SQLITE3_DB_NAME "zip_codes_db.sqlite3"
 
@@ -141,6 +141,8 @@ static void initDb(sqlite3** db) {
 	char *error_message = NULL;
 	char *create_stmt = "CREATE TABLE IF NOT EXISTS zip_codes ( "
 		"zip_code INTEGER PRIMARY KEY, "
+		"state TEXT, "
+		"county TEXT, "
 		"population INTEGER, "
 		"population_2010 INTEGER, "
 		"population_2000 INTEGER, "
@@ -675,7 +677,8 @@ int main(void) {
 
 	beginTransaction(db);
 	char insert_format[] = "INSERT INTO zip_codes VALUES ("
-		" %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s );";
+		" %s, \"%s\", \"%s\", %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, "
+		"%s, %s, %s );";
 	char insert_stmt[256] = {'\0'};
 
 	for (recordIndex = 0; recordIndex < zip_code_count; ++recordIndex) {
@@ -705,6 +708,8 @@ int main(void) {
 
 		sprintf(insert_stmt, insert_format,
 			zipCodeRecords[recordIndex].code,
+			STATE_NAME,
+			COUNTY_NAME,
 			zipCodeRecords[recordIndex].population,
 			zipCodeRecords[recordIndex].population2010,
 			zipCodeRecords[recordIndex].population2000,
