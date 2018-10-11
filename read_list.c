@@ -629,7 +629,7 @@ int main(void) {
 	allocateZipCodeRecords(zip_code_count, zipCodeRecords);
 	
 	int32_t recordIndex = 0;
-	for (ZipCode *prev = list_head; prev->next != NULL; prev = prev->next ) {
+	for (ZipCode *prev = list_head; prev->next != NULL; prev = prev->next) {
 		chunk = (MemoryBuffer*)malloc(sizeof(MemoryBuffer));
 		chunk->memory = malloc(1);
 		chunk->size = 0;
