@@ -704,6 +704,30 @@ int main(void) {
 	sqlite3_close(db);
 
 	fclose(outputFile);
+
+	for (recordIndex = 0; recordIndex < zip_code_count; ++recordIndex) {
+		free(zipCodeRecords[recordIndex].code);
+		free(zipCodeRecords[recordIndex].population);
+		free(zipCodeRecords[recordIndex].population2010);
+		free(zipCodeRecords[recordIndex].population2000);
+		free(zipCodeRecords[recordIndex].landArea);
+		free(zipCodeRecords[recordIndex].foreignBornPopulation);
+		free(zipCodeRecords[recordIndex].medianHouseholdIncome);
+		free(zipCodeRecords[recordIndex].medianHomePrice);
+		free(zipCodeRecords[recordIndex].medianResidentAge);
+		free(zipCodeRecords[recordIndex].whitePopulation);
+		free(zipCodeRecords[recordIndex].hispanicLatinoPopulation);
+		free(zipCodeRecords[recordIndex].blackPopulation);
+		free(zipCodeRecords[recordIndex].asianPopulation);
+		free(zipCodeRecords[recordIndex].americanIndianPopulation);
+		free(zipCodeRecords[recordIndex].highSchool);
+		free(zipCodeRecords[recordIndex].bachelorsDegree);
+		free(zipCodeRecords[recordIndex].graduateDegree);
+		free(zipCodeRecords[recordIndex].malePercent);
+		free(zipCodeRecords[recordIndex].femalePercent);
+		free(zipCodeRecords[recordIndex].averageHouseholdSize);
+	}
+
 	freeLinkedList(list_head);
 
 	curl_easy_cleanup(curl);
