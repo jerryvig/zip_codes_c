@@ -71,7 +71,7 @@ static ZipCode* loadLinkedList(FILE* fp) {
 	
 	ZipCode* prev = list_head;
 	for (; fscanf(fp, "%s", zip_code) != EOF; ) {
-		prev->code = (char*)malloc(8*sizeof(char));
+		prev->code = (char*)malloc(8 * sizeof(char));
 		strcpy(prev->code, zip_code);
 		ZipCode* next = (ZipCode*)malloc(sizeof(struct ZipCode));
 		prev->next = next;
@@ -204,10 +204,8 @@ static void doInsert(sqlite3* db, char* stmt) {
 
 static void removeCommasFromNumber(char* output, char* input) {
 	char *rest = input;
-	char *token = strtok_r(rest, ",", &rest);
-	while (token) {
+	for (char *token = strtok_r(rest, ",", &rest); token; token = strtok_r(rest, ",", &rest)) {
 		strcat(output, token);
-		token = strtok_r(rest, ",", &rest);
 	} 
 	if (strlen(output) == 0) {
 		strcat(output, "0");
