@@ -7,6 +7,12 @@
 
 #define INPUT_FILE_NAME "county-list.csv"
 
+typedef struct CountyNode {
+	char state[8];
+	char county[64];
+	struct CountyNode* next;
+} CountyNode;
+
 int main(void) {
 	FILE* input_file = fopen(INPUT_FILE_NAME, "r");
 	if (!input_file) {
@@ -14,17 +20,20 @@ int main(void) {
 		exit(EXIT_FAILURE);
 	}
 
+	CountyNode* head = (CountyNode*)malloc(sizeof(struct CountyNode));
+
 	char buf[128];
 	while (fgets(buf, sizeof buf, input_file) != NULL) {
 		char* comma_start = strstr(buf, ",");
 		char county_name[64] = {'\0'};
 		char state[8] = {'\0'};
 
-		strncpy(county_name, &comma_start[1], strlen(&comma_start[1]) - 1);
-		strncpy(state, buf, strlen(buf) - strlen(comma_start));
+		
+		strncpy(head->county, &comma_start[1], strlen(&comma_start[1]) - 1);
+		strncpy(head->state, buf, strlen(buf) - strlen(comma_start));
 
-		printf("county name = '%s'\n", county_name);
-		printf("state = '%s'\n", state);
+		printf("county name = '%s'\n", head->county);
+		printf("state = '%s'\n", head->state);
 	}
 
 	fclose(input_file);
