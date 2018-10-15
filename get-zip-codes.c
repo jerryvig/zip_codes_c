@@ -109,8 +109,6 @@ int main(void) {
 	CountyNode* head = loadLinkedList(input_file);
 	CURL* curl = initCurl();
 	CURLcode res;
-	//chunk.memory = malloc(1);
-	//chunk.size = 0;
 
 	for (CountyNode* current = head; current->next != NULL; current = current->next) {
 		printf("state = %s\n", current->state);
