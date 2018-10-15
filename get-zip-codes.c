@@ -105,6 +105,10 @@ static CURL* initCurl() {
 	return curl;
 }
 
+static void processChunk(char* chunk) {
+	printf("chunk = '%s'\n", chunk);
+}
+
 static void getUrl(CURL* curl, char* url) {
 	CURLcode res;
 	Memory* chunk = (Memory*)malloc(sizeof(Memory));
@@ -128,6 +132,8 @@ static void getUrl(CURL* curl, char* url) {
 		fprintf(stderr, "curl_easy_perform() failed: %s\n", curl_easy_strerror(res));
 	}
 
+	processChunk(chunk->memory);
+
 	free(chunk->memory);
 	free(chunk);
 }
@@ -136,7 +142,6 @@ int main(void) {
 	FILE * input_file = openInputFile();
 	CountyNode* head = loadLinkedList(input_file);
 	CURL* curl = initCurl();
-	
 
 	for (CountyNode* current = head; current->next != NULL; current = current->next) {
 		printf("state = %s\n", current->state);
@@ -148,6 +153,7 @@ int main(void) {
 		if (current->next->next == NULL) {
 			break;
 		}
+		usleep(1000000);
 	}
 
 	curl_easy_cleanup(curl);
