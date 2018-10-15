@@ -21,19 +21,31 @@ int main(void) {
 	}
 
 	CountyNode* head = (CountyNode*)malloc(sizeof(struct CountyNode));
+	CountyNode* current = head;
 
+	char nullStr[128] = {'\0'};
 	char buf[128];
 	while (fgets(buf, sizeof buf, input_file) != NULL) {
 		char* comma_start = strstr(buf, ",");
-		char county_name[64] = {'\0'};
-		char state[8] = {'\0'};
+		strncpy(current->county, &comma_start[1], strlen(&comma_start[1]) - 1);
+		strncpy(current->state, buf, strlen(buf) - strlen(comma_start));
+		CountyNode* next = (CountyNode*)malloc(sizeof(struct CountyNode));
 
-		
-		strncpy(head->county, &comma_start[1], strlen(&comma_start[1]) - 1);
-		strncpy(head->state, buf, strlen(buf) - strlen(comma_start));
+		printf("current->county = %s\n", current->county);
 
-		printf("county name = '%s'\n", head->county);
-		printf("state = '%s'\n", head->state);
+		current->next = next;
+		current = next;
+		strcpy(buf, nullStr);
+	}
+
+	current = head;
+	while (1) {
+		printf("state = %s\n", current->state);
+		printf("county = %s\n", current->county);
+		if (current->next == NULL) {
+			break;
+		}
+		current = current->next;
 	}
 
 	fclose(input_file);
