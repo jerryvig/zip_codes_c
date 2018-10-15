@@ -25,7 +25,7 @@ int main(void) {
 
 	char nullStr[128] = {'\0'};
 	char buf[128];
-	while (fgets(buf, sizeof buf, input_file) != NULL) {
+	for (; fgets(buf, sizeof buf, input_file) != NULL;) {
 		char* comma_start = strstr(buf, ",");
 		strncpy(current->county, &comma_start[1], strlen(&comma_start[1]) - 1);
 		strncpy(current->state, buf, strlen(buf) - strlen(comma_start));
@@ -34,8 +34,8 @@ int main(void) {
 		printf("current->county = %s\n", current->county);
 
 		current->next = next;
-		current = next;
 		strcpy(buf, nullStr);
+		current = next;
 	}
 
 	for (current = head; current->next != NULL; current = current->next) {
