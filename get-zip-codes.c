@@ -6,6 +6,8 @@
 #include <string.h>
 
 #define INPUT_FILE_NAME "county-list.csv"
+#define BASE_URL "https://www.zip-codes.com/county/"
+#define URL_SUFFIX ".asp"
 
 typedef struct CountyNode {
 	char state[8];
@@ -50,6 +52,24 @@ static void freeLinkedList(CountyNode* head) {
 	}
 }
 
+static char* buildUrl(char* state, char* county) {
+	char nullStr[128] = {'\0'};
+	char* dest = (char*)malloc(128 * sizeof(char));
+	strcpy(dest, nullStr);
+	strcpy(dest, BASE_URL);
+	strcat(dest, state);
+	strcat(dest, "-");
+
+	for (size_t i=0; i<strlen(county); ++i) {
+		if (county[i] == ' ') {
+			county[i] = '-';
+		}
+	}
+	strcat(dest, county);
+	strcat(dest, URL_SUFFIX);
+	return dest;
+}
+
 int main(void) {
 	FILE * input_file = openInputFile();
 
@@ -58,6 +78,24 @@ int main(void) {
 	for (CountyNode* current = head; current->next != NULL; current = current->next) {
 		printf("state = %s\n", current->state);
 		printf("county = %s\n", current->county);
+
+		//char url[128] = BASE_URL;
+		//char* url = (char*)malloc(128 * sizeof(char));
+		/* strcat(url, current->state);
+		strcat(url, "-");
+
+		for (size_t i=0; i<strlen(current->county); ++i) {
+			if (current->county[i] == ' ') {
+				current->county[i] = '-';
+			}
+		}
+		strcat(url, current->county);
+		strcat(url, URL_SUFFIX);
+		printf("url = %s\n", url);
+		*/
+		char* url = buildUrl(current->state, current->county);
+		printf("url = %s\n", url);
+
 		if (current->next->next == NULL) {
 			break;
 		}
