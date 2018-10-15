@@ -22,7 +22,8 @@ static FILE* openInputFile() {
 	return input_file;
 }
 
-static void loadLinkedList(CountyNode* head, FILE* input_file) {
+static CountyNode* loadLinkedList(FILE* input_file) {
+	CountyNode* head = (CountyNode*)malloc(sizeof(struct CountyNode));
 	char nullStr[128] = {'\0'};
 	char buf[128];
 	for (CountyNode* current = head; fgets(buf, sizeof buf, input_file) != NULL;) {
@@ -37,6 +38,8 @@ static void loadLinkedList(CountyNode* head, FILE* input_file) {
 		strcpy(buf, nullStr);
 		current = next;
 	}
+
+	return head;
 }
 
 static void freeLinkedList(CountyNode* head) {
@@ -50,8 +53,7 @@ static void freeLinkedList(CountyNode* head) {
 int main(void) {
 	FILE * input_file = openInputFile();
 
-	CountyNode* head = (CountyNode*)malloc(sizeof(struct CountyNode));
-	loadLinkedList(head, input_file);
+	CountyNode* head = loadLinkedList(input_file);
 
 	for (CountyNode* current = head; current->next != NULL; current = current->next) {
 		printf("state = %s\n", current->state);
