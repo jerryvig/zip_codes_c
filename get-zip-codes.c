@@ -39,6 +39,14 @@ static void loadLinkedList(CountyNode* head, FILE* input_file) {
 	}
 }
 
+static void freeLinkedList(CountyNode* head) {
+	CountyNode* next;
+	for (CountyNode* current = head; current->next != NULL; current = next) {
+		next = current->next;
+		free(current);
+	}
+}
+
 int main(void) {
 	FILE * input_file = openInputFile();
 
@@ -53,5 +61,7 @@ int main(void) {
 		}
 	}
 
+
+	freeLinkedList(head);
 	fclose(input_file);
 }
