@@ -15,6 +15,11 @@ typedef struct CountyNode {
 	struct CountyNode* next;
 } CountyNode;
 
+typedef struct Memory {
+  char *memory;
+  size_t size;
+} Memory;
+
 static FILE* openInputFile() {
 	FILE* input_file = fopen(INPUT_FILE_NAME, "r");
 	if (!input_file) {
@@ -71,20 +76,13 @@ static char* buildUrl(char* state, char* county) {
 }
 
 static CURL* initCurl() {
-	CURLcode res;
-
 	curl_global_init(CURL_GLOBAL_DEFAULT);
 	CURL* curl = curl_easy_init();
-	if (curl) {
-		curl_easy_setopt(curl, CURLOPT_URL, "https://www.google.com/");
-	}
 
-#ifdef SKIP_PEER_VERIFICATION
-	curl_easy_setopt(curl, CURLOPT_SSL_VERIFYPEER, 0L);
-#endif	
-#ifdef SKIP_HOSTNAME_VERIFICATION
-	curl_easy_setopt(curl, CURLOPT_SSL_VERIFYHOST, 0L);
-#endif
+	if (!curl) {
+		fprintf(stderr, "Failed initialize curl.\n");
+		exit( EXIT_FAILURE );
+	}
 
 	return curl;
 }
@@ -93,19 +91,35 @@ int main(void) {
 	FILE * input_file = openInputFile();
 	CountyNode* head = loadLinkedList(input_file);
 	CURL* curl = initCurl();
+	CURLcode res;
 
 	for (CountyNode* current = head; current->next != NULL; current = current->next) {
 		printf("state = %s\n", current->state);
 		printf("county = %s\n", current->county);
 		char* url = buildUrl(current->state, current->county);
 
+		curl_easy_setopt(curl, CURLOPT_URL, url);
+
+#ifdef SKIP_PEER_VERIFICATION
+		curl_easy_setopt(curl, CURLOPT_SSL_VERIFYPEER, 0L);
+#endif	
+#ifdef SKIP_HOSTNAME_VERIFICATION
+		curl_easy_setopt(curl, CURLOPT_SSL_VERIFYHOST, 0L);
+#endif
+
+		res = curl_easy_perform(curl);
+		if (res != CURLE_OK) {
+			fprintf(stderr, "curl_easy_perform() failed: %s\n",
+              curl_easy_strerror(res));
+		}
+
 		if (current->next->next == NULL) {
 			break;
 		}
 	}
 
-
 	curl_easy_cleanup(curl);
+	curl_global_cleanup();	
 	freeLinkedList(head);
 	fclose(input_file);
 }
