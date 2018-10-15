@@ -4,6 +4,7 @@
 #include <stdlib.h>
 #include <curl/curl.h>
 #include <string.h>
+#include <unistd.h>
 
 #define INPUT_FILE_NAME "county-list.csv"
 #define BASE_URL "https://www.zip-codes.com/county/"
@@ -104,47 +105,49 @@ static CURL* initCurl() {
 	return curl;
 }
 
+static void getUrl(CURL* curl, char* url) {
+	CURLcode res;
+	Memory* chunk = (Memory*)malloc(sizeof(Memory));
+	chunk->memory = (char*)malloc(1);
+	chunk->size = 0;
+	curl_easy_setopt(curl, CURLOPT_URL, url);
+
+#ifdef SKIP_PEER_VERIFICATION
+	curl_easy_setopt(curl, CURLOPT_SSL_VERIFYPEER, 0L);
+#endif	
+#ifdef SKIP_HOSTNAME_VERIFICATION
+	curl_easy_setopt(curl, CURLOPT_SSL_VERIFYHOST, 0L);
+#endif
+
+	curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, writeCallback);
+	curl_easy_setopt(curl, CURLOPT_WRITEDATA, (void*)chunk);
+	curl_easy_setopt(curl, CURLOPT_USERAGENT, "libcurl-agent/1.0");
+
+	res = curl_easy_perform(curl);
+	if (res != CURLE_OK) {
+		fprintf(stderr, "curl_easy_perform() failed: %s\n", curl_easy_strerror(res));
+	}
+
+	free(chunk->memory);
+	free(chunk);
+}
+
 int main(void) {
 	FILE * input_file = openInputFile();
 	CountyNode* head = loadLinkedList(input_file);
 	CURL* curl = initCurl();
-	CURLcode res;
+	
 
 	for (CountyNode* current = head; current->next != NULL; current = current->next) {
 		printf("state = %s\n", current->state);
 		printf("county = %s\n", current->county);
 		char* url = buildUrl(current->state, current->county);
 
-		Memory* chunk = (Memory*)malloc(sizeof(Memory));
-		chunk->memory = malloc(1);
-		chunk->size = 0;
-		curl_easy_setopt(curl, CURLOPT_URL, url);
-
-#ifdef SKIP_PEER_VERIFICATION
-		curl_easy_setopt(curl, CURLOPT_SSL_VERIFYPEER, 0L);
-#endif	
-#ifdef SKIP_HOSTNAME_VERIFICATION
-		curl_easy_setopt(curl, CURLOPT_SSL_VERIFYHOST, 0L);
-#endif
-
-		curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, writeCallback);
-		curl_easy_setopt(curl, CURLOPT_WRITEDATA, (void*)chunk);
-		curl_easy_setopt(curl, CURLOPT_USERAGENT, "libcurl-agent/1.0");
-
-		res = curl_easy_perform(curl);
-		if (res != CURLE_OK) {
-			fprintf(stderr, "curl_easy_perform() failed: %s\n",
-              curl_easy_strerror(res));
-		}
-
-		printf("chunk = %s\n", chunk->memory);
+		getUrl(curl, url);
 
 		if (current->next->next == NULL) {
 			break;
 		}
-
-		free(chunk->memory);
-		free(chunk);
 	}
 
 	curl_easy_cleanup(curl);
