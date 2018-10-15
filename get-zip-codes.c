@@ -13,12 +13,17 @@ typedef struct CountyNode {
 	struct CountyNode* next;
 } CountyNode;
 
-int main(void) {
+static FILE* openInputFile() {
 	FILE* input_file = fopen(INPUT_FILE_NAME, "r");
 	if (!input_file) {
 		perror("Failed to open input file '" INPUT_FILE_NAME "' for reading");
 		exit(EXIT_FAILURE);
 	}
+	return input_file;
+}
+
+int main(void) {
+	FILE * input_file = openInputFile();
 
 	CountyNode* head = (CountyNode*)malloc(sizeof(struct CountyNode));
 	CountyNode* current = head;
