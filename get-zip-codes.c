@@ -105,11 +105,18 @@ static CURL* initCurl() {
 	return curl;
 }
 
-static void processChunk(char* chunk) {
-	printf("chunk = '%s'\n", chunk);
+static void processChunk(char* memory) {
+	printf("mem = '%s'\n", memory);
+
+	char* token;
+	char* rest = memory;
+
+	while ((token = strtok_r(rest, "\n", &rest))) {
+		printf("tok = %s\n", token);
+	}
 }
 
-static void getUrl(CURL* curl, char* url) {
+static void getUrl(CURL* curl, char* url, char state[], char county[]) {
 	CURLcode res;
 	Memory* chunk = (Memory*)malloc(sizeof(Memory));
 	chunk->memory = (char*)malloc(1);
@@ -148,7 +155,7 @@ int main(void) {
 		printf("county = %s\n", current->county);
 		char* url = buildUrl(current->state, current->county);
 
-		getUrl(curl, url);
+		getUrl(curl, url, current->state, current->county);
 
 		if (current->next->next == NULL) {
 			break;
