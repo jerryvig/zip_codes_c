@@ -8,8 +8,8 @@
 #include <unistd.h>
 #include <sqlite3.h>
 
-#define STATE_NAME "nm"
-#define COUNTY_NAME "chaves"
+#define STATE_NAME "ca"
+#define COUNTY_NAME "el_dorado"
 #define BASE_URL "http://www.city-data.com/zips/"
 #define SQLITE3_DB_NAME "zip_codes_db.sqlite3"
 
