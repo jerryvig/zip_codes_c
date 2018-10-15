@@ -16,7 +16,7 @@ typedef struct CountyNode {
 } CountyNode;
 
 typedef struct Memory {
-  char *memory;
+  char* memory;
   size_t size;
 } Memory;
 
@@ -75,8 +75,25 @@ static char* buildUrl(char* state, char* county) {
 	return dest;
 }
 
+static size_t writeCallback(void *contents, size_t size, size_t nmemb, void* userp) {
+	size_t realsize = size * nmemb;
+	Memory* memory = (Memory*)userp;
+
+	char *ptr = realloc(memory->memory, memory->size + realsize + 1);
+	if (ptr == NULL) {
+		printf("Insufficient memory to reallocate. realloc() returned NULL.\n");
+		return 0;
+	}
+
+	memory->memory = ptr;
+	memcpy(&(memory->memory[memory->size]), contents, realsize);
+	memory->size += realsize;
+	memory->memory[memory->size] = 0;
+	return realsize;
+}
+
 static CURL* initCurl() {
-	curl_global_init(CURL_GLOBAL_DEFAULT);
+	curl_global_init(CURL_GLOBAL_ALL);
 	CURL* curl = curl_easy_init();
 
 	if (!curl) {
@@ -92,12 +109,17 @@ int main(void) {
 	CountyNode* head = loadLinkedList(input_file);
 	CURL* curl = initCurl();
 	CURLcode res;
+	//chunk.memory = malloc(1);
+	//chunk.size = 0;
 
 	for (CountyNode* current = head; current->next != NULL; current = current->next) {
 		printf("state = %s\n", current->state);
 		printf("county = %s\n", current->county);
 		char* url = buildUrl(current->state, current->county);
 
+		Memory* chunk = (Memory*)malloc(sizeof(Memory));
+		chunk->memory = malloc(1);
+		chunk->size = 0;
 		curl_easy_setopt(curl, CURLOPT_URL, url);
 
 #ifdef SKIP_PEER_VERIFICATION
@@ -107,15 +129,24 @@ int main(void) {
 		curl_easy_setopt(curl, CURLOPT_SSL_VERIFYHOST, 0L);
 #endif
 
+		curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, writeCallback);
+		curl_easy_setopt(curl, CURLOPT_WRITEDATA, (void*)chunk);
+		curl_easy_setopt(curl, CURLOPT_USERAGENT, "libcurl-agent/1.0");
+
 		res = curl_easy_perform(curl);
 		if (res != CURLE_OK) {
 			fprintf(stderr, "curl_easy_perform() failed: %s\n",
               curl_easy_strerror(res));
 		}
 
+		printf("chunk = %s\n", chunk->memory);
+
 		if (current->next->next == NULL) {
 			break;
 		}
+
+		free(chunk->memory);
+		free(chunk);
 	}
 
 	curl_easy_cleanup(curl);
