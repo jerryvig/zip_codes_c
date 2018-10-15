@@ -70,16 +70,24 @@ static char* buildUrl(char* state, char* county) {
 	return dest;
 }
 
-int main(void) {
-	FILE * input_file = openInputFile();
+static void initCurl(CURL* curl) {
+	CURLcode res;
 
+	curl = curl_easy_init();
+}
+
+int main(void) {
+	CURL* curl;
+
+	FILE * input_file = openInputFile();
 	CountyNode* head = loadLinkedList(input_file);
+
+	initCurl(curl);
 
 	for (CountyNode* current = head; current->next != NULL; current = current->next) {
 		printf("state = %s\n", current->state);
 		printf("county = %s\n", current->county);
 		char* url = buildUrl(current->state, current->county);
-		printf("url = %s\n", url);
 
 		if (current->next->next == NULL) {
 			break;
