@@ -22,15 +22,10 @@ static FILE* openInputFile() {
 	return input_file;
 }
 
-int main(void) {
-	FILE * input_file = openInputFile();
-
-	CountyNode* head = (CountyNode*)malloc(sizeof(struct CountyNode));
-	CountyNode* current = head;
-
+static void loadLinkedList(CountyNode* head, FILE* input_file) {
 	char nullStr[128] = {'\0'};
 	char buf[128];
-	for (; fgets(buf, sizeof buf, input_file) != NULL;) {
+	for (CountyNode* current = head; fgets(buf, sizeof buf, input_file) != NULL;) {
 		char* comma_start = strstr(buf, ",");
 		strncpy(current->county, &comma_start[1], strlen(&comma_start[1]) - 1);
 		strncpy(current->state, buf, strlen(buf) - strlen(comma_start));
@@ -42,8 +37,15 @@ int main(void) {
 		strcpy(buf, nullStr);
 		current = next;
 	}
+}
 
-	for (current = head; current->next != NULL; current = current->next) {
+int main(void) {
+	FILE * input_file = openInputFile();
+
+	CountyNode* head = (CountyNode*)malloc(sizeof(struct CountyNode));
+	loadLinkedList(head, input_file);
+
+	for (CountyNode* current = head; current->next != NULL; current = current->next) {
 		printf("state = %s\n", current->state);
 		printf("county = %s\n", current->county);
 		if (current->next->next == NULL) {
