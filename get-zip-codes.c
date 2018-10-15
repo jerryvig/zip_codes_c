@@ -73,7 +73,19 @@ static char* buildUrl(char* state, char* county) {
 static CURL* initCurl() {
 	CURLcode res;
 
+	curl_global_init(CURL_GLOBAL_DEFAULT);
 	CURL* curl = curl_easy_init();
+	if (curl) {
+		curl_easy_setopt(curl, CURLOPT_URL, "https://www.google.com/");
+	}
+
+#ifdef SKIP_PEER_VERIFICATION
+	curl_easy_setopt(curl, CURLOPT_SSL_VERIFYPEER, 0L);
+#endif	
+#ifdef SKIP_HOSTNAME_VERIFICATION
+	curl_easy_setopt(curl, CURLOPT_SSL_VERIFYHOST, 0L);
+#endif
+
 	return curl;
 }
 
