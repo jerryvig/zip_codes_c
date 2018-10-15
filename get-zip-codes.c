@@ -38,14 +38,12 @@ int main(void) {
 		strcpy(buf, nullStr);
 	}
 
-	current = head;
-	while (1) {
+	for (current = head; current->next != NULL; current = current->next) {
 		printf("state = %s\n", current->state);
 		printf("county = %s\n", current->county);
-		if (current->next == NULL) {
+		if (current->next->next == NULL) {
 			break;
 		}
-		current = current->next;
 	}
 
 	fclose(input_file);
