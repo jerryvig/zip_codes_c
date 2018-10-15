@@ -78,21 +78,6 @@ int main(void) {
 	for (CountyNode* current = head; current->next != NULL; current = current->next) {
 		printf("state = %s\n", current->state);
 		printf("county = %s\n", current->county);
-
-		//char url[128] = BASE_URL;
-		//char* url = (char*)malloc(128 * sizeof(char));
-		/* strcat(url, current->state);
-		strcat(url, "-");
-
-		for (size_t i=0; i<strlen(current->county); ++i) {
-			if (current->county[i] == ' ') {
-				current->county[i] = '-';
-			}
-		}
-		strcat(url, current->county);
-		strcat(url, URL_SUFFIX);
-		printf("url = %s\n", url);
-		*/
 		char* url = buildUrl(current->state, current->county);
 		printf("url = %s\n", url);
 
