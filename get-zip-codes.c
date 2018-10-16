@@ -112,9 +112,11 @@ static CURL* initCurl() {
 	return curl;
 }
 
-static void processChunk(char* memory, char state[], char county[]) {
+static void processChunk(char* memory, char state[], char county[], ZipCodeNode* zipHead) {
 	char* token;
 	char* rest = memory;
+
+	ZipCodeNode* current = zipHead;
 
 	while ((token = strtok_r(rest, "\n", &rest))) {
 		char* zipCodeStr = strstr(token, "class=\"statTable\"");
@@ -124,7 +126,14 @@ static void processChunk(char* memory, char state[], char county[]) {
 			while((zipCodeTitle = strstr(zipCodeStr, "title=\"ZIP Code "))) {
 				char code[5] = {'\0'};
 				strncpy(code, &zipCodeTitle[16], 5);
+				
 				printf("\"%s\",\"%s\",\"%s\"\n", state, county, code);
+				strcpy((*current).state, state);
+				strcpy((*current).county, county);
+				strcpy((*current).code, code);
+				(*current).next = (ZipCodeNode*)malloc(sizeof(ZipCodeNode));
+				current = (*current).next;
+
 				zipCodeStr = &zipCodeTitle[21];
 			}
 		}
@@ -154,7 +163,7 @@ static void getUrl(CURL* curl, char* url, char state[], char county[], ZipCodeNo
 		fprintf(stderr, "curl_easy_perform() failed: %s\n", curl_easy_strerror(res));
 	}
 
-	processChunk(chunk->memory, state, county);
+	processChunk(chunk->memory, state, county, zipHead);
 
 	free(chunk->memory);
 	free(chunk);
@@ -176,6 +185,16 @@ int main(void) {
 		if (current->next->next == NULL) {
 			break;
 		}
+		
+		ZipCodeNode* curZipCode = zipCodesHead;
+		while (1) {
+			printf("zip code = %s\n", curZipCode->code);
+			curZipCode = curZipCode->next;
+			if (curZipCode == NULL) {
+				break;
+			}
+		}
+
 		usleep(1000000);
 	}
 
@@ -183,4 +202,13 @@ int main(void) {
 	curl_global_cleanup();	
 	freeLinkedList(head);
 	fclose(input_file);
+
+	/* ZipCodeNode* current = zipCodesHead;
+	while (1) {
+		printf("zip code = %s\n", current->code);
+		current = current->next;
+		if (current == NULL) {
+			break;
+		}
+	} */
 }
