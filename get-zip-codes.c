@@ -105,22 +105,19 @@ static CURL* initCurl() {
 	return curl;
 }
 
-static void processChunk(char* memory) {
-	//printf("mem = '%s'\n", memory);
-
+static void processChunk(char* memory, char state[], char county[]) {
 	char* token;
 	char* rest = memory;
 
 	while ((token = strtok_r(rest, "\n", &rest))) {
-		char* statTable = strstr(token, "class=\"statTable\"");
-		char* zipCodeStr = statTable;
+		char* zipCodeStr = strstr(token, "class=\"statTable\"");
 		char* zipCodeTitle = NULL;
 
-		if (statTable != NULL) {
+		if (zipCodeStr != NULL) {
 			while((zipCodeTitle = strstr(zipCodeStr, "title=\"ZIP Code "))) {
 				char code[5] = {'\0'};
 				strncpy(code, &zipCodeTitle[16], 5);
-				printf("zipCodeCode = %s\n", code);
+				printf("\"%s\",\"%s\",\"%s\"\n", state, county, code);
 				zipCodeStr = &zipCodeTitle[21];
 			}
 		}
@@ -150,7 +147,7 @@ static void getUrl(CURL* curl, char* url, char state[], char county[]) {
 		fprintf(stderr, "curl_easy_perform() failed: %s\n", curl_easy_strerror(res));
 	}
 
-	processChunk(chunk->memory);
+	processChunk(chunk->memory, state, county);
 
 	free(chunk->memory);
 	free(chunk);
