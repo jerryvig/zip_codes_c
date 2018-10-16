@@ -113,20 +113,15 @@ static void processChunk(char* memory) {
 
 	while ((token = strtok_r(rest, "\n", &rest))) {
 		char* statTable = strstr(token, "class=\"statTable\"");
+		char* zipCodeStr = statTable;
+		char* zipCodeTitle = NULL;
 
 		if (statTable != NULL) {
-			printf("statTable = %s\n", statTable);
-			
-			char* zipCodeStr = strstr(statTable, "title=\"ZIP Code ");
-			if (zipCodeStr != NULL) {
-				char * zipCodeSpc;
-				while((zipCodeSpc = strstr(zipCodeStr, "ZIP Code "))) {
-					char code[5] = {'\0'};
-					strncpy(code, &zipCodeSpc[9], 5);
-					//printf("zipCodeCode = %s\n", code);
-					zipCodeStr = &zipCodeSpc[14];
-					//printf("zipCodeStr now is %s\n", zipCodeStr);
-				}
+			while((zipCodeTitle = strstr(zipCodeStr, "title=\"ZIP Code "))) {
+				char code[5] = {'\0'};
+				strncpy(code, &zipCodeTitle[16], 5);
+				printf("zipCodeCode = %s\n", code);
+				zipCodeStr = &zipCodeTitle[21];
 			}
 		}
 	}
