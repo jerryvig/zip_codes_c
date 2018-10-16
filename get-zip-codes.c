@@ -21,6 +21,13 @@ typedef struct Memory {
   size_t size;
 } Memory;
 
+typedef struct ZipCodeNode {
+	char state[8];
+	char county[64];
+	char code[5];
+	struct ZipCodeNode* next;
+} ZipCodeNode;
+
 static FILE* openInputFile() {
 	FILE* input_file = fopen(INPUT_FILE_NAME, "r");
 	if (!input_file) {
