@@ -106,21 +106,27 @@ static CURL* initCurl() {
 }
 
 static void processChunk(char* memory) {
-	printf("mem = '%s'\n", memory);
+	//printf("mem = '%s'\n", memory);
 
 	char* token;
 	char* rest = memory;
 
 	while ((token = strtok_r(rest, "\n", &rest))) {
 		char* statTable = strstr(token, "class=\"statTable\"");
+
 		if (statTable != NULL) {
+			printf("statTable = %s\n", statTable);
+			
 			char* zipCodeStr = strstr(statTable, "title=\"ZIP Code ");
 			if (zipCodeStr != NULL) {
-				char * zipCodeSpc = strstr(zipCodeStr, "ZIP Code ");
-				//printf("zipCode = %s\n", &zipCodeSpc[9]);
-				char code[5] = {'\0'};
-				strncpy(code, &zipCodeSpc[9], 5);
-				printf("zipCodeCode = %s\n", code);
+				char * zipCodeSpc;
+				while((zipCodeSpc = strstr(zipCodeStr, "ZIP Code "))) {
+					char code[5] = {'\0'};
+					strncpy(code, &zipCodeSpc[9], 5);
+					//printf("zipCodeCode = %s\n", code);
+					zipCodeStr = &zipCodeSpc[14];
+					//printf("zipCodeStr now is %s\n", zipCodeStr);
+				}
 			}
 		}
 	}
