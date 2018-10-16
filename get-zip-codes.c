@@ -131,7 +131,7 @@ static void processChunk(char* memory, char state[], char county[]) {
 	}
 }
 
-static void getUrl(CURL* curl, char* url, char state[], char county[]) {
+static void getUrl(CURL* curl, char* url, char state[], char county[], ZipCodeNode* zipHead) {
 	CURLcode res;
 	Memory* chunk = (Memory*)malloc(sizeof(Memory));
 	chunk->memory = (char*)malloc(1);
@@ -164,13 +164,14 @@ int main(void) {
 	FILE * input_file = openInputFile();
 	CountyNode* head = loadLinkedList(input_file);
 	CURL* curl = initCurl();
+	ZipCodeNode* zipCodesHead = (ZipCodeNode*)malloc(sizeof(ZipCodeNode));
 
 	for (CountyNode* current = head; current->next != NULL; current = current->next) {
 		printf("state = %s\n", current->state);
 		printf("county = %s\n", current->county);
 		char* url = buildUrl(current->state, current->county);
 
-		getUrl(curl, url, current->state, current->county);
+		getUrl(curl, url, current->state, current->county, zipCodesHead);
 
 		if (current->next->next == NULL) {
 			break;
