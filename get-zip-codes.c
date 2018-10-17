@@ -208,6 +208,8 @@ static void processChunk(char* memory, char state[], char county[], ZipCodeNode*
 				strcpy(current->county, county);
 				strcpy(current->code, code);
 
+				printf("read %s %s %s\n", current->state, current->county, current->code);
+
 				ZipCodeNode* next = (ZipCodeNode*)malloc(sizeof(ZipCodeNode));
 				initZipCodeNode(next);
 				current->next = next;
