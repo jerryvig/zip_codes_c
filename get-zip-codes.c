@@ -59,25 +59,6 @@ static void openDb(sqlite3** db) {
 	}
 }
 
-static void initDb(sqlite3** db) {
-	fprintf(stderr, "About to create the table named 'zip_codes'.\n");
-	char *error_message = NULL;
-	char *create_stmt = "CREATE TABLE IF NOT EXISTS zip_codes_by_county ( "
-		"zip_code INTEGER PRIMARY KEY, " 
-		"state TEXT, "
-		"county TEXT );";
-	int rc = sqlite3_exec(*db, create_stmt, NULL, NULL, &error_message);
-	if (rc != SQLITE_OK ) {
-		fputs("Failed to create table.\n", stderr);
-		fprintf(stderr, "error message = %s\n", error_message);
-		sqlite3_free(error_message);
-		sqlite3_free(*db);
-		exit( EXIT_FAILURE );
-	} else {
-		fprintf(stderr, "Table created successfully.\n");
-	}
-}
-
 static void beginTransaction(sqlite3** db) {
 	char* err = NULL;
 	int rc = sqlite3_exec(*db, "BEGIN TRANSACTION", NULL, NULL, &err);
@@ -96,6 +77,27 @@ static void commitTransaction(sqlite3** db) {
 	}
 }
 
+static void initDb(sqlite3** db) {
+	beginTransaction(db);
+	fprintf(stderr, "About to create the table named 'zip_codes'.\n");
+	char *error_message = NULL;
+	char *create_stmt = "CREATE TABLE IF NOT EXISTS zip_codes_by_county ( "
+		"zip_code INTEGER PRIMARY KEY, " 
+		"state TEXT, "
+		"county TEXT );";
+	int rc = sqlite3_exec(*db, create_stmt, NULL, NULL, &error_message);
+	if (rc != SQLITE_OK ) {
+		fputs("Failed to create table.\n", stderr);
+		fprintf(stderr, "error message = %s\n", error_message);
+		sqlite3_free(error_message);
+		sqlite3_free(*db);
+		exit( EXIT_FAILURE );
+	} else {
+		commitTransaction(db);
+		fprintf(stderr, "Table created successfully.\n");
+	}
+}
+
 static void doInsert(sqlite3** db, char stmt[]) {
 	char* err = NULL;
 	printf("running insert statement = '%s'\n", stmt);
@@ -107,16 +109,21 @@ static void doInsert(sqlite3** db, char stmt[]) {
 }
 
 static CountyNode* loadLinkedList(FILE* input_file) {
-	CountyNode* head = (CountyNode*)malloc(sizeof(struct CountyNode));
 	char nullStr[128] = {'\0'};
 	char buf[128];
+	CountyNode* head = (CountyNode*)malloc(sizeof(struct CountyNode));
+	strncpy(head->state, nullStr, 8);
+	strncpy(head->county, nullStr, 64);
+
 	for (CountyNode* current = head; fgets(buf, sizeof buf, input_file) != NULL;) {
 		char* comma_start = strstr(buf, ",");
 		strncpy(current->county, &comma_start[1], strlen(&comma_start[1]) - 1);
 		strncpy(current->state, buf, strlen(buf) - strlen(comma_start));
 		CountyNode* next = (CountyNode*)malloc(sizeof(struct CountyNode));
+		strncpy(next->state, nullStr, 8);
+		strncpy(next->county, nullStr, 64);
 
-		printf("current->county = %s\n", current->county);
+		printf("state, county = %s, %s\n", current->state, current->county);
 
 		current->next = next;
 		strcpy(buf, nullStr);
@@ -208,8 +215,6 @@ static void processChunk(char* memory, char state[], char county[], ZipCodeNode*
 				strcpy(current->county, county);
 				strcpy(current->code, code);
 
-				printf("read %s %s %s\n", current->state, current->county, current->code);
-
 				ZipCodeNode* next = (ZipCodeNode*)malloc(sizeof(ZipCodeNode));
 				initZipCodeNode(next);
 				current->next = next;
@@ -281,7 +286,6 @@ int main(void) {
 
 				sprintf(insert_stmt, insert_fmt, curZip->code, curZip->state, curZip->county );
 				doInsert(&db, insert_stmt);
-
 			}
 			ZipCodeNode* last = curZip;
 			curZip = curZip->next;
