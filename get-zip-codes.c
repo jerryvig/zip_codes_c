@@ -139,9 +139,9 @@ static void processChunk(char* memory, char state[], char county[], ZipCodeNode*
 				strcpy(current->state, state);
 				strcpy(current->county, county);
 				strcpy(current->code, code);
+
 				ZipCodeNode* next = (ZipCodeNode*)malloc(sizeof(ZipCodeNode));
 				initZipCodeNode(next);
-
 				current->next = next;
 				current = next;
 
@@ -188,10 +188,6 @@ int main(void) {
 	for (CountyNode* current = head; current->next != NULL; current = current->next) {
 		ZipCodeNode* zipCodesHead = (ZipCodeNode*)malloc(sizeof(ZipCodeNode));
 		initZipCodeNode(zipCodesHead);
-		/* zipCodesHead->next = NULL;
-		strncpy(zipCodesHead->state, nullStr, 8);
-		strcpy(zipCodesHead->county, nullStr);
-		strncpy(zipCodesHead->code, nullStr, 5); */
 
 		printf("state = %s\n", current->state);
 		printf("county = %s\n", current->county);
@@ -199,22 +195,16 @@ int main(void) {
 
 		getUrl(curl, url, current->state, current->county, zipCodesHead);
 
-		if (current->next->next == NULL) {
-			break;
-		}
-
-		ZipCodeNode* curZip = zipCodesHead;
-		while (1) {
-			if (curZip == NULL) {
-				break;
-			}
+		for (ZipCodeNode* curZip = zipCodesHead; curZip != NULL;) {
 			printf("zip code = %s\n", curZip->code);
 			ZipCodeNode* last = curZip;
-			curZip = last->next;
+			curZip = curZip->next;
 			free(last);
 		}
 
-		free(zipCodesHead);
+		if (current->next->next == NULL) {
+			break;
+		}
 
 		usleep(1000000);
 	}
@@ -224,12 +214,4 @@ int main(void) {
 	freeLinkedList(head);
 	fclose(input_file);
 
-	/* ZipCodeNode* current = zipCodesHead;
-	while (1) {
-		printf("zip code = %s\n", current->code);
-		current = current->next;
-		if (current == NULL) {
-			break;
-		}
-	} */
 }
