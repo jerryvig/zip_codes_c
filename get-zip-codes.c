@@ -78,6 +78,24 @@ static void initDb(sqlite3** db) {
 	}
 }
 
+static void beginTransaction(sqlite3** db) {
+	char* err = NULL;
+	int rc = sqlite3_exec(*db, "BEGIN TRANSACTION", NULL, NULL, &err);
+	if ( rc != SQLITE_OK ) {
+		fprintf(stderr, "Failed to BEGIN TRANSACTION.\n");
+		sqlite3_free(err);
+	}
+}
+
+static void commitTransaction(sqlite3** db) {
+	char* err = NULL;
+	int rc = sqlite3_exec(*db, "COMMIT", NULL, NULL, &err);
+	if ( rc != SQLITE_OK ) {
+		fprintf(stderr, "Failed to COMMIT database transaction.\n");
+		sqlite3_free(err);
+	}
+}
+
 static CountyNode* loadLinkedList(FILE* input_file) {
 	CountyNode* head = (CountyNode*)malloc(sizeof(struct CountyNode));
 	char nullStr[128] = {'\0'};
@@ -229,6 +247,8 @@ int main(void) {
 
 	CountyNode* head = loadLinkedList(input_file);
 	CURL* curl = initCurl();
+
+	beginTransaction(&db);
 
 	for (CountyNode* current = head; current->next != NULL; current = current->next) {
 		ZipCodeNode* zipCodesHead = (ZipCodeNode*)malloc(sizeof(ZipCodeNode));
