@@ -275,6 +275,8 @@ int main(void) {
 
 		getUrl(curl, url, current->state, current->county, zipCodesHead);
 
+		free(url);
+
 		beginTransaction(&db);
 		char insert_fmt[] = "INSERT INTO zip_codes_by_county VALUES ( %s, \"%s\", \"%s\" );";
 		char insert_stmt[64] = {'\0'};
