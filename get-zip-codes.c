@@ -5,6 +5,7 @@
 #include <curl/curl.h>
 #include <string.h>
 #include <unistd.h>
+#include <sqlite3.h>
 
 #define INPUT_FILE_NAME "county-list.csv"
 #define OUTPUT_FILE_NAME "zip-codes-list.csv"
