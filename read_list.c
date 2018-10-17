@@ -636,13 +636,14 @@ static void processLines(char* memory, char* code, ZipCodeRecord* record) {
 			puts("trying to do avg_household");
 
 			char* avg_household_p = strstr(avg_household_base, "</p>");
-			char* avg_household_peeps = strstr(&avg_household_p[4], " people");
-			char avg_household_size[8] = {'\0'};
-			strncpy(avg_household_size, &avg_household_p[4],
-				strlen(&avg_household_p[4]) - strlen(avg_household_peeps));
-			strcpy(record->averageHouseholdSize, avg_household_size);
-			printf("avg household size = %s\n", record->averageHouseholdSize);
-			puts("completed avg_household");
+			if (avg_household_p != NULL) {
+				char* avg_household_peeps = strstr(&avg_household_p[4], " people");
+				char avg_household_size[8] = {'\0'};
+				strncpy(avg_household_size, &avg_household_p[4],
+					strlen(&avg_household_p[4]) - strlen(avg_household_peeps));
+				strcpy(record->averageHouseholdSize, avg_household_size);
+				printf("avg household size = %s\n", record->averageHouseholdSize);
+			}
 		}
 
 		token = strtok(NULL, "\n");
