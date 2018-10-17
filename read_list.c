@@ -164,7 +164,7 @@ static void initDb(sqlite3** db) {
 		"average_household_size REAL );";
 	int rc = sqlite3_exec(*db, create_stmt, NULL, NULL, &error_message);
 	if ( rc != SQLITE_OK ) {
-		fputs("SOME SQL ERROR OCURRED.\n", stderr);
+		fputs("Failed to create table.\n", stderr);
 		fprintf(stderr, "error message = %s\n", error_message);
 		sqlite3_free(error_message);
 		sqlite3_close( *db );

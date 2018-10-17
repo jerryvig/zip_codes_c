@@ -59,6 +59,25 @@ static void openDb(sqlite3** db) {
 	}
 }
 
+static void initDb(sqlite3** db) {
+	fprintf(stderr, "About to create the table named 'zip_codes'.\n");
+	char *error_message = NULL;
+	char *create_stmt = "CREATE TABLE IF NOT EXISTS zip_codes_by_county ( "
+		"zip_code INTEGER PRIMARY KEY, " 
+		"state TEXT, "
+		"county TEXT );";
+	int rc = sqlite3_exec(*db, create_stmt, NULL, NULL, &error_message);
+	if (rc != SQLITE_OK ) {
+		fputs("Failed to create table.\n", stderr);
+		fprintf(stderr, "error message = %s\n", error_message);
+		sqlite3_free(error_message);
+		sqlite3_free(*db);
+		exit( EXIT_FAILURE );
+	} else {
+		fprintf(stderr, "Table created successfully.\n");
+	}
+}
+
 static CountyNode* loadLinkedList(FILE* input_file) {
 	CountyNode* head = (CountyNode*)malloc(sizeof(struct CountyNode));
 	char nullStr[128] = {'\0'};
@@ -206,6 +225,7 @@ int main(void) {
 	FILE * output_file = openOutputFile();
 	sqlite3* db = NULL;
 	openDb(&db);
+	initDb(&db);
 
 	CountyNode* head = loadLinkedList(input_file);
 	CURL* curl = initCurl();
