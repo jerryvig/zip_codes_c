@@ -88,7 +88,7 @@ static ZipCode* loadLinkedList(FILE* fp) {
 static ZipCode* loadLinkedListFromSqlite(sqlite3* db) {
 	ZipCode* list_head = (ZipCode*)malloc(sizeof(struct ZipCode));
 	char *err = NULL;
-	const char *select_stmt = "SELECT * FROM zip_codes_by_county ORDER BY "
+	const char *select_stmt = "SELECT * FROM zip_codes_by_county WHERE zip_code=89024 ORDER BY "
 		"state ASC, county ASC, zip_code ASC";
 	int nRows = 0;
 	int nCols = 0;
@@ -101,7 +101,7 @@ static ZipCode* loadLinkedListFromSqlite(sqlite3* db) {
 	}
 
 	ZipCode* prev = list_head;
-	for (int i=1; i<nRows; ++i) {
+	for (int i=1; i<=nRows; ++i) {
 		prev->code = (char*)malloc(8 * sizeof(char));
 		strcpy(prev->code, result[i*nCols]);
 		strcpy(prev->state, result[i*nCols+1]);
@@ -665,6 +665,8 @@ int main(void) {
 	for (ZipCode *prev = list_head; prev->next != NULL; prev = prev->next) {
 		zip_code_count++;
 	}
+
+	printf("Loaded %d zip codes from sqlite.\n", zip_code_count);
 
 	ZipCodeRecord zipCodeRecords[zip_code_count];
 	allocateZipCodeRecords(zip_code_count, zipCodeRecords);
