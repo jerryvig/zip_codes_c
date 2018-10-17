@@ -14,6 +14,8 @@
 #define SQLITE3_DB_NAME "zip_codes_db.sqlite3"
 
 typedef struct ZipCode {
+	char state[8];
+	char county[64];
 	char* code;
 	struct ZipCode* next;
 } ZipCode;
@@ -79,6 +81,40 @@ static ZipCode* loadLinkedList(FILE* fp) {
 	}
 	prev->code = NULL;
 	prev->next = NULL;
+
+	return list_head;
+}
+
+static ZipCode* loadLinkedListFromSqlite(sqlite3* db) {
+	ZipCode* list_head = (ZipCode*)malloc(sizeof(struct ZipCode));
+	char *err = NULL;
+	const char *select_stmt = "SELECT * FROM zip_codes_by_county ORDER BY "
+		"state ASC, county ASC, zip_code ASC";
+	int nRows = 0;
+	int nCols = 0;
+	char **result = NULL;
+
+	int rc = sqlite3_get_table(db, select_stmt, &result, &nRows, &nCols, &err);
+	if ( rc != SQLITE_OK ) {
+		fprintf(stderr, "Failed to execute SELECT stmt '%s' with error: %s.\n", select_stmt, err);
+		sqlite3_free(err);
+	}
+
+	ZipCode* prev = list_head;
+	for (int i=1; i<nRows; ++i) {
+		prev->code = (char*)malloc(8 * sizeof(char));
+		strcpy(prev->code, result[i*nCols]);
+		strcpy(prev->state, result[i*nCols+1]);
+		strcpy(prev->county, result[i*nCols+2]);
+
+		ZipCode* next = (ZipCode*)malloc(sizeof(struct ZipCode));
+		prev->next = next;
+		prev = next;
+	}
+	prev->code = NULL;
+	prev->next = NULL;
+
+	sqlite3_free_table(result);
 
 	return list_head;
 }
@@ -622,14 +658,17 @@ int main(void) {
 	openDb(&db);
 	initDb(&db);
 
-	ZipCode *list_head = loadLinkedList(fp);
+	closeFile(fp);
 
- 	closeFile(fp);
-
+	ZipCode *list_head = loadLinkedListFromSqlite(db);
  	int32_t zip_code_count = 0;
 	for (ZipCode *prev = list_head; prev->next != NULL; prev = prev->next) {
+		//printf("prev= %s, %s, %s\n", prev->state, prev->county, prev->code);
 		zip_code_count++;
 	}
+
+	//return EXIT_SUCCESS;
+
 	ZipCodeRecord zipCodeRecords[zip_code_count];
 	allocateZipCodeRecords(zip_code_count, zipCodeRecords);
 	
