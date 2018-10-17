@@ -96,6 +96,10 @@ static void commitTransaction(sqlite3** db) {
 	}
 }
 
+static void doInsert(sqlite3** db, char stmt[]) {
+	
+}
+
 static CountyNode* loadLinkedList(FILE* input_file) {
 	CountyNode* head = (CountyNode*)malloc(sizeof(struct CountyNode));
 	char nullStr[128] = {'\0'};
@@ -248,8 +252,6 @@ int main(void) {
 	CountyNode* head = loadLinkedList(input_file);
 	CURL* curl = initCurl();
 
-	beginTransaction(&db);
-
 	for (CountyNode* current = head; current->next != NULL; current = current->next) {
 		ZipCodeNode* zipCodesHead = (ZipCodeNode*)malloc(sizeof(ZipCodeNode));
 		initZipCodeNode(zipCodesHead);
@@ -260,15 +262,26 @@ int main(void) {
 
 		getUrl(curl, url, current->state, current->county, zipCodesHead);
 
+		beginTransaction(&db);
+		char insert_fmt[] = "INSERT INTO zip_codes_by_county VALUES ( %s, \"%s\", \"%s\" );";
+		char insert_stmt[64] = {'\0'};
+
 		for (ZipCodeNode* curZip = zipCodesHead; curZip != NULL;) {
 			if (strlen(curZip->code) > 0) {
 				fprintf(output_file, "\"%s\",\"%s\",\"%s\"\n",
 					curZip->state, curZip->county, curZip->code);
+
+				sprintf(insert_stmt, insert_fmt, curZip->code, curZip->state, curZip->county );
+				printf("insert_stmt = %s\n", insert_stmt);
+
+
 			}
 			ZipCodeNode* last = curZip;
 			curZip = curZip->next;
 			free(last);
 		}
+
+		commitTransaction(&db);
 
 		if (current->next->next == NULL) {
 			break;
