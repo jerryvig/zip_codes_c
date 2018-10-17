@@ -7,6 +7,7 @@
 #include <unistd.h>
 
 #define INPUT_FILE_NAME "county-list.csv"
+#define OUTPUT_FILE_NAME "zip-codes-list.csv"
 #define BASE_URL "https://www.zip-codes.com/county/"
 #define URL_SUFFIX ".asp"
 
@@ -31,10 +32,18 @@ typedef struct ZipCodeNode {
 static FILE* openInputFile() {
 	FILE* input_file = fopen(INPUT_FILE_NAME, "r");
 	if (!input_file) {
-		perror("Failed to open input file '" INPUT_FILE_NAME "' for reading");
+		perror("Failed to open input file '" INPUT_FILE_NAME "' for reading.");
 		exit(EXIT_FAILURE);
 	}
 	return input_file;
+}
+
+static FILE* openOutputFile() {
+	FILE* output_file = fopen(OUTPUT_FILE_NAME, "w");
+	if (!output_file) {
+		perror("Failed to open output file '" OUTPUT_FILE_NAME "' for writing.");
+	}
+	return output_file;
 }
 
 static CountyNode* loadLinkedList(FILE* input_file) {
@@ -135,7 +144,6 @@ static void processChunk(char* memory, char state[], char county[], ZipCodeNode*
 				char code[5] = {'\0'};
 				strncpy(code, &zipCodeTitle[16], 5);
 				
-				printf("\"%s\",\"%s\",\"%s\"\n", state, county, code);
 				strcpy(current->state, state);
 				strcpy(current->county, county);
 				strcpy(current->code, code);
@@ -182,6 +190,7 @@ static void getUrl(CURL* curl, char* url, char state[], char county[], ZipCodeNo
 
 int main(void) {
 	FILE * input_file = openInputFile();
+	FILE * output_file = openOutputFile();
 	CountyNode* head = loadLinkedList(input_file);
 	CURL* curl = initCurl();
 
@@ -196,7 +205,10 @@ int main(void) {
 		getUrl(curl, url, current->state, current->county, zipCodesHead);
 
 		for (ZipCodeNode* curZip = zipCodesHead; curZip != NULL;) {
-			printf("zip code = %s\n", curZip->code);
+			if (strlen(curZip->code) > 0) {
+				fprintf(output_file, "\"%s\",\"%s\",\"%s\"\n",
+					curZip->state, curZip->county, curZip->code);
+			}
 			ZipCodeNode* last = curZip;
 			curZip = curZip->next;
 			free(last);
@@ -213,5 +225,5 @@ int main(void) {
 	curl_global_cleanup();	
 	freeLinkedList(head);
 	fclose(input_file);
-
+	fclose(output_file);
 }
