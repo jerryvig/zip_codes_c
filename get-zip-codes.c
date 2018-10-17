@@ -97,7 +97,13 @@ static void commitTransaction(sqlite3** db) {
 }
 
 static void doInsert(sqlite3** db, char stmt[]) {
-	
+	char* err = NULL;
+	printf("running insert statement = '%s'\n", stmt);
+	int rc = sqlite3_exec(*db, stmt, NULL, NULL, &err);
+	if ( rc != SQLITE_OK ) {
+		fprintf(stderr, "Failed to exec insert stmt '%s' with error: %s.\n", stmt, err);
+		sqlite3_free(err);
+	}
 }
 
 static CountyNode* loadLinkedList(FILE* input_file) {
@@ -272,8 +278,7 @@ int main(void) {
 					curZip->state, curZip->county, curZip->code);
 
 				sprintf(insert_stmt, insert_fmt, curZip->code, curZip->state, curZip->county );
-				printf("insert_stmt = %s\n", insert_stmt);
-
+				doInsert(&db, insert_stmt);
 
 			}
 			ZipCodeNode* last = curZip;
