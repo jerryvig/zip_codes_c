@@ -663,11 +663,8 @@ int main(void) {
 	ZipCode *list_head = loadLinkedListFromSqlite(db);
  	int32_t zip_code_count = 0;
 	for (ZipCode *prev = list_head; prev->next != NULL; prev = prev->next) {
-		//printf("prev= %s, %s, %s\n", prev->state, prev->county, prev->code);
 		zip_code_count++;
 	}
-
-	//return EXIT_SUCCESS;
 
 	ZipCodeRecord zipCodeRecords[zip_code_count];
 	allocateZipCodeRecords(zip_code_count, zipCodeRecords);
