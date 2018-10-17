@@ -112,6 +112,14 @@ static CURL* initCurl() {
 	return curl;
 }
 
+static void initZipCodeNode(ZipCodeNode* node) {
+	char nullStr[64] = {'\0'};
+	node->next = NULL;
+	strncpy(node->state, nullStr, 8);
+	strcpy(node->county, nullStr);
+	strncpy(node->code, nullStr, 5);
+}
+
 static void processChunk(char* memory, char state[], char county[], ZipCodeNode* zipHead) {
 	char* token;
 	char* rest = memory;
@@ -132,6 +140,8 @@ static void processChunk(char* memory, char state[], char county[], ZipCodeNode*
 				strcpy(current->county, county);
 				strcpy(current->code, code);
 				ZipCodeNode* next = (ZipCodeNode*)malloc(sizeof(ZipCodeNode));
+				initZipCodeNode(next);
+
 				current->next = next;
 				current = next;
 
@@ -177,6 +187,12 @@ int main(void) {
 
 	for (CountyNode* current = head; current->next != NULL; current = current->next) {
 		ZipCodeNode* zipCodesHead = (ZipCodeNode*)malloc(sizeof(ZipCodeNode));
+		initZipCodeNode(zipCodesHead);
+		/* zipCodesHead->next = NULL;
+		strncpy(zipCodesHead->state, nullStr, 8);
+		strcpy(zipCodesHead->county, nullStr);
+		strncpy(zipCodesHead->code, nullStr, 5); */
+
 		printf("state = %s\n", current->state);
 		printf("county = %s\n", current->county);
 		char* url = buildUrl(current->state, current->county);
@@ -194,7 +210,7 @@ int main(void) {
 			}
 			printf("zip code = %s\n", curZip->code);
 			ZipCodeNode* last = curZip;
-			curZip = curZip->next;
+			curZip = last->next;
 			free(last);
 		}
 
