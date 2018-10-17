@@ -633,6 +633,8 @@ static void processLines(char* memory, char* code, ZipCodeRecord* record) {
 		}
 
 		if (avg_household_base != NULL) {
+			puts("trying to do avg_household");
+
 			char* avg_household_p = strstr(avg_household_base, "</p>");
 			char* avg_household_peeps = strstr(&avg_household_p[4], " people");
 			char avg_household_size[8] = {'\0'};
@@ -640,6 +642,7 @@ static void processLines(char* memory, char* code, ZipCodeRecord* record) {
 				strlen(&avg_household_p[4]) - strlen(avg_household_peeps));
 			strcpy(record->averageHouseholdSize, avg_household_size);
 			printf("avg household size = %s\n", record->averageHouseholdSize);
+			puts("completed avg_household");
 		}
 
 		token = strtok(NULL, "\n");
@@ -666,7 +669,7 @@ int main(void) {
 		zip_code_count++;
 	}
 
-	printf("Loaded %d zip codes from sqlite.\n", zip_code_count);
+	printf("Loaded %d zip codes from sqlite3 db.\n", zip_code_count);
 
 	ZipCodeRecord zipCodeRecords[zip_code_count];
 	allocateZipCodeRecords(zip_code_count, zipCodeRecords);
