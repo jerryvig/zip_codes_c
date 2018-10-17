@@ -271,17 +271,17 @@ int main(void) {
 
 		printf("state = %s\n", current->state);
 		printf("county = %s\n", current->county);
+
 		char* url = buildUrl(current->state, current->county);
-
 		getUrl(curl, url, current->state, current->county, zipCodesHead);
-
 		free(url);
 
 		beginTransaction(&db);
 		char insert_fmt[] = "INSERT INTO zip_codes_by_county VALUES ( %s, \"%s\", \"%s\" );";
 		char insert_stmt[64] = {'\0'};
 
-		for (ZipCodeNode* curZip = zipCodesHead; curZip != NULL;) {
+		ZipCodeNode* curZip;
+		for (curZip = zipCodesHead; curZip != NULL;) {
 			if (strlen(curZip->code) > 0) {
 				fprintf(output_file, "\"%s\",\"%s\",\"%s\"\n",
 					curZip->state, curZip->county, curZip->code);
@@ -294,6 +294,7 @@ int main(void) {
 			free(last);
 		}
 
+		free(curZip);
 		commitTransaction(&db);
 
 		if (current->next->next == NULL) {
