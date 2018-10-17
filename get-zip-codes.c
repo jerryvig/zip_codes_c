@@ -9,6 +9,7 @@
 
 #define INPUT_FILE_NAME "county-list.csv"
 #define OUTPUT_FILE_NAME "zip-codes-list.csv"
+#define SQLITE3_DB_NAME "zip_codes_db.sqlite3"
 #define BASE_URL "https://www.zip-codes.com/county/"
 #define URL_SUFFIX ".asp"
 
@@ -45,6 +46,17 @@ static FILE* openOutputFile() {
 		perror("Failed to open output file '" OUTPUT_FILE_NAME "' for writing.");
 	}
 	return output_file;
+}
+
+static void openDb(sqlite3** db) {
+	int rc = sqlite3_open(SQLITE3_DB_NAME, db);
+	if ( rc ) {
+		fprintf(stderr, "Failed to open database " SQLITE3_DB_NAME);
+		sqlite3_close( *db );
+		exit( EXIT_FAILURE );
+	} else {
+		fprintf(stderr, "Opened database " SQLITE3_DB_NAME " for writing.\n");
+	}
 }
 
 static CountyNode* loadLinkedList(FILE* input_file) {
@@ -192,6 +204,9 @@ static void getUrl(CURL* curl, char* url, char state[], char county[], ZipCodeNo
 int main(void) {
 	FILE * input_file = openInputFile();
 	FILE * output_file = openOutputFile();
+	sqlite3* db = NULL;
+	openDb(&db);
+
 	CountyNode* head = loadLinkedList(input_file);
 	CURL* curl = initCurl();
 
@@ -225,6 +240,8 @@ int main(void) {
 	curl_easy_cleanup(curl);
 	curl_global_cleanup();	
 	freeLinkedList(head);
+
+	sqlite3_close(db);
 	fclose(input_file);
 	fclose(output_file);
 }
