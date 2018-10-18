@@ -327,11 +327,14 @@ static void freeZipCodeRecords(int32_t zip_code_count, ZipCodeRecord records[]) 
 	}
 }
 
-static void processLines(char* memory, char* code, ZipCodeRecord* record) {
+static void processLines(char* memory, char* code, char* state, char* county, ZipCodeRecord* record) {
 	char* token = strtok(memory, "\n");
 	char nullStr[24] = {'\0'};
 	printf("zip code = %s\n", code);
+	printf("state = %s\n", state);
 	strcpy(record->code, code);
+	strcpy(record->state, state);
+	strcpy(record->county, county);
 
 	while (token) {
 		char* zip_pop = strstr(token, "Estimated zip code population in 2016:");
@@ -699,7 +702,8 @@ int main(void) {
 
 		CURLcode res = curl_easy_perform(curl);
 
-		processLines(chunk->memory, prev->code, &zipCodeRecords[recordIndex]);
+		processLines(chunk->memory, prev->code, prev->state, prev->county,
+			&zipCodeRecords[recordIndex]);
 
 		if (res != CURLE_OK) {
 			fprintf(stderr, "curl_easy_perform() failed: %s\n", curl_easy_strerror(res));
@@ -756,8 +760,8 @@ int main(void) {
 
 		sprintf(insert_stmt, insert_format,
 			zipCodeRecords[recordIndex].code,
-			STATE_NAME,
-			COUNTY_NAME,
+			zipCodeRecords[recordIndex].state,
+			zipCodeRecords[recordIndex].county,
 			zipCodeRecords[recordIndex].population,
 			zipCodeRecords[recordIndex].population2010,
 			zipCodeRecords[recordIndex].population2000,
