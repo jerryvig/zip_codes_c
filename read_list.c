@@ -276,6 +276,8 @@ static void allocateRecordField(char** field, size_t size, char initialValue[]) 
 static void allocateZipCodeRecords(int32_t recordCount, ZipCodeRecord records[]) {
 	for (int32_t i = 0; i < recordCount; ++i) {
 		allocateRecordField(&records[i].code, 8, NULL);
+		allocateRecordField(&records[i].state, 8, "");
+		allocateRecordField(&records[i].county, 64, "");
 		allocateRecordField(&records[i].population, 10, "0");
 		allocateRecordField(&records[i].population2010, 10, "0");
 		allocateRecordField(&records[i].population2000, 10, "0");
@@ -301,6 +303,8 @@ static void allocateZipCodeRecords(int32_t recordCount, ZipCodeRecord records[])
 static void freeZipCodeRecords(int32_t zip_code_count, ZipCodeRecord records[]) {
 	for (int32_t i = 0; i < zip_code_count; ++i) {
 		free(records[i].code);
+		free(records[i].state);
+		free(records[i].county);
 		free(records[i].population);
 		free(records[i].population2010);
 		free(records[i].population2000);
