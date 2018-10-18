@@ -26,6 +26,8 @@ typedef struct MemoryBuffer {
 } MemoryBuffer;
 
 typedef struct ZipCodeRecord {
+	char* state;
+	char* county;
 	char* code;
 	char* population;
 	char* population2010;
@@ -88,7 +90,7 @@ static ZipCode* loadLinkedList(FILE* fp) {
 static ZipCode* loadLinkedListFromSqlite(sqlite3* db) {
 	ZipCode* list_head = (ZipCode*)malloc(sizeof(struct ZipCode));
 	char *err = NULL;
-	const char *select_stmt = "SELECT * FROM zip_codes_by_county WHERE zip_code=89024 ORDER BY "
+	const char *select_stmt = "SELECT * FROM zip_codes_by_county ORDER BY "
 		"state ASC, county ASC, zip_code ASC";
 	int nRows = 0;
 	int nCols = 0;
