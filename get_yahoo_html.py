@@ -3,6 +3,14 @@ from xml.dom import minidom
 import sys
 import requests
 
+def getTableDom(response):
+    table_start_idx = response.text.find(
+        "<table class=\"W(100%) M(0)\" data-test=\"historical-prices\"")
+    table_start = response.text[table_start_idx:]
+    table_end_idx = table_start.find("<div class=")
+    dom = minidom.parseString(table_start[:table_end_idx])
+    return dom
+
 def getTbodyNode(dom):
     for node in dom.documentElement.childNodes:
         if node.tagName == 'tbody':
@@ -17,8 +25,8 @@ def getAdjClosePrices(tbody):
                 if child.tagName == 'td':
                     tdCount += 1
                     if tdCount == 6:
-                        for span in child.childNodes:
-                            adjClosePrices.append(span.childNodes[0].toxml().strip())
+                        span = child.childNodes[0]
+                        adjClosePrices.append(float(span.childNodes[0].toxml().strip()))
     return adjClosePrices
 
 def main():
@@ -26,14 +34,8 @@ def main():
         print('arg = {}'.format(arg))
 
     response = requests.get('https://finance.yahoo.com/quote/SHOP/history?p=SHOP')
-    table_start_idx = response.text.find(
-        "<table class=\"W(100%) M(0)\" data-test=\"historical-prices\"")
-    table_start = response.text[table_start_idx:]
-    table_end_idx = table_start.find("<div class=")
-
-    dom = minidom.parseString(table_start[:table_end_idx])
+    dom = getTableDom(response)
     tbody = getTbodyNode(dom)
-
 
     adjPrices = getAdjClosePrices(tbody)
     print(adjPrices)
