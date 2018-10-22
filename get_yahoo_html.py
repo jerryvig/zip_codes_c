@@ -8,8 +8,7 @@ def getTableDom(response):
         "<table class=\"W(100%) M(0)\" data-test=\"historical-prices\"")
     table_start = response.text[table_start_idx:]
     table_end_idx = table_start.find("<div class=")
-    dom = minidom.parseString(table_start[:table_end_idx])
-    return dom
+    return minidom.parseString(table_start[:table_end_idx])
 
 def getTbodyNode(dom):
     for node in dom.documentElement.childNodes:
