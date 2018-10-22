@@ -14,31 +14,30 @@ def getTableDom(response):
 def getTbodyNode(dom):
     for node in dom.documentElement.childNodes:
         if node.tagName == 'tbody':
-    	    return node
+            return node
 
 def getAdjClosePrices(tbody):
-    adjClosePrices = []
+    adj_close_prices = []
     for node in tbody.childNodes:
         if node.tagName == 'tr':
-            tdCount = 0
+            td_count = 0
             for child in node.childNodes:
                 if child.tagName == 'td':
-                    tdCount += 1
-                    if tdCount == 6:
+                    td_count += 1
+                    if td_count == 6:
                         span = child.childNodes[0]
-                        adjClosePrices.append(float(span.childNodes[0].toxml().strip()))
-    return adjClosePrices
+                        adj_close_prices.append(float(span.childNodes[0].toxml().strip()))
+    return adj_close_prices
 
 def main():
-    for arg in sys.argv:
-        print('arg = {}'.format(arg))
-
-    response = requests.get('https://finance.yahoo.com/quote/SHOP/history?p=SHOP')
+    ticker = sys.argv[1].strip()
+    url = 'https://finance.yahoo.com/quote/%s/history?p=%s' % (ticker, ticker)
+    response = requests.get(url)
     dom = getTableDom(response)
     tbody = getTbodyNode(dom)
 
-    adjPrices = getAdjClosePrices(tbody)
-    print(adjPrices)
+    adj_prices = getAdjClosePrices(tbody)
+    print(adj_prices)
 
 if __name__ == '__main__':
     main()
