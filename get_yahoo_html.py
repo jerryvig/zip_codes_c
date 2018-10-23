@@ -26,7 +26,8 @@ def get_adj_close(tbody):
                     td_count += 1
                     if td_count == 6:
                         span = child.childNodes[0]
-                        adj_close_prices.append(float(span.childNodes[0].toxml().strip()))
+                        clean_adj_close = float(span.childNodes[0].toxml().strip().replace(',', ''))
+                        adj_close_prices.append(clean_adj_close)
     return adj_close_prices
 
 def main():
