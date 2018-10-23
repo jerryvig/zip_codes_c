@@ -1,5 +1,6 @@
 from xml.dom import minidom
 
+import json
 import sys
 import time
 import requests
@@ -35,6 +36,8 @@ def main():
         print('No ticker argument supplied. Exiting....')
         return
 
+    adj_prices_by_ticker = {}
+
     for tick in sys.argv[1:]:
         ticker = tick.strip()
         url = 'https://finance.yahoo.com/quote/%s/history?p=%s' % (ticker, ticker)
@@ -42,8 +45,10 @@ def main():
         dom = get_table_dom(response)
         tbody = get_tbody_node(dom)
         adj_prices = get_adj_close(tbody)
-        print(adj_prices)
+        adj_prices_by_ticker[ticker] = adj_prices
         time.sleep(1)
+
+    print(json.dumps(adj_prices_by_ticker, sort_keys=True, indent=4))
 
 if __name__ == '__main__':
     main()
