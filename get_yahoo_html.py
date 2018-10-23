@@ -29,6 +29,10 @@ def getAdjClosePrices(tbody):
     return adj_close_prices
 
 def main():
+    if len(sys.argv) < 2:
+        print('No ticker argument supplied. Exiting....')
+        return
+
     ticker = sys.argv[1].strip()
     url = 'https://finance.yahoo.com/quote/%s/history?p=%s' % (ticker, ticker)
     response = requests.get(url)
