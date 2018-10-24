@@ -31,6 +31,16 @@ def get_adj_close(tbody):
                         adj_close_prices.append(clean_adj_close)
     return adj_close_prices
 
+def get_changes_by_ticker(adj_prices_by_ticker):
+    changes_by_ticker = {}
+    for ticker in adj_prices_by_ticker:
+        changes = []
+        changes.append((adj_prices_by_ticker[ticker][1] - adj_prices_by_ticker[ticker][0])/adj_prices_by_ticker[ticker][0])
+        changes.append((adj_prices_by_ticker[ticker][2] - adj_prices_by_ticker[ticker][1])/adj_prices_by_ticker[ticker][1])
+        changes.append((adj_prices_by_ticker[ticker][3] - adj_prices_by_ticker[ticker][2])/adj_prices_by_ticker[ticker][2])
+        changes_by_ticker[ticker] = changes
+    return changes_by_ticker
+
 def main():
     if len(sys.argv) < 2:
         print('No ticker argument supplied. Exiting....')
@@ -48,13 +58,7 @@ def main():
         adj_prices_by_ticker[ticker] = list(reversed(adj_prices[:4]))
         time.sleep(1.5)
 
-    changes_by_ticker = {}
-    for ticker in adj_prices_by_ticker:
-        changes = []
-        changes.append((adj_prices_by_ticker[ticker][1] - adj_prices_by_ticker[ticker][0])/adj_prices_by_ticker[ticker][0])
-        changes.append((adj_prices_by_ticker[ticker][2] - adj_prices_by_ticker[ticker][1])/adj_prices_by_ticker[ticker][1])
-        changes.append((adj_prices_by_ticker[ticker][3] - adj_prices_by_ticker[ticker][2])/adj_prices_by_ticker[ticker][2])
-        changes_by_ticker[ticker] = changes
+    changes_by_ticker = get_changes_by_ticker(adj_prices_by_ticker)
 
     print(json.dumps(changes_by_ticker, sort_keys=True, indent=2))
 
