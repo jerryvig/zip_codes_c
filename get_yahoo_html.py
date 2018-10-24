@@ -63,6 +63,16 @@ def main():
 
     changes_by_ticker = get_changes_by_ticker(adj_prices_by_ticker)
 
+    for ticker, changes in changes_by_ticker.items():
+        fit = 'Fit[{'
+        fit += str(round(changes[0]*100, 4))
+        fit += ', '
+        fit += str(round(changes[1]*100, 4))
+        fit += ', '
+        fit += str(round(changes[2]*100, 4))
+        fit += '}, {x^2}, x]'
+        print(fit)
+
     print(json.dumps(changes_by_ticker, sort_keys=True, indent=2))
 
 if __name__ == '__main__':
