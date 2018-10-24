@@ -45,10 +45,18 @@ def main():
         dom = get_table_dom(response)
         tbody = get_tbody_node(dom)
         adj_prices = get_adj_close(tbody)
-        adj_prices_by_ticker[ticker] = adj_prices
-        time.sleep(1)
+        adj_prices_by_ticker[ticker] = list(reversed(adj_prices[:4]))
+        time.sleep(1.5)
 
-    print(json.dumps(adj_prices_by_ticker, sort_keys=True, indent=4))
+    changes_by_ticker = {}
+    for ticker in adj_prices_by_ticker:
+        changes = []
+        changes.append((adj_prices_by_ticker[ticker][1] - adj_prices_by_ticker[ticker][0])/adj_prices_by_ticker[ticker][0])
+        changes.append((adj_prices_by_ticker[ticker][2] - adj_prices_by_ticker[ticker][1])/adj_prices_by_ticker[ticker][1])
+        changes.append((adj_prices_by_ticker[ticker][3] - adj_prices_by_ticker[ticker][2])/adj_prices_by_ticker[ticker][2])
+        changes_by_ticker[ticker] = changes
+
+    print(json.dumps(changes_by_ticker, sort_keys=True, indent=2))
 
 if __name__ == '__main__':
     main()
