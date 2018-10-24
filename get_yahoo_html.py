@@ -35,9 +35,12 @@ def get_changes_by_ticker(adj_prices_by_ticker):
     changes_by_ticker = {}
     for ticker in adj_prices_by_ticker:
         changes = []
-        changes.append((adj_prices_by_ticker[ticker][1] - adj_prices_by_ticker[ticker][0])/adj_prices_by_ticker[ticker][0])
-        changes.append((adj_prices_by_ticker[ticker][2] - adj_prices_by_ticker[ticker][1])/adj_prices_by_ticker[ticker][1])
-        changes.append((adj_prices_by_ticker[ticker][3] - adj_prices_by_ticker[ticker][2])/adj_prices_by_ticker[ticker][2])
+        changes.append((adj_prices_by_ticker[ticker][1] - adj_prices_by_ticker[ticker][0])/
+                       adj_prices_by_ticker[ticker][0])
+        changes.append((adj_prices_by_ticker[ticker][2] - adj_prices_by_ticker[ticker][1])/
+                       adj_prices_by_ticker[ticker][1])
+        changes.append((adj_prices_by_ticker[ticker][3] - adj_prices_by_ticker[ticker][2])/
+                       adj_prices_by_ticker[ticker][2])
         changes_by_ticker[ticker] = changes
     return changes_by_ticker
 
