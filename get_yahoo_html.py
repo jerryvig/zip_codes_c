@@ -44,6 +44,9 @@ def get_changes_by_ticker(adj_prices_by_ticker):
         changes_by_ticker[ticker] = changes
     return changes_by_ticker
 
+def get_fit_strings(changes_by_ticker):
+    pass
+
 def main():
     if len(sys.argv) < 2:
         print('No ticker argument supplied. Exiting....')
@@ -52,7 +55,7 @@ def main():
     adj_prices_by_ticker = {}
 
     for tick in sys.argv[1:]:
-        ticker = tick.strip()
+        ticker = tick.strip().upper()
         url = 'https://finance.yahoo.com/quote/%s/history?p=%s' % (ticker, ticker)
         response = requests.get(url)
         dom = get_table_dom(response)
@@ -64,14 +67,19 @@ def main():
     changes_by_ticker = get_changes_by_ticker(adj_prices_by_ticker)
 
     for ticker, changes in changes_by_ticker.items():
+        exp_fit = 'exponential fit { '
         fit = 'Fit[{'
-        fit += str(round(changes[0]*100, 4))
-        fit += ', '
-        fit += str(round(changes[1]*100, 4))
-        fit += ', '
+        fit += str(round(changes[0]*100, 4)) + ', '
+        exp_fit += str(round(changes[0]*100, 4)) + ', '
+        fit += str(round(changes[1]*100, 4)) + ', '
+        exp_fit += str(round(changes[1]*100, 4)) + ', '
         fit += str(round(changes[2]*100, 4))
+        exp_fit += str(round(changes[2]*100, 4))
         fit += '}, {x^2}, x]'
+        exp_fit += ' }'
+        print("%s:" % ticker.upper())
         print(fit)
+        print(exp_fit)
 
     print(json.dumps(changes_by_ticker, sort_keys=True, indent=2))
 
