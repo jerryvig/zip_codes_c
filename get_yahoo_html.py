@@ -44,6 +44,20 @@ def get_changes_by_ticker(adj_prices_by_ticker):
         changes_by_ticker[ticker] = changes
     return changes_by_ticker
 
+def print_monotonic_down(changes):
+    DOWN_DAYS = "3 consecutive down days: %s"
+    MONOTONIC_DECREASE = "Monotonically decreasing: %s"
+
+    if changes[0] < 0.0 and changes[1] < 0.0 and changes[2] < 0.0:
+        print(DOWN_DAYS % "YES")
+        if changes[1] < changes[0] and changes[2] < changes[1]:
+            print(MONOTONIC_DECREASE % "YES")
+        else:
+            print(MONOTONIC_DECREASE % "NO")
+    else:
+        print(DOWN_DAYS % "NO")
+        print(MONOTONIC_DECREASE % "NO")
+
 def print_fit_strings(changes_by_ticker, adj_prices_by_ticker):
     for ticker, changes in changes_by_ticker.items():
         exp_fit = 'exponential fit { '
@@ -58,6 +72,7 @@ def print_fit_strings(changes_by_ticker, adj_prices_by_ticker):
         exp_fit += ' }'
         print("%s: %.2f" % (ticker.upper(), adj_prices_by_ticker[ticker][3]))
         print("Pricing data: %s" % str(adj_prices_by_ticker[ticker]))
+        print_monotonic_down(changes)
         print(fit)
         print(exp_fit)
 
