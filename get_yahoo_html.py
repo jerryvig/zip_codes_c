@@ -44,8 +44,22 @@ def get_changes_by_ticker(adj_prices_by_ticker):
         changes_by_ticker[ticker] = changes
     return changes_by_ticker
 
-def print_fit_strings(changes_by_ticker):
-    pass
+def print_fit_strings(changes_by_ticker, adj_prices_by_ticker):
+    for ticker, changes in changes_by_ticker.items():
+        exp_fit = 'exponential fit { '
+        fit = 'Fit[{'
+        fit += str(round(changes[0]*100, 4)) + ', '
+        exp_fit += str(round(changes[0]*100, 4)) + ', '
+        fit += str(round(changes[1]*100, 4)) + ', '
+        exp_fit += str(round(changes[1]*100, 4)) + ', '
+        fit += str(round(changes[2]*100, 4))
+        exp_fit += str(round(changes[2]*100, 4))
+        fit += '}, {x^2}, x]'
+        exp_fit += ' }'
+        print("%s: %.2f" % (ticker.upper(), adj_prices_by_ticker[ticker][3]))
+        print("Pricing data: %s" % str(adj_prices_by_ticker[ticker]))
+        print(fit)
+        print(exp_fit)    
 
 def main():
     if len(sys.argv) < 2:
@@ -66,21 +80,7 @@ def main():
 
     changes_by_ticker = get_changes_by_ticker(adj_prices_by_ticker)
 
-    for ticker, changes in changes_by_ticker.items():
-        exp_fit = 'exponential fit { '
-        fit = 'Fit[{'
-        fit += str(round(changes[0]*100, 4)) + ', '
-        exp_fit += str(round(changes[0]*100, 4)) + ', '
-        fit += str(round(changes[1]*100, 4)) + ', '
-        exp_fit += str(round(changes[1]*100, 4)) + ', '
-        fit += str(round(changes[2]*100, 4))
-        exp_fit += str(round(changes[2]*100, 4))
-        fit += '}, {x^2}, x]'
-        exp_fit += ' }'
-        print("%s: %.2f" % (ticker.upper(), adj_prices_by_ticker[ticker][3]))
-        print("Pricing data: %s" % str(adj_prices_by_ticker[ticker]))
-        print(fit)
-        print(exp_fit)
+    print_fit_strings(changes_by_ticker, adj_prices_by_ticker)
 
     print(json.dumps(changes_by_ticker, sort_keys=True, indent=2))
 
