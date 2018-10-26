@@ -1,3 +1,4 @@
+from termcolor import colored
 from xml.dom import minidom
 
 import json
@@ -47,16 +48,18 @@ def get_changes_by_ticker(adj_prices_by_ticker):
 def print_monotonic_down(changes):
     DOWN_DAYS = "3 consecutive down days: %s"
     MONOTONIC_DECREASE = "Monotonically decreasing: %s"
+    C_YES = colored('YES', 'green')
+    C_NO = colored('NO', 'red')
 
     if changes[0] < 0.0 and changes[1] < 0.0 and changes[2] < 0.0:
-        print(DOWN_DAYS % "YES")
+        print(DOWN_DAYS % C_YES)
         if changes[1] < changes[0] and changes[2] < changes[1]:
-            print(MONOTONIC_DECREASE % "YES")
+            print(MONOTONIC_DECREASE % C_YES)
         else:
-            print(MONOTONIC_DECREASE % "NO")
+            print(MONOTONIC_DECREASE % C_NO)
     else:
-        print(DOWN_DAYS % "NO")
-        print(MONOTONIC_DECREASE % "NO")
+        print(DOWN_DAYS % C_NO)
+        print(MONOTONIC_DECREASE % C_NO)
 
 def print_fit_strings(changes_by_ticker, adj_prices_by_ticker):
     for ticker, changes in changes_by_ticker.items():
