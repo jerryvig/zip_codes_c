@@ -44,7 +44,7 @@ def get_changes_by_ticker(adj_prices_by_ticker):
         changes_by_ticker[ticker] = changes
     return changes_by_ticker
 
-def get_fit_strings(changes_by_ticker):
+def print_fit_strings(changes_by_ticker):
     pass
 
 def main():
@@ -77,7 +77,8 @@ def main():
         exp_fit += str(round(changes[2]*100, 4))
         fit += '}, {x^2}, x]'
         exp_fit += ' }'
-        print("%s:" % ticker.upper())
+        print("%s: %.2f" % (ticker.upper(), adj_prices_by_ticker[ticker][3]))
+        print("Pricing data: %s" % str(adj_prices_by_ticker[ticker]))
         print(fit)
         print(exp_fit)
 
