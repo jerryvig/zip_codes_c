@@ -1,10 +1,11 @@
-from termcolor import colored
 from xml.dom import minidom
 
 import json
 import sys
 import time
 import requests
+
+from termcolor import colored
 
 def get_table_dom(response):
     table_start_idx = response.text.find(
@@ -16,7 +17,7 @@ def get_table_dom(response):
 def get_tbody_node(dom):
     for node in dom.documentElement.childNodes:
         if node.tagName == 'tbody':
-            return node     
+            return node
 
 def get_adj_close(tbody):
     adj_close_prices = []
