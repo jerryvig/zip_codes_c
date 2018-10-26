@@ -15,7 +15,7 @@ def get_table_dom(response):
 def get_tbody_node(dom):
     for node in dom.documentElement.childNodes:
         if node.tagName == 'tbody':
-            return node
+            return node     
 
 def get_adj_close(tbody):
     adj_close_prices = []
@@ -35,12 +35,12 @@ def get_changes_by_ticker(adj_prices_by_ticker):
     changes_by_ticker = {}
     for ticker in adj_prices_by_ticker:
         changes = []
-        changes.append((adj_prices_by_ticker[ticker][1] - adj_prices_by_ticker[ticker][0])/
-                       adj_prices_by_ticker[ticker][0])
-        changes.append((adj_prices_by_ticker[ticker][2] - adj_prices_by_ticker[ticker][1])/
-                       adj_prices_by_ticker[ticker][1])
-        changes.append((adj_prices_by_ticker[ticker][3] - adj_prices_by_ticker[ticker][2])/
-                       adj_prices_by_ticker[ticker][2])
+        changes.append(((adj_prices_by_ticker[ticker][1] - adj_prices_by_ticker[ticker][0])/
+                        adj_prices_by_ticker[ticker][0])*100.0)
+        changes.append(((adj_prices_by_ticker[ticker][2] - adj_prices_by_ticker[ticker][1])/
+                        adj_prices_by_ticker[ticker][1])*100.0)
+        changes.append(((adj_prices_by_ticker[ticker][3] - adj_prices_by_ticker[ticker][2])/
+                        adj_prices_by_ticker[ticker][2])*100.0)
         changes_by_ticker[ticker] = changes
     return changes_by_ticker
 
@@ -48,18 +48,18 @@ def print_fit_strings(changes_by_ticker, adj_prices_by_ticker):
     for ticker, changes in changes_by_ticker.items():
         exp_fit = 'exponential fit { '
         fit = 'Fit[{'
-        fit += str(round(changes[0]*100, 4)) + ', '
-        exp_fit += str(round(changes[0]*100, 4)) + ', '
-        fit += str(round(changes[1]*100, 4)) + ', '
-        exp_fit += str(round(changes[1]*100, 4)) + ', '
-        fit += str(round(changes[2]*100, 4))
-        exp_fit += str(round(changes[2]*100, 4))
+        fit += str(round(changes[0], 4)) + ', '
+        exp_fit += str(round(changes[0], 4)) + ', '
+        fit += str(round(changes[1], 4)) + ', '
+        exp_fit += str(round(changes[1], 4)) + ', '
+        fit += str(round(changes[2], 4))
+        exp_fit += str(round(changes[2], 4))
         fit += '}, {x^2}, x]'
         exp_fit += ' }'
         print("%s: %.2f" % (ticker.upper(), adj_prices_by_ticker[ticker][3]))
         print("Pricing data: %s" % str(adj_prices_by_ticker[ticker]))
         print(fit)
-        print(exp_fit)    
+        print(exp_fit)
 
 def main():
     if len(sys.argv) < 2:
