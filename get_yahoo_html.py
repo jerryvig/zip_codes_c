@@ -14,6 +14,14 @@ def get_table_dom(response):
     table_end_idx = table_start.find("</table>") + 8
     return minidom.parseString(table_start[:table_end_idx])
 
+def get_title(response):
+    title_start_idx = response.text.find('<title>')
+    title_start = response.text[title_start_idx:]
+    pipe_start = title_start.find('|') + 2
+    hyphen_end = title_start.find('-')
+    title = title_start[pipe_start:hyphen_end]
+    return title
+
 def get_tbody_node(dom):
     for node in dom.documentElement.childNodes:
         if node.tagName == 'tbody':
@@ -86,11 +94,15 @@ def main():
         return
 
     adj_prices_by_ticker = {}
+    titles_by_ticker = {}
 
     for tick in sys.argv[1:]:
         ticker = tick.strip().upper()
         url = 'https://finance.yahoo.com/quote/%s/history?p=%s' % (ticker, ticker)
         response = requests.get(url)
+        title = get_title(response)
+        titles_by_ticker[ticker] = title
+
         dom = get_table_dom(response)
         tbody = get_tbody_node(dom)
         adj_prices = get_adj_close(tbody)
