@@ -11,7 +11,7 @@ def get_table_dom(response):
     table_start_idx = response.text.find(
         "<table class=\"W(100%) M(0)\" data-test=\"historical-prices\"")
     table_start = response.text[table_start_idx:]
-    table_end_idx = table_start.find("</table>") + 8
+    table_end_idx = table_start.find('</table>') + 8
     return minidom.parseString(table_start[:table_end_idx])
 
 def get_title(response):
@@ -54,12 +54,12 @@ def get_changes_by_ticker(adj_prices_by_ticker):
         changes_by_ticker[ticker] = changes
     return changes_by_ticker
 
-def print_monotonic_down(changes):
-    DOWN_DAYS = "3 consecutive down days: %s"
-    MONOTONIC_DECREASE = "Monotonically decreasing: %s"
-    C_YES = colored('YES', 'green')
-    C_NO = colored('NO', 'red')
+DOWN_DAYS = '3 consecutive down days: %s'
+MONOTONIC_DECREASE = 'Monotonically decreasing: %s'
+C_YES = colored('YES', 'green')
+C_NO = colored('NO', 'red')
 
+def print_monotonic_down(changes):
     if changes[0] < 0.0 and changes[1] < 0.0 and changes[2] < 0.0:
         print(DOWN_DAYS % C_YES)
         if changes[1] < changes[0] and changes[2] < changes[1]:
@@ -70,7 +70,7 @@ def print_monotonic_down(changes):
         print(DOWN_DAYS % C_NO)
         print(MONOTONIC_DECREASE % C_NO)
 
-def print_fit_strings(changes_by_ticker, adj_prices_by_ticker):
+def print_fit_strings(changes_by_ticker, adj_prices_by_ticker, titles_by_ticker):
     for ticker, changes in changes_by_ticker.items():
         exp_fit = 'exponential fit { '
         fit = 'Fit[{'
@@ -82,8 +82,9 @@ def print_fit_strings(changes_by_ticker, adj_prices_by_ticker):
         exp_fit += str(round(changes[2], 4))
         fit += '}, {x^2}, x]'
         exp_fit += ' }'
-        print("%s: %.2f" % (ticker.upper(), adj_prices_by_ticker[ticker][3]))
-        print("Pricing data: %s" % str(adj_prices_by_ticker[ticker]))
+        print('%s: %.2f' % (ticker.upper(), adj_prices_by_ticker[ticker][3]))
+        print(titles_by_ticker[ticker])
+        print('Pricing data: %s' % str(adj_prices_by_ticker[ticker]))
         print_monotonic_down(changes)
         print(fit)
         print(exp_fit)
@@ -111,7 +112,7 @@ def main():
 
     changes_by_ticker = get_changes_by_ticker(adj_prices_by_ticker)
 
-    print_fit_strings(changes_by_ticker, adj_prices_by_ticker)
+    print_fit_strings(changes_by_ticker, adj_prices_by_ticker, titles_by_ticker)
 
     print(json.dumps(changes_by_ticker, sort_keys=True, indent=2))
 
