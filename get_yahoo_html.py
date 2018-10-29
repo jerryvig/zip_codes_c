@@ -11,7 +11,7 @@ def get_table_dom(response):
     table_start_idx = response.text.find(
         "<table class=\"W(100%) M(0)\" data-test=\"historical-prices\"")
     table_start = response.text[table_start_idx:]
-    table_end_idx = table_start.find("<div class=")
+    table_end_idx = table_start.find("</table>") + 8
     return minidom.parseString(table_start[:table_end_idx])
 
 def get_tbody_node(dom):
