@@ -57,10 +57,16 @@ def get_changes_by_ticker(adj_prices_by_ticker):
 DOWN_DAYS = '3 consecutive down days: %s'
 TWO_DOWN_DAYS = '2 consecutive down days: %s'
 MONOTONIC_DECREASE = 'Monotonically decreasing: %s'
+LAST_MOST_NEGATIVE = 'Last most negative: %s'
 C_YES = colored('YES', 'green')
 C_NO = colored('NO', 'red')
 
 def print_monotonic_down(changes):
+    if changes[2] < 0.0 and changes[2] < changes[1] and changes[2] < changes[0]:
+        print(LAST_MOST_NEGATIVE % C_YES)
+    else:
+        print(LAST_MOST_NEGATIVE % C_NO)
+
     if changes[1] < 0.0 and changes[2] < 0.0:
         print(TWO_DOWN_DAYS % C_YES)
     else:
