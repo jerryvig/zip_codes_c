@@ -44,6 +44,7 @@ def get_adj_close(tbody):
     return adj_close_prices
 
 def get_changes_by_ticker(adj_prices_by_ticker):
+    # we need to change this.
     changes_by_ticker = {}
     for ticker in adj_prices_by_ticker:
         changes = []
@@ -114,6 +115,8 @@ def main():
     for tick in sys.argv[1:]:
         ticker = tick.strip().upper()
         url = 'https://finance.yahoo.com/quote/%s/history?p=%s' % (ticker, ticker)
+
+        print('url = %s' % url)
         response = requests.get(url)
         title = get_title(response)
         titles_by_ticker[ticker] = title
@@ -121,10 +124,12 @@ def main():
         dom = get_table_dom(response)
         tbody = get_tbody_node(dom)
         adj_prices = get_adj_close(tbody)
-        adj_prices_by_ticker[ticker] = list(reversed(adj_prices[:4]))
+        adj_prices_by_ticker[ticker] = list(reversed(adj_prices))
         time.sleep(1.5)
 
     changes_by_ticker = get_changes_by_ticker(adj_prices_by_ticker)
+
+    print(changes_by_ticker)
 
     print_fit_strings(changes_by_ticker, adj_prices_by_ticker, titles_by_ticker)
 
