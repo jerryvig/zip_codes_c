@@ -27,6 +27,7 @@ def get_tbody_node(dom):
     for node in dom.documentElement.childNodes:
         if node.tagName == 'tbody':
             return node
+    return None
 
 def get_adj_close(tbody):
     adj_close_prices = []
