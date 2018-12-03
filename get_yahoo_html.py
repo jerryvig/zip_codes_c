@@ -3,6 +3,7 @@ from xml.dom import minidom
 import json
 import sys
 import time
+import numpy
 import requests
 
 from termcolor import colored
