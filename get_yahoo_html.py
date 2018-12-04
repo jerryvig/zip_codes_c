@@ -61,8 +61,9 @@ def get_sigma_data_by_ticker(changes_by_ticker, titles_by_ticker):
         stdev = numpy.std(changes_numpy, ddof=1)
         sigma_change = changes_by_ticker[ticker][-1]/stdev
         sigma_data_by_ticker[ticker] = {
+            'change': str(round(changes_by_ticker[ticker][-1] * 100, 3)) + '%',
             'title': titles_by_ticker[ticker],
-            'sigma': str(round(stdev*100, 3)) + '%',
+            'sigma': str(round(stdev * 100, 3)) + '%',
             'sigma_change': sigma_change,
         }
     return sigma_data_by_ticker
