@@ -54,6 +54,13 @@ def get_changes_by_ticker(adj_prices_by_ticker):
         changes_by_ticker[ticker] = changes
     return changes_by_ticker
 
+def get_stdev_by_ticker(changes_by_ticker):
+    stdev_by_ticker = {}
+    for ticker in changes_by_ticker:
+        changes_numpy = numpy.array(changes_by_ticker[ticker])
+        stdev_by_ticker[ticker] = numpy.std(changes_numpy, ddof=1)
+    return stdev_by_ticker
+
 DOWN_DAYS = '3 consecutive down days: %s'
 TWO_DOWN_DAYS = '2 consecutive down days: %s'
 MONOTONIC_DECREASE = 'Monotonically decreasing: %s'
@@ -124,12 +131,14 @@ def main():
         adj_prices_by_ticker[ticker] = list(reversed(adj_prices))
         time.sleep(1.5)
 
-
-
     changes_by_ticker = get_changes_by_ticker(adj_prices_by_ticker)
     print('CHANGES BY TICKER ')
     print(changes_by_ticker)
     print('END CHANGES BY TICKER')
+
+    stdev_by_ticker = get_stdev_by_ticker(changes_by_ticker)
+    print('STDEV BY TICKER')
+    print(stdev_by_ticker)
 
     # print_fit_strings(changes_by_ticker, adj_prices_by_ticker, titles_by_ticker)
 
