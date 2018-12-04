@@ -54,13 +54,14 @@ def get_changes_by_ticker(adj_prices_by_ticker):
         changes_by_ticker[ticker] = changes
     return changes_by_ticker
 
-def get_sigma_data_by_ticker(changes_by_ticker):
+def get_sigma_data_by_ticker(changes_by_ticker, titles_by_ticker):
     sigma_data_by_ticker = {}
     for ticker in changes_by_ticker:
         changes_numpy = numpy.array(changes_by_ticker[ticker][:-1])
         stdev = numpy.std(changes_numpy, ddof=1)
         sigma_change = changes_by_ticker[ticker][-1]/stdev
         sigma_data_by_ticker[ticker] = {
+            'title': titles_by_ticker[ticker],
             'sigma': str(round(stdev*100, 3)) + '%',
             'sigma_change': sigma_change,
         }
@@ -138,7 +139,7 @@ def main():
 
     changes_by_ticker = get_changes_by_ticker(adj_prices_by_ticker)
 
-    stdev_by_ticker = get_sigma_data_by_ticker(changes_by_ticker)
+    stdev_by_ticker = get_sigma_data_by_ticker(changes_by_ticker, titles_by_ticker)
 
     # print_fit_strings(changes_by_ticker, adj_prices_by_ticker, titles_by_ticker)
     print('STDEV BY TICKER')
