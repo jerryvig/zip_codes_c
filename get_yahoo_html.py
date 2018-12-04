@@ -54,14 +54,17 @@ def get_changes_by_ticker(adj_prices_by_ticker):
         changes_by_ticker[ticker] = changes
     return changes_by_ticker
 
-def get_stdev_by_ticker(changes_by_ticker):
-    stdev_by_ticker = {}
+def get_sigma_data_by_ticker(changes_by_ticker):
+    sigma_data_by_ticker = {}
     for ticker in changes_by_ticker:
         changes_numpy = numpy.array(changes_by_ticker[ticker][:-1])
-        stdev_by_ticker[ticker] = numpy.std(changes_numpy, ddof=1)
-        sigma_change = changes_by_ticker[ticker][-1]/stdev_by_ticker[ticker]
-        print('sigma_change = %f' % sigma_change)
-    return stdev_by_ticker
+        stdev = numpy.std(changes_numpy, ddof=1)
+        sigma_change = changes_by_ticker[ticker][-1]/stdev
+        sigma_data_by_ticker[ticker] = {
+            'sigma': stdev,
+            'sigma_change': sigma_change,
+        }
+    return sigma_data_by_ticker
 
 DOWN_DAYS = '3 consecutive down days: %s'
 TWO_DOWN_DAYS = '2 consecutive down days: %s'
@@ -134,11 +137,8 @@ def main():
         time.sleep(1.5)
 
     changes_by_ticker = get_changes_by_ticker(adj_prices_by_ticker)
-    print('CHANGES BY TICKER ')
-    print(changes_by_ticker)
-    print('END CHANGES BY TICKER')
 
-    stdev_by_ticker = get_stdev_by_ticker(changes_by_ticker)
+    stdev_by_ticker = get_sigma_data_by_ticker(changes_by_ticker)
     print('STDEV BY TICKER')
     print(stdev_by_ticker)
 
