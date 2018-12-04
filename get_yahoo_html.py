@@ -44,16 +44,13 @@ def get_adj_close(tbody):
     return adj_close_prices
 
 def get_changes_by_ticker(adj_prices_by_ticker):
-    # we need to change this.
     changes_by_ticker = {}
     for ticker in adj_prices_by_ticker:
         changes = []
-        changes.append(((adj_prices_by_ticker[ticker][1] - adj_prices_by_ticker[ticker][0])/
-                        adj_prices_by_ticker[ticker][0])*100.0)
-        changes.append(((adj_prices_by_ticker[ticker][2] - adj_prices_by_ticker[ticker][1])/
-                        adj_prices_by_ticker[ticker][1])*100.0)
-        changes.append(((adj_prices_by_ticker[ticker][3] - adj_prices_by_ticker[ticker][2])/
-                        adj_prices_by_ticker[ticker][2])*100.0)
+        for i in range(1, len(adj_prices_by_ticker[ticker])):
+            changes.append(
+                (adj_prices_by_ticker[ticker][i] - adj_prices_by_ticker[ticker][i-1])/
+                adj_prices_by_ticker[ticker][i-1])
         changes_by_ticker[ticker] = changes
     return changes_by_ticker
 
@@ -127,13 +124,16 @@ def main():
         adj_prices_by_ticker[ticker] = list(reversed(adj_prices))
         time.sleep(1.5)
 
+
+
     changes_by_ticker = get_changes_by_ticker(adj_prices_by_ticker)
-
+    print('CHANGES BY TICKER ')
     print(changes_by_ticker)
+    print('END CHANGES BY TICKER')
 
-    print_fit_strings(changes_by_ticker, adj_prices_by_ticker, titles_by_ticker)
+    # print_fit_strings(changes_by_ticker, adj_prices_by_ticker, titles_by_ticker)
 
-    print(json.dumps(changes_by_ticker, sort_keys=True, indent=2))
+    # print(json.dumps(changes_by_ticker, sort_keys=True, indent=2))
 
 if __name__ == '__main__':
     main()
