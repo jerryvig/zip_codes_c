@@ -57,8 +57,10 @@ def get_changes_by_ticker(adj_prices_by_ticker):
 def get_stdev_by_ticker(changes_by_ticker):
     stdev_by_ticker = {}
     for ticker in changes_by_ticker:
-        changes_numpy = numpy.array(changes_by_ticker[ticker])
+        changes_numpy = numpy.array(changes_by_ticker[ticker][:-1])
         stdev_by_ticker[ticker] = numpy.std(changes_numpy, ddof=1)
+        sigma_change = changes_by_ticker[ticker][-1]/stdev_by_ticker[ticker]
+        print('sigma_change = %f' % sigma_change)
     return stdev_by_ticker
 
 DOWN_DAYS = '3 consecutive down days: %s'
