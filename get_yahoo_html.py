@@ -62,7 +62,7 @@ def get_sigma_data_by_ticker(changes_by_ticker, titles_by_ticker):
         sigma_change = changes_by_ticker[ticker][-1]/stdev
 
         print('changes length = %d' % len(changes_by_ticker[ticker]))
-        
+
         sigma_data_by_ticker[ticker] = {
             'change': str(round(changes_by_ticker[ticker][-1] * 100, 3)) + '%',
             'title': titles_by_ticker[ticker],
@@ -132,6 +132,9 @@ def main():
 
         print('url = %s' % url)
         response = requests.get(url)
+        cookie_jar = response.cookies
+        print('COOKIE JAR = %s' % cookie_jar)
+
         title = get_title(response)
         titles_by_ticker[ticker] = title
 
@@ -146,7 +149,6 @@ def main():
     stdev_by_ticker = get_sigma_data_by_ticker(changes_by_ticker, titles_by_ticker)
 
     # print_fit_strings(changes_by_ticker, adj_prices_by_ticker, titles_by_ticker)
-    print('STDEV BY TICKER')
     print(json.dumps(stdev_by_ticker, sort_keys=True, indent=2))
 
 if __name__ == '__main__':
