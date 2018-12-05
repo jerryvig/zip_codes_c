@@ -146,10 +146,12 @@ def main():
         crumb = get_crumb(response)
         print('CRUMB = %s' % crumb)
 
-        download_url = 'https://query1.finance.yahoo.com/v7/finance/download/%s?crumb=%s' % (ticker, crumb)
-        download_response = requests.get(url, cookies=cookie_jar)
+        download_url = ('https://query1.finance.yahoo.com/v7/finance/download/%s?'
+                        'period1=1512514345&period2=1544050345&interval=1d&events=history'
+                        '&crumb=%s' % (ticker, crumb))
+        download_response = requests.get(download_url, cookies=cookie_jar)
         print('DOWNLOAD RESPONSE')
-        # print('download response = %s' % download_response.text)
+        print('DOWNLOAD RESPONSE TEXT = %s' % download_response.text)
 
         title = get_title(response)
         titles_by_ticker[ticker] = title
