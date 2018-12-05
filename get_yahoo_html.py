@@ -16,15 +16,12 @@ def get_table_dom(response):
     return minidom.parseString(table_start[:table_end_idx])
 
 def get_crumb(response):
-    print('in getCrumb()')
     crumbstore_start_idx = response.text.find("CrumbStore")
     json_start = response.text[crumbstore_start_idx + 12:crumbstore_start_idx + 70]
     json_end_idx = json_start.find("},")
-    print('json_end_idx = %d' % json_end_idx)
     json_snippet = json_start[:json_end_idx + 1]
-    print('json_snippet = %s' % json_snippet)
-    sys.exit(0)
-    return None
+    json_obj = json.loads(json_snippet)
+    return json_obj['crumb']
 
 def get_title(response):
     title_start_idx = response.text.find('<title>')
@@ -146,9 +143,10 @@ def main():
         cookie_jar = response.cookies
         print('COOKIE JAR = %s' % cookie_jar)
 
-        get_crumb(response)
+        crumb = get_crumb(response)
+        print('CRUMB = %s' % crumb)
 
-        download_url = 'https://query1.finance.yahoo.com/v7/finance/download/%s' % ticker
+        download_url = 'https://query1.finance.yahoo.com/v7/finance/download/%s?crumb=%s' % (ticker, crumb)
         download_response = requests.get(url, cookies=cookie_jar)
         print('DOWNLOAD RESPONSE')
         # print('download response = %s' % download_response.text)
