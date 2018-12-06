@@ -47,19 +47,14 @@ def get_tbody_node(dom):
             return node
     return None
 
-def get_adj_close(tbody):
-    adj_close_prices = []
-    for node in tbody.childNodes:
-        if node.tagName == 'tr':
-            td_count = 0
-            for child in node.childNodes:
-                if child.tagName == 'td':
-                    td_count += 1
-                    if td_count == 6:
-                        span = child.childNodes[0]
-                        clean_adj_close = float(span.childNodes[0].toxml().strip().replace(',', ''))
-                        adj_close_prices.append(clean_adj_close)
-    return adj_close_prices
+def get_adj_close(response_text):
+    lines = response_text.split('\n')
+    data_lines = lines[1:-1]
+    adj_prices = []
+    for line in data_lines:
+        cols = line.split(',')
+        adj_prices.append(float(cols[5]))
+    return adj_prices
 
 def get_changes_by_ticker(adj_prices_by_ticker):
     changes_by_ticker = {}
@@ -163,16 +158,7 @@ def main():
 
         title = get_title(response)
         titles_by_ticker[ticker] = title
-
-        lines = download_response.text.split('\n')
-        data_lines = lines[1:-1]
-
-        adj_prices = []
-        for line in data_lines:
-            cols = line.split(',')
-            adj_prices.append(float(cols[5]))
-
-        adj_prices_by_ticker[ticker] = adj_prices
+        adj_prices_by_ticker[ticker] = get_adj_close(download_response.text)
         time.sleep(1.5)
 
     changes_by_ticker = get_changes_by_ticker(adj_prices_by_ticker)
