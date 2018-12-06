@@ -25,6 +25,14 @@ def get_crumb(response):
     json_obj = json.loads(json_snippet)
     return json_obj['crumb']
 
+def get_timestamps():
+    hoy = date.today()
+    manana = hoy + datetime.timedelta(days=1)
+    ago_366_days = hoy + datetime.timedelta(days=-366)
+    manana_stamp = time.mktime(manana.timetuple())
+    ago_366_days_stamp = time.mktime(ago_366_days.timetuple())
+    return (manana_stamp, ago_366_days_stamp)
+
 def get_title(response):
     title_start_idx = response.text.find('<title>')
     title_start = response.text[title_start_idx:]
@@ -136,11 +144,7 @@ def main():
     adj_prices_by_ticker = {}
     titles_by_ticker = {}
 
-    hoy = date.today()
-    manana = hoy + datetime.timedelta(days=1)
-    ago_366_days = hoy + datetime.timedelta(days=-366)
-    manana_stamp = time.mktime(manana.timetuple())
-    ago_366_days_stamp = time.mktime(ago_366_days.timetuple())
+    (manana_stamp, ago_366_days_stamp) = get_timestamps()
 
     for tick in sys.argv[1:]:
         ticker = tick.strip().upper()
@@ -150,14 +154,14 @@ def main():
         response = requests.get(url)
         cookie_jar = response.cookies
         crumb = get_crumb(response)
-        print('CRUMB = %s' % crumb)
+        # print('CRUMB = %s' % crumb)
 
         download_url = ('https://query1.finance.yahoo.com/v7/finance/download/%s?'
                         'period1=%d&period2=%d&interval=1d&events=history'
                         '&crumb=%s' % (ticker, ago_366_days_stamp, manana_stamp, crumb))
         print('download_url = %s' % download_url)
         download_response = requests.get(download_url, cookies=cookie_jar)
-        print('DOWNLOAD RESPONSE TEXT = %s' % download_response.text)
+        # print('DOWNLOAD RESPONSE TEXT = %s' % download_response.text)
 
         title = get_title(response)
         titles_by_ticker[ticker] = title
