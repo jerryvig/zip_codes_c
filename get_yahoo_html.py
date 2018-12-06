@@ -154,26 +154,31 @@ def main():
         response = requests.get(url)
         cookie_jar = response.cookies
         crumb = get_crumb(response)
-        # print('CRUMB = %s' % crumb)
 
         download_url = ('https://query1.finance.yahoo.com/v7/finance/download/%s?'
                         'period1=%d&period2=%d&interval=1d&events=history'
                         '&crumb=%s' % (ticker, ago_366_days_stamp, manana_stamp, crumb))
         print('download_url = %s' % download_url)
         download_response = requests.get(download_url, cookies=cookie_jar)
-        # print('DOWNLOAD RESPONSE TEXT = %s' % download_response.text)
 
         title = get_title(response)
         titles_by_ticker[ticker] = title
 
         lines = download_response.text.split('\n')
-        print(lines[1:-1])
-        sys.exit(0)
+        data_lines = lines[1:-1]
 
-        dom = get_table_dom(response)
-        tbody = get_tbody_node(dom)
-        adj_prices = get_adj_close(tbody)
+        adj_prices = []
+        for line in data_lines:
+            cols = line.split(',')
+            adj_prices.append(float(cols[5]))
+
+        print('adj_prices = %s' % str(adj_prices))
         adj_prices_by_ticker[ticker] = list(reversed(adj_prices))
+
+        # dom = get_table_dom(response)
+        # tbody = get_tbody_node(dom)
+        # adj_prices = get_adj_close(tbody)
+        # adj_prices_by_ticker[ticker] = list(reversed(adj_prices))
         time.sleep(1.5)
 
     changes_by_ticker = get_changes_by_ticker(adj_prices_by_ticker)
