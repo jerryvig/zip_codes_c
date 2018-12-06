@@ -156,8 +156,7 @@ def main():
         print('download_url = %s' % download_url)
         download_response = requests.get(download_url, cookies=cookie_jar)
 
-        title = get_title(response)
-        titles_by_ticker[ticker] = title
+        titles_by_ticker[ticker] = get_title(response)
         adj_prices_by_ticker[ticker] = get_adj_close(download_response.text)
         time.sleep(1.5)
 
