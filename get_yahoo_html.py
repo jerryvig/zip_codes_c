@@ -173,7 +173,7 @@ def main():
             adj_prices.append(float(cols[5]))
 
         print('adj_prices = %s' % str(adj_prices))
-        adj_prices_by_ticker[ticker] = list(reversed(adj_prices))
+        adj_prices_by_ticker[ticker] = adj_prices
 
         # dom = get_table_dom(response)
         # tbody = get_tbody_node(dom)
