@@ -138,7 +138,7 @@ def main():
 
     hoy = date.today()
     manana = hoy + datetime.timedelta(days=1)
-    ago_366_days = hoy + datetime.timedelta(days=-366) 
+    ago_366_days = hoy + datetime.timedelta(days=-366)
     manana_stamp = time.mktime(manana.timetuple())
     ago_366_days_stamp = time.mktime(ago_366_days.timetuple())
 
@@ -161,6 +161,10 @@ def main():
 
         title = get_title(response)
         titles_by_ticker[ticker] = title
+
+        lines = download_response.text.split('\n')
+        print(lines[1:-1])
+        sys.exit(0)
 
         dom = get_table_dom(response)
         tbody = get_tbody_node(dom)
