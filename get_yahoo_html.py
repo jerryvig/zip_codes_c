@@ -172,13 +172,7 @@ def main():
             cols = line.split(',')
             adj_prices.append(float(cols[5]))
 
-        print('adj_prices = %s' % str(adj_prices))
         adj_prices_by_ticker[ticker] = adj_prices
-
-        # dom = get_table_dom(response)
-        # tbody = get_tbody_node(dom)
-        # adj_prices = get_adj_close(tbody)
-        # adj_prices_by_ticker[ticker] = list(reversed(adj_prices))
         time.sleep(1.5)
 
     changes_by_ticker = get_changes_by_ticker(adj_prices_by_ticker)
