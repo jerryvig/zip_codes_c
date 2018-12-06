@@ -1,5 +1,7 @@
 from xml.dom import minidom
 
+import datetime
+from datetime import date
 import json
 import sys
 import time
@@ -134,23 +136,27 @@ def main():
     adj_prices_by_ticker = {}
     titles_by_ticker = {}
 
+    hoy = date.today()
+    manana = hoy + datetime.timedelta(days=1)
+    ago_366_days = hoy + datetime.timedelta(days=-366) 
+    manana_stamp = time.mktime(manana.timetuple())
+    ago_366_days_stamp = time.mktime(ago_366_days.timetuple())
+
     for tick in sys.argv[1:]:
         ticker = tick.strip().upper()
         url = 'https://finance.yahoo.com/quote/%s/history?p=%s' % (ticker, ticker)
-
         print('url = %s' % url)
+
         response = requests.get(url)
         cookie_jar = response.cookies
-        print('COOKIE JAR = %s' % cookie_jar)
-
         crumb = get_crumb(response)
         print('CRUMB = %s' % crumb)
 
         download_url = ('https://query1.finance.yahoo.com/v7/finance/download/%s?'
-                        'period1=1512514345&period2=1544050345&interval=1d&events=history'
-                        '&crumb=%s' % (ticker, crumb))
+                        'period1=%d&period2=%d&interval=1d&events=history'
+                        '&crumb=%s' % (ticker, ago_366_days_stamp, manana_stamp, crumb))
+        print('download_url = %s' % download_url)
         download_response = requests.get(download_url, cookies=cookie_jar)
-        print('DOWNLOAD RESPONSE')
         print('DOWNLOAD RESPONSE TEXT = %s' % download_response.text)
 
         title = get_title(response)
