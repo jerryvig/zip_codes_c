@@ -141,8 +141,8 @@ def main():
 
     (manana_stamp, ago_366_days_stamp) = get_timestamps()
 
-    for tick in sys.argv[1:]:
-        ticker = tick.strip().upper()
+    for symbol in sys.argv[1:]:
+        ticker = symbol.strip().upper()
         url = 'https://finance.yahoo.com/quote/%s/history?p=%s' % (ticker, ticker)
         print('url = %s' % url)
 
