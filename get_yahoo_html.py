@@ -75,11 +75,11 @@ def get_sigma_data_by_ticker(changes_by_ticker, titles_by_ticker):
         sigma_change = changes_by_ticker[ticker][-1]/stdev
 
         sigma_data_by_ticker[ticker] = {
+            'c_name': titles_by_ticker[ticker],
             'change': str(round(changes_by_ticker[ticker][-1] * 100, 3)) + '%',
             'record_count': len(changes_by_ticker[ticker]),
             'sigma': str(round(stdev * 100, 3)) + '%',
-            'sigma_change': round(sigma_change, 3),
-            'title': titles_by_ticker[ticker],
+            'sigma_change': round(sigma_change, 3)
         }
     return sigma_data_by_ticker
 
