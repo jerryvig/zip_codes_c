@@ -38,7 +38,7 @@ def get_title(response):
     title_start = response.text[title_start_idx:]
     pipe_start = title_start.find('|') + 2
     hyphen_end = title_start.find('-')
-    title = title_start[pipe_start:hyphen_end]
+    title = title_start[pipe_start:hyphen_end].strip()
     return title
 
 def get_tbody_node(dom):
