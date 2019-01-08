@@ -132,13 +132,14 @@ def print_fit_strings(changes_by_ticker, adj_prices_by_ticker, titles_by_ticker)
 
 def main():
     if len(sys.argv) < 2:
-        print('No ticker argument supplied. Exiting....')
+        print('No ticker argument given. Exiting....')
         return
 
     adj_prices_by_ticker = {}
     titles_by_ticker = {}
 
     (manana_stamp, ago_366_days_stamp) = get_timestamps()
+    symbol_count = 0
 
     for symbol in sys.argv[1:]:
         ticker = symbol.strip().upper()
@@ -157,7 +158,10 @@ def main():
 
         titles_by_ticker[ticker] = get_title(response)
         adj_prices_by_ticker[ticker] = get_adj_close(download_response.text)
-        time.sleep(1.5)
+
+        symbol_count += 1
+        if len(sys.argv[1:]) != symbol_count:
+            time.sleep(1.5)
 
     changes_by_ticker = get_changes_by_ticker(adj_prices_by_ticker)
 
