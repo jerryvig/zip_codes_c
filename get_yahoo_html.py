@@ -68,6 +68,10 @@ def get_changes_by_ticker(adj_prices_by_ticker):
 def get_sigma_data_by_ticker(changes_by_ticker, titles_by_ticker):
     sigma_data_by_ticker = {}
     for ticker in changes_by_ticker:
+        changes_0 = numpy.array(changes_by_ticker[ticker][1:-1])
+        changes_minus_one = numpy.array(changes_by_ticker[ticker][:-2])
+        self_correlation = numpy.corrcoef([changes_minus_one, changes_0])[1, 0]
+
         changes_numpy = numpy.array(changes_by_ticker[ticker][:-1])
         stdev = numpy.std(changes_numpy, ddof=1)
         sigma_change = changes_by_ticker[ticker][-1]/stdev
@@ -76,6 +80,7 @@ def get_sigma_data_by_ticker(changes_by_ticker, titles_by_ticker):
             'c_name': titles_by_ticker[ticker],
             'change': str(round(changes_by_ticker[ticker][-1] * 100, 3)) + '%',
             'record_count': len(changes_by_ticker[ticker]),
+            'self_correlation': str(round(self_correlation * 100, 3)) + '%',
             'sigma': str(round(stdev * 100, 3)) + '%',
             'sigma_change': round(sigma_change, 3)
         }
