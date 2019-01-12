@@ -70,6 +70,25 @@ def get_sigma_data_by_ticker(changes_by_ticker, titles_by_ticker):
     for ticker in changes_by_ticker:
         changes_0 = numpy.array(changes_by_ticker[ticker][1:-1])
         changes_minus_one = numpy.array(changes_by_ticker[ticker][:-2])
+
+        print('len(changes_0) = %d' % len(changes_0))
+        print('len(changes_minus_one) = %d' % len(changes_minus_one))
+
+        changes_tuple = []
+        for idx in range(len(changes_0)):
+            changes_tuple.append((changes_minus_one[idx], changes_0[idx]))
+        # print(changes_tuple)
+
+        # print the top 10 positive changes
+        srted = list(reversed(sorted(changes_tuple, key=lambda b: b[0])))[:10]
+        print(srted)
+        print('len(srted) = %d' % len(srted))
+
+        for idx in range(len(srted)):
+            sgn = numpy.sign(srted[idx][0] * srted[idx][1])
+            print(-0.5*sgn + 0.5)
+        exit(0)
+
         self_correlation = numpy.corrcoef([changes_minus_one, changes_0])[1, 0]
 
         changes_numpy = numpy.array(changes_by_ticker[ticker][:-1])
