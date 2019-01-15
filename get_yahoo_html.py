@@ -79,7 +79,8 @@ def get_sigma_data_by_ticker(changes_by_ticker, titles_by_ticker):
 
         pct_sum = 0
         for ele in srted:
-            pct_sum += -0.5*numpy.sign(ele[0] * ele[1]) + 0.5
+            if ele[0] * ele[1]:
+                pct_sum += -0.5*numpy.sign(ele[0] * ele[1]) + 0.5
 
         self_correlation = numpy.corrcoef([changes_minus_one, changes_0])[1, 0]
 
