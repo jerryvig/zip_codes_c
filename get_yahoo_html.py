@@ -75,12 +75,13 @@ def get_sigma_data_by_ticker(changes_by_ticker, titles_by_ticker):
         for idx, ele in enumerate(changes_0):
             changes_tuple.append((changes_minus_one[idx], ele))
 
-        srted = list(reversed(sorted(changes_tuple, key=lambda b: b[0])))[:10]
+        srted = list(reversed(sorted(changes_tuple, key=lambda b: b[0])))
 
         pct_sum = 0
-        for ele in srted:
-            if ele[0] * ele[1]:
-                pct_sum += -0.5*numpy.sign(ele[0] * ele[1]) + 0.5
+        for ele in srted[:10]:
+            product = ele[0] * ele[1]
+            if product:
+                pct_sum += -0.5*numpy.sign(product) + 0.5
 
         self_correlation = numpy.corrcoef([changes_minus_one, changes_0])[1, 0]
 
@@ -95,7 +96,7 @@ def get_sigma_data_by_ticker(changes_by_ticker, titles_by_ticker):
             'self_correlation': str(round(self_correlation * 100, 3)) + '%',
             'sigma': str(round(stdev * 100, 3)) + '%',
             'sigma_change': round(sigma_change, 3),
-            'sign_diff_pct':  str(round(pct_sum * 10, 4)) + '%'
+            'sign_diff_pct_10':  str(round(pct_sum * 10, 4)) + '%'
         }
     return sigma_data_by_ticker
 
