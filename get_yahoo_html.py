@@ -189,10 +189,7 @@ def main():
         print('No ticker argument given. Exiting....')
         return
 
-    ticker_list = []
-    for symbol in sys.argv[1:]:
-        ticker_list.append(symbol.strip().upper())
-
+    ticker_list = [s.strip().upper() for s in sys.argv[1:]]
     process_tickers(ticker_list)
 
 if __name__ == '__main__':
