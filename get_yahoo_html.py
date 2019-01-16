@@ -154,11 +154,7 @@ def print_fit_strings(changes_by_ticker, adj_prices_by_ticker, titles_by_ticker)
         print(fit)
         print(exp_fit)
 
-def main():
-    if len(sys.argv) < 2:
-        print('No ticker argument given. Exiting....')
-        return
-
+def process_tickers():
     adj_prices_by_ticker = {}
     titles_by_ticker = {}
 
@@ -189,11 +185,17 @@ def main():
             time.sleep(1.5)
 
     changes_by_ticker = get_changes_by_ticker(adj_prices_by_ticker)
-
     stdev_by_ticker = get_sigma_data_by_ticker(changes_by_ticker, titles_by_ticker)
 
-    # print_fit_strings(changes_by_ticker, adj_prices_by_ticker, titles_by_ticker)
     print(json.dumps(stdev_by_ticker, sort_keys=True, indent=2))
+
+
+def main():
+    if len(sys.argv) < 2:
+        print('No ticker argument given. Exiting....')
+        return
+
+    process_tickers()
 
 if __name__ == '__main__':
     main()
