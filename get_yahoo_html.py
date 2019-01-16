@@ -57,8 +57,7 @@ def get_adj_close(response_text):
 def get_changes_by_ticker(adj_close):
     changes = []
     for i in range(1, len(adj_close)):
-        changes.append(
-            (adj_close[i] - adj_close[i-1])/adj_close[i-1])
+        changes.append((adj_close[i] - adj_close[i-1])/adj_close[i-1])
     return changes
 
 def compute_sign_diff_pct(ticker_changes):
