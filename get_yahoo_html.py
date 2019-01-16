@@ -65,28 +65,37 @@ def get_changes_by_ticker(adj_prices_by_ticker):
         changes_by_ticker[ticker] = changes
     return changes_by_ticker
 
+def compute_sign_diff_pct(ticker_changes):
+    changes_0 = numpy.array(ticker_changes[1:-1])
+    changes_minus_one = numpy.array(ticker_changes[:-2])
+
+    changes_tuples = list(zip(changes_minus_one, changes_0))
+    srted = list(reversed(sorted(changes_tuples, key=lambda b: b[0])))
+
+    pct_sum_10 = 0
+    for ele in srted[:10]:
+        product = ele[0] * ele[1]
+        if product:
+            pct_sum_10 += -0.5*numpy.sign(product) + 0.5
+
+    pct_sum_20 = pct_sum_10
+    for i in range(10, 20):
+        product = srted[i][0] * srted[i][1]
+        if product:
+            pct_sum_20 += -0.5*numpy.sign(product) + 0.5
+
+    self_correlation = numpy.corrcoef([changes_minus_one, changes_0])[1, 0]
+
+    return {
+        'self_correlation': str(round(self_correlation * 100, 3)) + '%',
+        'sign_diff_pct_10':  str(round(pct_sum_10 * 10, 4)) + '%',
+        'sign_diff_pct_20':  str(round(pct_sum_20 * 5, 4)) + '%'
+    }
+
 def get_sigma_data_by_ticker(changes_by_ticker, titles_by_ticker):
     sigma_data_by_ticker = {}
     for ticker in changes_by_ticker:
-        changes_0 = numpy.array(changes_by_ticker[ticker][1:-1])
-        changes_minus_one = numpy.array(changes_by_ticker[ticker][:-2])
-
-        changes_tuples = list(zip(changes_minus_one, changes_0))
-        srted = list(reversed(sorted(changes_tuples, key=lambda b: b[0])))
-
-        pct_sum_10 = 0
-        for ele in srted[:10]:
-            product = ele[0] * ele[1]
-            if product:
-                pct_sum_10 += -0.5*numpy.sign(product) + 0.5
-
-        pct_sum_20 = pct_sum_10
-        for i in range(10, 20):
-            product = srted[i][0] * srted[i][1]
-            if product:
-                pct_sum_20 += -0.5*numpy.sign(product) + 0.5
-
-        self_correlation = numpy.corrcoef([changes_minus_one, changes_0])[1, 0]
+        sign_diff_dict = compute_sign_diff_pct(changes_by_ticker[ticker])
 
         changes_numpy = numpy.array(changes_by_ticker[ticker][:-1])
         stdev = numpy.std(changes_numpy, ddof=1)
@@ -96,11 +105,11 @@ def get_sigma_data_by_ticker(changes_by_ticker, titles_by_ticker):
             'c_name': titles_by_ticker[ticker],
             'change': str(round(changes_by_ticker[ticker][-1] * 100, 3)) + '%',
             'record_count': len(changes_by_ticker[ticker]),
-            'self_correlation': str(round(self_correlation * 100, 3)) + '%',
+            'self_correlation': sign_diff_dict['self_correlation'],
             'sigma': str(round(stdev * 100, 3)) + '%',
             'sigma_change': round(sigma_change, 3),
-            'sign_diff_pct_10':  str(round(pct_sum_10 * 10, 4)) + '%',
-            'sign_diff_pct_20':  str(round(pct_sum_20 * 5, 4)) + '%',
+            'sign_diff_pct_10':  sign_diff_dict['sign_diff_pct_10'],
+            'sign_diff_pct_20':  sign_diff_dict['sign_diff_pct_20']
         }
     return sigma_data_by_ticker
 
