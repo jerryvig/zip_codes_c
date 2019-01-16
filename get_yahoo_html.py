@@ -54,16 +54,12 @@ def get_adj_close(response_text):
         adj_prices.append(float(cols[5]))
     return adj_prices
 
-def get_changes_by_ticker(adj_prices_by_ticker):
-    changes_by_ticker = {}
-    for ticker in adj_prices_by_ticker:
-        changes = []
-        for i in range(1, len(adj_prices_by_ticker[ticker])):
-            changes.append(
-                (adj_prices_by_ticker[ticker][i] - adj_prices_by_ticker[ticker][i-1])/
-                adj_prices_by_ticker[ticker][i-1])
-        changes_by_ticker[ticker] = changes
-    return changes_by_ticker
+def get_changes_by_ticker(adj_close):
+    changes = []
+    for i in range(1, len(adj_close)):
+        changes.append(
+            (adj_close[i] - adj_close[i-1])/adj_close[i-1])
+    return changes
 
 def compute_sign_diff_pct(ticker_changes):
     changes_0 = numpy.array(ticker_changes[1:-1])
@@ -92,26 +88,23 @@ def compute_sign_diff_pct(ticker_changes):
         'sign_diff_pct_20':  str(round(pct_sum_20 * 5, 4)) + '%'
     }
 
-def get_sigma_data_by_ticker(changes_by_ticker, titles_by_ticker):
-    sigma_data_by_ticker = {}
-    for ticker in changes_by_ticker:
-        sign_diff_dict = compute_sign_diff_pct(changes_by_ticker[ticker])
+def get_sigma_data(changes_daily):
+    sign_diff_dict = compute_sign_diff_pct(changes_daily)
 
-        changes_numpy = numpy.array(changes_by_ticker[ticker][:-1])
-        stdev = numpy.std(changes_numpy, ddof=1)
-        sigma_change = changes_by_ticker[ticker][-1]/stdev
+    changes_numpy = numpy.array(changes_daily[:-1])
+    stdev = numpy.std(changes_numpy, ddof=1)
+    sigma_change = changes_daily[-1]/stdev
 
-        sigma_data_by_ticker[ticker] = {
-            'c_name': titles_by_ticker[ticker],
-            'change': str(round(changes_by_ticker[ticker][-1] * 100, 3)) + '%',
-            'record_count': len(changes_by_ticker[ticker]),
-            'self_correlation': sign_diff_dict['self_correlation'],
-            'sigma': str(round(stdev * 100, 3)) + '%',
-            'sigma_change': round(sigma_change, 3),
-            'sign_diff_pct_10':  sign_diff_dict['sign_diff_pct_10'],
-            'sign_diff_pct_20':  sign_diff_dict['sign_diff_pct_20']
-        }
-    return sigma_data_by_ticker
+    sigma_data = {
+        'change': str(round(changes_daily[-1] * 100, 3)) + '%',
+        'record_count': len(changes_daily),
+        'self_correlation': sign_diff_dict['self_correlation'],
+        'sigma': str(round(stdev * 100, 3)) + '%',
+        'sigma_change': round(sigma_change, 3),
+        'sign_diff_pct_10':  sign_diff_dict['sign_diff_pct_10'],
+        'sign_diff_pct_20':  sign_diff_dict['sign_diff_pct_20']
+    }
+    return sigma_data
 
 DOWN_DAYS = '3 consecutive down days: %s'
 TWO_DOWN_DAYS = '2 consecutive down days: %s'
@@ -161,9 +154,6 @@ def print_fit_strings(changes_by_ticker, adj_prices_by_ticker, titles_by_ticker)
         print(exp_fit)
 
 def process_tickers():
-    adj_prices_by_ticker = {}
-    titles_by_ticker = {}
-
     (manana_stamp, ago_366_days_stamp) = get_timestamps()
     symbol_count = 0
 
@@ -176,25 +166,25 @@ def process_tickers():
         cookie_jar = response.cookies
         crumb = get_crumb(response)
 
-        titles_by_ticker[ticker] = get_title(response)
-
         download_url = ('https://query1.finance.yahoo.com/v7/finance/download/%s?'
                         'period1=%d&period2=%d&interval=1d&events=history'
                         '&crumb=%s' % (ticker, ago_366_days_stamp, manana_stamp, crumb))
         print('download_url = %s' % download_url)
         download_response = requests.get(download_url, cookies=cookie_jar)
 
-        adj_prices_by_ticker[ticker] = get_adj_close(download_response.text)
+        adj_close = get_adj_close(download_response.text)
+
+        changes_daily = get_changes_by_ticker(adj_close)
+
+        sigma_data = get_sigma_data(changes_daily)
+        sigma_data['c_name'] = get_title(response)
+        sigma_data['c_ticker'] = ticker
+
+        print(json.dumps(sigma_data, sort_keys=True, indent=2))
 
         symbol_count += 1
         if symbol_count < len(sys.argv[1:]):
             time.sleep(1.5)
-
-    changes_by_ticker = get_changes_by_ticker(adj_prices_by_ticker)
-    stdev_by_ticker = get_sigma_data_by_ticker(changes_by_ticker, titles_by_ticker)
-
-    print(json.dumps(stdev_by_ticker, sort_keys=True, indent=2))
-
 
 def main():
     if len(sys.argv) < 2:
