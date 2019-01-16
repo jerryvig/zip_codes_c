@@ -152,12 +152,11 @@ def print_fit_strings(changes_by_ticker, adj_prices_by_ticker, titles_by_ticker)
         print(fit)
         print(exp_fit)
 
-def process_tickers():
+def process_tickers(ticker_list):
     (manana_stamp, ago_366_days_stamp) = get_timestamps()
     symbol_count = 0
 
-    for symbol in sys.argv[1:]:
-        ticker = symbol.strip().upper()
+    for ticker in ticker_list:
         url = 'https://finance.yahoo.com/quote/%s/history?p=%s' % (ticker, ticker)
         print('url = %s' % url)
 
@@ -190,7 +189,11 @@ def main():
         print('No ticker argument given. Exiting....')
         return
 
-    process_tickers()
+    ticker_list = []
+    for symbol in sys.argv[1:]:
+        ticker_list.append(symbol.strip().upper())
+
+    process_tickers(ticker_list)
 
 if __name__ == '__main__':
     main()
