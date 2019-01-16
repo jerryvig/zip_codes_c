@@ -71,11 +71,8 @@ def get_sigma_data_by_ticker(changes_by_ticker, titles_by_ticker):
         changes_0 = numpy.array(changes_by_ticker[ticker][1:-1])
         changes_minus_one = numpy.array(changes_by_ticker[ticker][:-2])
 
-        changes_tuple = []
-        for idx, ele in enumerate(changes_0):
-            changes_tuple.append((changes_minus_one[idx], ele))
-
-        srted = list(reversed(sorted(changes_tuple, key=lambda b: b[0])))
+        changes_tuples = list(zip(changes_minus_one, changes_0))
+        srted = list(reversed(sorted(changes_tuples, key=lambda b: b[0])))
 
         pct_sum_10 = 0
         for ele in srted[:10]:
