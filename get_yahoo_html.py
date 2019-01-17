@@ -64,15 +64,12 @@ def compute_sign_diff_pct(ticker_changes):
     changes_0 = numpy.array(ticker_changes[1:-1])
     changes_minus_one = numpy.array(ticker_changes[:-2])
 
-    changes_tuples = list(zip(changes_minus_one, changes_0))
+    changes_tuples = zip(changes_minus_one, changes_0)
     srted = list(reversed(sorted(changes_tuples, key=lambda b: b[0])))
-
-    print(srted[:10])
 
     pct_sum_10 = 0
     pct_sum_20 = 0
     avg_sum_10 = 0
-
     for i, ele in enumerate(srted[:20]):
         product = ele[0] * ele[1]
         if i < 10:
