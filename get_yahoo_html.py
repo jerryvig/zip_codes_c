@@ -152,6 +152,9 @@ def print_fit_strings(changes_by_ticker, adj_prices_by_ticker, titles_by_ticker)
         print(fit)
         print(exp_fit)
 
+def process_ticker(ticker):
+    pass
+
 def process_tickers(ticker_list):
     (manana_stamp, ago_366_days_stamp) = get_timestamps()
     symbol_count = 0
