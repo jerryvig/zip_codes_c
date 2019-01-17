@@ -68,16 +68,14 @@ def compute_sign_diff_pct(ticker_changes):
     srted = list(reversed(sorted(changes_tuples, key=lambda b: b[0])))
 
     pct_sum_10 = 0
-    for ele in srted[:10]:
+    pct_sum_20 = 0
+    for i, ele in enumerate(srted[:20]):
         product = ele[0] * ele[1]
         if product:
-            pct_sum_10 += -0.5*numpy.sign(product) + 0.5
-
-    pct_sum_20 = pct_sum_10
-    for i in range(10, 20):
-        product = srted[i][0] * srted[i][1]
-        if product:
-            pct_sum_20 += -0.5*numpy.sign(product) + 0.5
+            is_diff = -0.5*numpy.sign(product) + 0.5
+            if i < 10:
+                pct_sum_10 += is_diff
+            pct_sum_20 += is_diff
 
     self_correlation = numpy.corrcoef([changes_minus_one, changes_0])[1, 0]
 
