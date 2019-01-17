@@ -152,35 +152,35 @@ def print_fit_strings(changes_by_ticker, adj_prices_by_ticker, titles_by_ticker)
         print(fit)
         print(exp_fit)
 
-def process_ticker(ticker):
-    pass
+def process_ticker(ticker, manana_stamp, ago_366_days_stamp):
+    url = 'https://finance.yahoo.com/quote/%s/history?p=%s' % (ticker, ticker)
+    print('url = %s' % url)
+
+    response = requests.get(url)
+    cookie_jar = response.cookies
+    crumb = get_crumb(response)
+
+    download_url = ('https://query1.finance.yahoo.com/v7/finance/download/%s?'
+                    'period1=%d&period2=%d&interval=1d&events=history'
+                    '&crumb=%s' % (ticker, ago_366_days_stamp, manana_stamp, crumb))
+    print('download_url = %s' % download_url)
+    download_response = requests.get(download_url, cookies=cookie_jar)
+
+    adj_close = get_adj_close(download_response.text)
+
+    changes_daily = get_changes_by_ticker(adj_close)
+
+    sigma_data = get_sigma_data(changes_daily)
+    sigma_data['c_name'] = get_title(response)
+    sigma_data['c_ticker'] = ticker
+    return sigma_data
 
 def process_tickers(ticker_list):
     (manana_stamp, ago_366_days_stamp) = get_timestamps()
     symbol_count = 0
 
     for ticker in ticker_list:
-        url = 'https://finance.yahoo.com/quote/%s/history?p=%s' % (ticker, ticker)
-        print('url = %s' % url)
-
-        response = requests.get(url)
-        cookie_jar = response.cookies
-        crumb = get_crumb(response)
-
-        download_url = ('https://query1.finance.yahoo.com/v7/finance/download/%s?'
-                        'period1=%d&period2=%d&interval=1d&events=history'
-                        '&crumb=%s' % (ticker, ago_366_days_stamp, manana_stamp, crumb))
-        print('download_url = %s' % download_url)
-        download_response = requests.get(download_url, cookies=cookie_jar)
-
-        adj_close = get_adj_close(download_response.text)
-
-        changes_daily = get_changes_by_ticker(adj_close)
-
-        sigma_data = get_sigma_data(changes_daily)
-        sigma_data['c_name'] = get_title(response)
-        sigma_data['c_ticker'] = ticker
-
+        sigma_data = process_ticker(ticker, manana_stamp, ago_366_days_stamp)
         print(json.dumps(sigma_data, sort_keys=True, indent=2))
 
         symbol_count += 1
