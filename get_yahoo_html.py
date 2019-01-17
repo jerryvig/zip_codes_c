@@ -179,7 +179,8 @@ def process_tickers(ticker_list):
     (manana_stamp, ago_366_days_stamp) = get_timestamps()
     symbol_count = 0
 
-    for ticker in ticker_list:
+    for symbol in ticker_list:
+        ticker = symbol.strip().upper()
         sigma_data = process_ticker(ticker, manana_stamp, ago_366_days_stamp)
         print(json.dumps(sigma_data, sort_keys=True, indent=2))
 
