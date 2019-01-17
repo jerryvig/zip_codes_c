@@ -67,19 +67,28 @@ def compute_sign_diff_pct(ticker_changes):
     changes_tuples = list(zip(changes_minus_one, changes_0))
     srted = list(reversed(sorted(changes_tuples, key=lambda b: b[0])))
 
+    print(srted[:10])
+
     pct_sum_10 = 0
     pct_sum_20 = 0
+    avg_sum_10 = 0.0
+
     for i, ele in enumerate(srted[:20]):
         product = ele[0] * ele[1]
+        if i < 10:
+            avg_sum_10 += ele[1]
         if product:
             is_diff = -0.5*numpy.sign(product) + 0.5
             if i < 10:
                 pct_sum_10 += is_diff
             pct_sum_20 += is_diff
 
+    avg_move_10 = str(round(avg_sum_10 * 10, 4)) + '%'
+
     self_correlation = numpy.corrcoef([changes_minus_one, changes_0])[1, 0]
 
     return {
+        'avg_move_10': avg_move_10,
         'self_correlation': str(round(self_correlation * 100, 3)) + '%',
         'sign_diff_pct_10':  str(round(pct_sum_10 * 10, 4)) + '%',
         'sign_diff_pct_20':  str(round(pct_sum_20 * 5, 4)) + '%'
@@ -93,6 +102,7 @@ def get_sigma_data(changes_daily):
     sigma_change = changes_daily[-1]/stdev
 
     sigma_data = {
+        'avg_move_10': sign_diff_dict['avg_move_10'],
         'change': str(round(changes_daily[-1] * 100, 3)) + '%',
         'record_count': len(changes_daily),
         'self_correlation': sign_diff_dict['self_correlation'],
