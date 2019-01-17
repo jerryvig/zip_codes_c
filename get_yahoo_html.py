@@ -80,12 +80,10 @@ def compute_sign_diff_pct(ticker_changes):
                 pct_sum_10 += is_diff
             pct_sum_20 += is_diff
 
-    avg_move_10 = str(round(avg_sum_10 * 10, 4)) + '%'
-
     self_correlation = numpy.corrcoef([changes_minus_one, changes_0])[1, 0]
 
     return {
-        'avg_move_10': avg_move_10,
+        'avg_move_10': str(round(avg_sum_10 * 10, 4)) + '%',
         'self_correlation': str(round(self_correlation * 100, 3)) + '%',
         'sign_diff_pct_10':  str(round(pct_sum_10 * 10, 4)) + '%',
         'sign_diff_pct_20':  str(round(pct_sum_20 * 5, 4)) + '%'
