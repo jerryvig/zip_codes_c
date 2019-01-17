@@ -65,12 +65,13 @@ def compute_sign_diff_pct(ticker_changes):
     changes_minus_one = numpy.array(ticker_changes[:-2])
 
     changes_tuples = zip(changes_minus_one, changes_0)
-    srted = list(reversed(sorted(changes_tuples, key=lambda b: b[0])))
+    sorted_descending = list(reversed(sorted(changes_tuples, key=lambda b: b[0])))
 
+    # UP
     pct_sum_10 = 0
     pct_sum_20 = 0
     avg_sum_10 = 0
-    for i, ele in enumerate(srted[:20]):
+    for i, ele in enumerate(sorted_descending[:20]):
         product = ele[0] * ele[1]
         if i < 10:
             avg_sum_10 += ele[1]
@@ -80,13 +81,30 @@ def compute_sign_diff_pct(ticker_changes):
                 pct_sum_10 += is_diff
             pct_sum_20 += is_diff
 
+    # DOWN
+    pct_sum_10_down = 0
+    pct_sum_20_down = 0
+    avg_sum_10_down = 0
+    for i, ele in enumerate(sorted_descending[-20:]):
+        product = ele[0] * ele[1]
+        if i > 9:
+            avg_sum_10_down += ele[1]
+        if product:
+            is_diff = -0.5*numpy.sign(product) + 0.5
+            if i > 9:
+                pct_sum_10_down += is_diff
+            pct_sum_20_down += is_diff
+
     self_correlation = numpy.corrcoef([changes_minus_one, changes_0])[1, 0]
 
     return {
         'avg_move_10': str(round(avg_sum_10 * 10, 4)) + '%',
+        'avg_move_10_down': str(round(avg_sum_10_down * 10, 4)) + '%',
         'self_correlation': str(round(self_correlation * 100, 3)) + '%',
         'sign_diff_pct_10':  str(round(pct_sum_10 * 10, 4)) + '%',
-        'sign_diff_pct_20':  str(round(pct_sum_20 * 5, 4)) + '%'
+        'sign_diff_pct_20':  str(round(pct_sum_20 * 5, 4)) + '%',
+        'sign_diff_pct_10_down': str(round(pct_sum_10_down * 10, 4)) + '%',
+        'sign_diff_pct_20_down': str(round(pct_sum_20_down * 5, 4)) + '%'
     }
 
 def get_sigma_data(changes_daily):
@@ -98,13 +116,16 @@ def get_sigma_data(changes_daily):
 
     sigma_data = {
         'avg_move_10': sign_diff_dict['avg_move_10'],
+        'avg_move_10_down': sign_diff_dict['avg_move_10_down'],
         'change': str(round(changes_daily[-1] * 100, 3)) + '%',
         'record_count': len(changes_daily),
         'self_correlation': sign_diff_dict['self_correlation'],
         'sigma': str(round(stdev * 100, 3)) + '%',
         'sigma_change': round(sigma_change, 3),
         'sign_diff_pct_10':  sign_diff_dict['sign_diff_pct_10'],
-        'sign_diff_pct_20':  sign_diff_dict['sign_diff_pct_20']
+        'sign_diff_pct_20':  sign_diff_dict['sign_diff_pct_20'],
+        'sign_diff_pct_10_down':  sign_diff_dict['sign_diff_pct_10_down'],
+        'sign_diff_pct_20_down':  sign_diff_dict['sign_diff_pct_20_down']
     }
     return sigma_data
 
