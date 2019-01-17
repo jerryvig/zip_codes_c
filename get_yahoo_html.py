@@ -189,7 +189,10 @@ def process_tickers(ticker_list):
 
 def main():
     if len(sys.argv) < 2:
-        print('No ticker argument given. Exiting....')
+        while True:
+            raw_ticker_string = input('Enter ticker list: ')
+            ticker_list = raw_ticker_string.strip().split(' ')
+            process_tickers(ticker_list)
         return
 
     ticker_list = [s.strip().upper() for s in sys.argv[1:]]
