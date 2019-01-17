@@ -71,7 +71,7 @@ def compute_sign_diff_pct(ticker_changes):
 
     pct_sum_10 = 0
     pct_sum_20 = 0
-    avg_sum_10 = 0.0
+    avg_sum_10 = 0
 
     for i, ele in enumerate(srted[:20]):
         product = ele[0] * ele[1]
