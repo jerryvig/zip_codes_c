@@ -51,6 +51,10 @@ def get_adj_close(response_text):
     adj_prices = []
     for line in data_lines:
         cols = line.split(',')
+        if cols[5] == 'null':
+            print('===== "null" values found in the input ====')
+            print('===== continuing ..... ====================')
+            return None
         adj_prices.append(float(cols[5]))
     return adj_prices
 
@@ -191,6 +195,8 @@ def process_ticker(ticker, manana_stamp, ago_366_days_stamp):
     download_response = requests.get(download_url, cookies=cookie_jar)
 
     adj_close = get_adj_close(download_response.text)
+    if not adj_close:
+        return None
 
     changes_daily = get_changes_by_ticker(adj_close)
 
@@ -206,7 +212,8 @@ def process_tickers(ticker_list):
     for symbol in ticker_list:
         ticker = symbol.strip().upper()
         sigma_data = process_ticker(ticker, manana_stamp, ago_366_days_stamp)
-        print(json.dumps(sigma_data, sort_keys=True, indent=2))
+        if sigma_data:
+            print(json.dumps(sigma_data, sort_keys=True, indent=2))
 
         symbol_count += 1
         if symbol_count < len(sys.argv[1:]):
