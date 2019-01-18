@@ -74,36 +74,38 @@ def compute_sign_diff_pct(ticker_changes):
     # UP
     pct_sum_10_up = 0
     pct_sum_20_up = 0
-    avg_sum_10_up = 0
+    np_avg_10_up = []
     for i, ele in enumerate(sorted_descending[:20]):
         product = ele[0] * ele[1]
         if i < 10:
-            avg_sum_10_up += ele[1]
+            np_avg_10_up.append(ele[1])
         if product:
             is_diff = -0.5*numpy.sign(product) + 0.5
             if i < 10:
                 pct_sum_10_up += is_diff
             pct_sum_20_up += is_diff
+    avg_10_up = numpy.average(np_avg_10_up)
 
     # DOWN
     pct_sum_10_down = 0
     pct_sum_20_down = 0
-    avg_sum_10_down = 0
+    np_avg_10_down = []
     for i, ele in enumerate(sorted_descending[-20:]):
         product = ele[0] * ele[1]
         if i > 9:
-            avg_sum_10_down += ele[1]
+            np_avg_10_down.append(ele[1])
         if product:
             is_diff = -0.5*numpy.sign(product) + 0.5
             if i > 9:
                 pct_sum_10_down += is_diff
             pct_sum_20_down += is_diff
+    avg_10_down = numpy.average(np_avg_10_down)
 
     self_correlation = numpy.corrcoef([changes_minus_one, changes_0])[1, 0]
 
     return {
-        'avg_move_10_up': str(round(avg_sum_10_up * 10, 4)) + '%',
-        'avg_move_10_down': str(round(avg_sum_10_down * 10, 4)) + '%',
+        'avg_move_10_up': str(round(avg_10_up * 100, 4)) + '%',
+        'avg_move_10_down': str(round(avg_10_down * 100, 4)) + '%',
         'self_correlation': str(round(self_correlation * 100, 3)) + '%',
         'sign_diff_pct_10_up':  str(round(pct_sum_10_up * 10, 4)) + '%',
         'sign_diff_pct_20_up':  str(round(pct_sum_20_up * 5, 4)) + '%',
