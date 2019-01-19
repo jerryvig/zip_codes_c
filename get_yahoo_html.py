@@ -88,6 +88,7 @@ def compute_sign_diff_pct(ticker_changes):
                 pct_sum_10_up += is_diff
             pct_sum_20_up += is_diff
     avg_10_up = numpy.average(np_avg_10_up)
+    stdev_10_up = numpy.std(np_avg_10_up, ddof=1)
 
     # DOWN
     pct_sum_10_down = 0
@@ -103,6 +104,11 @@ def compute_sign_diff_pct(ticker_changes):
                 pct_sum_10_down += is_diff
             pct_sum_20_down += is_diff
     avg_10_down = numpy.average(np_avg_10_down)
+    stdev_10_down = numpy.std(np_avg_10_down, ddof=1)
+
+    # YOU NEED TO QA THESE DATA
+    print('stdev_10_up = %f' % stdev_10_up)
+    print('stdev_10_down = %f' % stdev_10_down)
 
     self_correlation = numpy.corrcoef([changes_minus_one, changes_0])[1, 0]
 
@@ -113,7 +119,9 @@ def compute_sign_diff_pct(ticker_changes):
         'sign_diff_pct_10_up':  str(round(pct_sum_10_up * 10, 4)) + '%',
         'sign_diff_pct_20_up':  str(round(pct_sum_20_up * 5, 4)) + '%',
         'sign_diff_pct_10_down': str(round(pct_sum_10_down * 10, 4)) + '%',
-        'sign_diff_pct_20_down': str(round(pct_sum_20_down * 5, 4)) + '%'
+        'sign_diff_pct_20_down': str(round(pct_sum_20_down * 5, 4)) + '%',
+        'stdev_10_up': str(round(stdev_10_up * 100, 4)) + '%',
+        'stdev_10_down': str(round(stdev_10_down * 100, 4)) + '%'
     }
 
 def get_sigma_data(changes_daily):
@@ -134,7 +142,9 @@ def get_sigma_data(changes_daily):
         'sign_diff_pct_10_up':  sign_diff_dict['sign_diff_pct_10_up'],
         'sign_diff_pct_20_up':  sign_diff_dict['sign_diff_pct_20_up'],
         'sign_diff_pct_10_down':  sign_diff_dict['sign_diff_pct_10_down'],
-        'sign_diff_pct_20_down':  sign_diff_dict['sign_diff_pct_20_down']
+        'sign_diff_pct_20_down':  sign_diff_dict['sign_diff_pct_20_down'],
+        'stdev_10_up': sign_diff_dict['stdev_10_up'],
+        'stdev_10_down': sign_diff_dict['stdev_10_down']
     }
     return sigma_data
 
