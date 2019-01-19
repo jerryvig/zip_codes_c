@@ -60,7 +60,7 @@ def get_adj_close_and_changes(response_text):
             return (None, None)
         adj_close = float(cols[5])
         adj_prices.append(adj_close)
-        if i > 0:
+        if i:
             changes.append((adj_close - adj_prices[i-1])/adj_prices[i-1])
 
     end = time.time_ns()
