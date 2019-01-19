@@ -45,24 +45,27 @@ def get_tbody_node(dom):
             return node
     return None
 
-def get_adj_close(response_text):
+def get_adj_close_and_changes(response_text):
+    start = time.time_ns()
+
     lines = response_text.split('\n')
     data_lines = lines[1:-1]
     adj_prices = []
-    for line in data_lines:
+    changes = []
+    for i, line in enumerate(data_lines):
         cols = line.split(',')
         if cols[5] == 'null':
             print('===== "null" values found in the input ====')
             print('===== continuing ..... ====================')
-            return None
-        adj_prices.append(float(cols[5]))
-    return adj_prices
+            return (None, None)
+        adj_close = float(cols[5])
+        adj_prices.append(adj_close)
+        if i > 0:
+            changes.append((adj_close - adj_prices[i-1])/adj_prices[i-1])
 
-def get_changes_by_ticker(adj_close):
-    changes = []
-    for i in range(1, len(adj_close)):
-        changes.append((adj_close[i] - adj_close[i-1])/adj_close[i-1])
-    return changes
+    end = time.time_ns()
+    print('ran get_adj_close_and_changes() in %d ns.' % (end - start))
+    return (adj_prices, changes)
 
 def compute_sign_diff_pct(ticker_changes):
     changes_0 = numpy.array(ticker_changes[1:-1])
@@ -196,11 +199,9 @@ def process_ticker(ticker, manana_stamp, ago_366_days_stamp):
     print('download_url = %s' % download_url)
     download_response = requests.get(download_url, cookies=cookie_jar)
 
-    adj_close = get_adj_close(download_response.text)
+    adj_close, changes_daily = get_adj_close_and_changes(download_response.text)
     if not adj_close:
         return None
-
-    changes_daily = get_changes_by_ticker(adj_close)
 
     sigma_data = get_sigma_data(changes_daily)
     sigma_data['c_name'] = get_title(response)
