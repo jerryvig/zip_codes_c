@@ -50,8 +50,9 @@ def get_adj_close_and_changes(response_text):
 
     lines = response_text.split('\n')
     data_lines = lines[1:-1]
-    adj_prices = []
-    changes = []
+    len_data_lines = len(data_lines)
+    adj_prices = numpy.zeros(len_data_lines)
+    changes = numpy.zeros(len_data_lines - 1)
     for i, line in enumerate(data_lines):
         cols = line.split(',')
         if cols[5] == 'null':
@@ -59,17 +60,17 @@ def get_adj_close_and_changes(response_text):
             print('===== continuing ..... ====================')
             return (None, None)
         adj_close = float(cols[5])
-        adj_prices.append(adj_close)
+        adj_prices[i] = adj_close
         if i:
-            changes.append((adj_close - adj_prices[i-1])/adj_prices[i-1])
-
+            changes[i-1] = (adj_close - adj_prices[i-1])/adj_prices[i-1]
     end = time.time_ns()
     print('ran get_adj_close_and_changes() in %d ns.' % (end - start))
+
     return (adj_prices, changes)
 
 def compute_sign_diff_pct(ticker_changes):
-    changes_0 = numpy.array(ticker_changes[1:-1])
-    changes_minus_one = numpy.array(ticker_changes[:-2])
+    changes_0 = ticker_changes[1:-1]
+    changes_minus_one = ticker_changes[:-2]
 
     changes_tuples = zip(changes_minus_one, changes_0)
     sorted_descending = list(reversed(sorted(changes_tuples, key=lambda b: b[0])))
@@ -127,7 +128,7 @@ def compute_sign_diff_pct(ticker_changes):
 def get_sigma_data(changes_daily):
     sign_diff_dict = compute_sign_diff_pct(changes_daily)
 
-    changes_numpy = numpy.array(changes_daily[:-1])
+    changes_numpy = changes_daily[:-1]
     stdev = numpy.std(changes_numpy, ddof=1)
     sigma_change = changes_daily[-1]/stdev
 
@@ -210,7 +211,7 @@ def process_ticker(ticker, manana_stamp, ago_366_days_stamp):
     download_response = requests.get(download_url, cookies=cookie_jar)
 
     adj_close, changes_daily = get_adj_close_and_changes(download_response.text)
-    if not adj_close:
+    if adj_close is None:
         return None
 
     sigma_data = get_sigma_data(changes_daily)
