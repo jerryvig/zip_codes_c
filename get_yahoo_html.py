@@ -107,10 +107,6 @@ def compute_sign_diff_pct(ticker_changes):
     avg_10_down = numpy.average(np_avg_10_down)
     stdev_10_down = numpy.std(np_avg_10_down, ddof=1)
 
-    # YOU NEED TO QA THESE DATA
-    print('stdev_10_up = %f' % stdev_10_up)
-    print('stdev_10_down = %f' % stdev_10_down)
-
     self_correlation = numpy.corrcoef([changes_minus_one, changes_0])[1, 0]
 
     return {
