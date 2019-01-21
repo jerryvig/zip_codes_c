@@ -6,7 +6,6 @@ import time
 import numpy
 import requests
 
-from termcolor import colored
 
 def get_crumb(response):
     crumbstore_start_idx = response.text.find("CrumbStore")
@@ -129,34 +128,6 @@ def get_sigma_data(changes_daily):
         'stdev_10_down': sign_diff_dict['stdev_10_down']
     }
     return sigma_data
-
-DOWN_DAYS = '3 consecutive down days: %s'
-TWO_DOWN_DAYS = '2 consecutive down days: %s'
-MONOTONIC_DECREASE = 'Monotonically decreasing: %s'
-LAST_MOST_NEGATIVE = 'Last most negative: %s'
-C_YES = colored('YES', 'green')
-C_NO = colored('NO', 'red')
-
-def print_monotonic_down(changes):
-    if changes[2] < 0.0 and changes[2] < changes[1] and changes[2] < changes[0]:
-        print(LAST_MOST_NEGATIVE % C_YES)
-    else:
-        print(LAST_MOST_NEGATIVE % C_NO)
-
-    if changes[1] < 0.0 and changes[2] < 0.0:
-        print(TWO_DOWN_DAYS % C_YES)
-    else:
-        print(TWO_DOWN_DAYS % C_NO)
-
-    if changes[0] < 0.0 and changes[1] < 0.0 and changes[2] < 0.0:
-        print(DOWN_DAYS % C_YES)
-        if changes[1] < changes[0] and changes[2] < changes[1]:
-            print(MONOTONIC_DECREASE % C_YES)
-        else:
-            print(MONOTONIC_DECREASE % C_NO)
-    else:
-        print(DOWN_DAYS % C_NO)
-        print(MONOTONIC_DECREASE % C_NO)
 
 def process_ticker(ticker, manana_stamp, ago_366_days_stamp):
     url = 'https://finance.yahoo.com/quote/%s/history?p=%s' % (ticker, ticker)
