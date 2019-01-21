@@ -30,7 +30,7 @@ def get_title(response):
     return title_start[pipe_start:hyphen_end].strip()
 
 def get_adj_close_and_changes(response_text):
-    start = time.time_ns()
+    #start = time.time()
 
     lines = response_text.split('\n')
     data_lines = lines[1:-1]
@@ -47,8 +47,8 @@ def get_adj_close_and_changes(response_text):
         adj_prices[i] = adj_close
         if i:
             changes[i-1] = (adj_close - adj_prices[i-1])/adj_prices[i-1]
-    end = time.time_ns()
-    print('ran get_adj_close_and_changes() in %d ns.' % (end - start))
+    #end = time.time()
+    #print('ran get_adj_close_and_changes() in %d.' % (end - start))
 
     return (adj_prices, changes)
 
@@ -170,8 +170,14 @@ def main():
     if len(sys.argv) < 2:
         while True:
             raw_ticker_string = input('Enter ticker list: ')
+
+            start = time.time()
             ticker_list = raw_ticker_string.strip().split(' ')
+
             process_tickers(ticker_list)
+
+            end = time.time()
+            print('processed in %.6f' % (end - start))
         return
 
     ticker_list = [s.strip().upper() for s in sys.argv[1:]]
