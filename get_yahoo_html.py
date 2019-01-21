@@ -30,12 +30,6 @@ def get_title(response):
     hyphen_end = title_start.find('-')
     return title_start[pipe_start:hyphen_end].strip()
 
-def get_tbody_node(dom):
-    for node in dom.documentElement.childNodes:
-        if node.tagName == 'tbody':
-            return node
-    return None
-
 def get_adj_close_and_changes(response_text):
     start = time.time_ns()
 
@@ -163,25 +157,6 @@ def print_monotonic_down(changes):
     else:
         print(DOWN_DAYS % C_NO)
         print(MONOTONIC_DECREASE % C_NO)
-
-def print_fit_strings(changes_by_ticker, adj_prices_by_ticker, titles_by_ticker):
-    for ticker, changes in changes_by_ticker.items():
-        exp_fit = 'exponential fit { '
-        fit = 'Fit[{'
-        fit += str(round(changes[0], 4)) + ', '
-        exp_fit += str(round(changes[0], 4)) + ', '
-        fit += str(round(changes[1], 4)) + ', '
-        exp_fit += str(round(changes[1], 4)) + ', '
-        fit += str(round(changes[2], 4))
-        exp_fit += str(round(changes[2], 4))
-        fit += '}, {x^2}, x]'
-        exp_fit += ' }'
-        print('%s: %.2f' % (ticker.upper(), adj_prices_by_ticker[ticker][3]))
-        print(titles_by_ticker[ticker])
-        print('Pricing data: %s' % str(adj_prices_by_ticker[ticker]))
-        print_monotonic_down(changes)
-        print(fit)
-        print(exp_fit)
 
 def process_ticker(ticker, manana_stamp, ago_366_days_stamp):
     url = 'https://finance.yahoo.com/quote/%s/history?p=%s' % (ticker, ticker)
