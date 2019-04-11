@@ -100,7 +100,7 @@ static void initDb(sqlite3** db) {
 
 static void doInsert(sqlite3** db, char stmt[]) {
 	char* err = NULL;
-	printf("running insert statement = '%s'\n", stmt);
+	fprintf(stderr, "running insert statement = '%s'\n", stmt);
 	int rc = sqlite3_exec(*db, stmt, NULL, NULL, &err);
 	if ( rc != SQLITE_OK ) {
 		fprintf(stderr, "Failed to exec insert stmt '%s' with error: %s.\n", stmt, err);
@@ -121,7 +121,7 @@ static void loadLinkedList(FILE* input_file, county_node_t *head) {
 		memset(next->state, 0, sizeof next->state);
 		memset(next->county, 0, sizeof next->county);
 
-		printf("state, county = %s, %s\n", current->state, current->county);
+		fprintf(stderr, "state, county = %s, %s\n", current->state, current->county);
 
 		current->next = next;
 		memset(buf, 0, sizeof buf);
@@ -138,14 +138,12 @@ static void freeLinkedList(county_node_t *head) {
 }
 
 static char* buildUrl(char* state, char* county) {
-	char nullStr[128] = {'\0'};
-	char* dest = (char*)malloc(128 * sizeof(char));
-	strcpy(dest, nullStr);
+	char *dest = (char*)calloc(128, sizeof(char));
 	strcpy(dest, BASE_URL);
 	strcat(dest, state);
 	strcat(dest, "-");
 
-	for (size_t i=0; i<strlen(county); ++i) {
+	for (size_t i = 0; i < strlen(county); ++i) {
 		if (county[i] == ' ') {
 			county[i] = '-';
 		}
@@ -161,7 +159,7 @@ static size_t writeCallback(void *contents, size_t size, size_t nmemb, void* use
 
 	char *ptr = realloc(memory->memory, memory->size + realsize + 1);
 	if (ptr == NULL) {
-		printf("Insufficient memory to reallocate. realloc() returned NULL.\n");
+		fprintf(stderr, "Insufficient memory to reallocate. realloc() returned NULL.\n");
 		return 0;
 	}
 
@@ -265,8 +263,8 @@ int main(void) {
 		zip_code_node_t *zipCodesHead = (zip_code_node_t*)malloc(sizeof(zip_code_node_t));
 		initZipCodeNode(zipCodesHead);
 
-		printf("state = %s\n", current->state);
-		printf("county = %s\n", current->county);
+		fprintf(stderr, "state = %s\n", current->state);
+		fprintf(stderr, "county = %s\n", current->county);
 
 		char* url = buildUrl(current->state, current->county);
 		getUrl(curl, url, current->state, current->county, zipCodesHead);
