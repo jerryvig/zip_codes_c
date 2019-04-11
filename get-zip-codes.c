@@ -178,7 +178,15 @@ static CURL* initCurl() {
 		fprintf(stderr, "Failed initialize curl.\n");
 		exit( EXIT_FAILURE );
 	}
-
+    curl_easy_setopt(curl, CURLOPT_USERAGENT, "libcurl-agent/1.0");
+    curl_easy_setopt(curl, CURLOPT_COOKIEFILE, "");
+    curl_easy_setopt(curl, CURLOPT_ACCEPT_ENCODING, "br, gzip");
+    curl_easy_setopt(curl, CURLOPT_TCP_KEEPALIVE, 1L);
+    curl_easy_setopt(curl, CURLOPT_TCP_KEEPIDLE, 180L);
+    curl_easy_setopt(curl, CURLOPT_TCP_KEEPINTVL, 60L);
+    curl_easy_setopt(curl, CURLOPT_TCP_FASTOPEN, 1L);
+    curl_easy_setopt(curl, CURLOPT_TCP_NODELAY, 0);
+    curl_easy_setopt(curl, CURLOPT_HTTP_VERSION, CURL_HTTP_VERSION_2_0);
 	return curl;
 }
 
@@ -235,7 +243,6 @@ static void getUrl(CURL* curl, char* url, char state[], char county[], zip_code_
 
 	curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, writeCallback);
 	curl_easy_setopt(curl, CURLOPT_WRITEDATA, (void*)chunk);
-	curl_easy_setopt(curl, CURLOPT_USERAGENT, "libcurl-agent/1.0");
 
 	res = curl_easy_perform(curl);
 	if (res != CURLE_OK) {
