@@ -108,29 +108,25 @@ static void doInsert(sqlite3** db, char stmt[]) {
 	}
 }
 
-static county_node_t* loadLinkedList(FILE* input_file) {
-	char nullStr[128] = {'\0'};
+static void loadLinkedList(FILE* input_file, county_node_t *head) {
 	char buf[128];
-	county_node_t *head = (county_node_t*)malloc(sizeof(county_node_t));
-	strncpy(head->state, nullStr, 8);
-	strncpy(head->county, nullStr, 64);
+	memset(head->state, 0, sizeof head->state);
+	memset(head->county, 0, sizeof head->county);
 
 	for (county_node_t *current = head; fgets(buf, sizeof buf, input_file) != NULL;) {
 		char* comma_start = strstr(buf, ",");
 		strncpy(current->county, &comma_start[1], strlen(&comma_start[1]) - 1);
 		strncpy(current->state, buf, strlen(buf) - strlen(comma_start));
 		county_node_t *next = (county_node_t*)malloc(sizeof(county_node_t));
-		strncpy(next->state, nullStr, 8);
-		strncpy(next->county, nullStr, 64);
+		memset(next->state, 0, sizeof next->state);
+		memset(next->county, 0, sizeof next->county);
 
 		printf("state, county = %s, %s\n", current->state, current->county);
 
 		current->next = next;
-		strcpy(buf, nullStr);
+		memset(buf, 0, sizeof buf);
 		current = next;
 	}
-
-	return head;
 }
 
 static void freeLinkedList(county_node_t *head) {
@@ -189,11 +185,10 @@ static CURL* initCurl() {
 }
 
 static void initZipCodeNode(zip_code_node_t *node) {
-	char nullStr[64] = {'\0'};
 	node->next = NULL;
-	strncpy(node->state, nullStr, 8);
-	strcpy(node->county, nullStr);
-	strncpy(node->code, nullStr, 5);
+	memset(node->state, 0, sizeof node->state);
+	memset(node->county, 0, sizeof node->county);
+	memset(node->code, 0, sizeof node->code);
 }
 
 static void processChunk(char* memory, char state[], char county[], zip_code_node_t *zipHead) {
@@ -262,7 +257,8 @@ int main(void) {
 	openDb(&db);
 	initDb(&db);
 
-	county_node_t *head = loadLinkedList(input_file);
+	county_node_t *head = (county_node_t*)malloc(sizeof(county_node_t));
+	loadLinkedList(input_file, head);
 	CURL* curl = initCurl();
 
 	for (county_node_t *current = head; current->next != NULL; current = current->next) {
