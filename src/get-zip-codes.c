@@ -50,7 +50,7 @@ static FILE* openOutputFile() {
 
 static void openDb(sqlite3** db) {
 	const int rc = sqlite3_open(SQLITE3_DB_NAME, db);
-	if ( rc ) {
+	if ( rc != SQLITE_OK ) {
 		fprintf(stderr, "Failed to open database " SQLITE3_DB_NAME);
 		sqlite3_close( *db );
 		exit( EXIT_FAILURE );
