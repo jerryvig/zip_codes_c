@@ -17,7 +17,7 @@ typedef struct CountyNode {
 	char state[8];
 	char county[64];
 	struct CountyNode* next;
-} CountyNode;
+} county_node_t;
 
 typedef struct {
   char *memory;
@@ -108,18 +108,18 @@ static void doInsert(sqlite3** db, char stmt[]) {
 	}
 }
 
-static CountyNode* loadLinkedList(FILE* input_file) {
+static county_node_t* loadLinkedList(FILE* input_file) {
 	char nullStr[128] = {'\0'};
 	char buf[128];
-	CountyNode* head = (CountyNode*)malloc(sizeof(CountyNode));
+	county_node_t *head = (county_node_t*)malloc(sizeof(county_node_t));
 	strncpy(head->state, nullStr, 8);
 	strncpy(head->county, nullStr, 64);
 
-	for (CountyNode* current = head; fgets(buf, sizeof buf, input_file) != NULL;) {
+	for (county_node_t *current = head; fgets(buf, sizeof buf, input_file) != NULL;) {
 		char* comma_start = strstr(buf, ",");
 		strncpy(current->county, &comma_start[1], strlen(&comma_start[1]) - 1);
 		strncpy(current->state, buf, strlen(buf) - strlen(comma_start));
-		CountyNode* next = (CountyNode*)malloc(sizeof(CountyNode));
+		county_node_t *next = (county_node_t*)malloc(sizeof(county_node_t));
 		strncpy(next->state, nullStr, 8);
 		strncpy(next->county, nullStr, 64);
 
@@ -133,9 +133,9 @@ static CountyNode* loadLinkedList(FILE* input_file) {
 	return head;
 }
 
-static void freeLinkedList(CountyNode* head) {
-	CountyNode* next;
-	for (CountyNode* current = head; current->next != NULL; current = next) {
+static void freeLinkedList(county_node_t *head) {
+	county_node_t *next;
+	for (county_node_t *current = head; current->next != NULL; current = next) {
 		next = current->next;
 		free(current);
 	}
@@ -262,10 +262,10 @@ int main(void) {
 	openDb(&db);
 	initDb(&db);
 
-	CountyNode* head = loadLinkedList(input_file);
+	county_node_t *head = loadLinkedList(input_file);
 	CURL* curl = initCurl();
 
-	for (CountyNode* current = head; current->next != NULL; current = current->next) {
+	for (county_node_t *current = head; current->next != NULL; current = current->next) {
 		zip_code_node_t *zipCodesHead = (zip_code_node_t*)malloc(sizeof(zip_code_node_t));
 		initZipCodeNode(zipCodesHead);
 
