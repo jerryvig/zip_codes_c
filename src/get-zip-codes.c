@@ -7,9 +7,9 @@
 #include <unistd.h>
 #include <sqlite3.h>
 
-#define INPUT_FILE_NAME "county-list.csv"
-#define OUTPUT_FILE_NAME "zip-codes-list.csv"
-#define SQLITE3_DB_NAME "zip_codes_db.sqlite3"
+#define INPUT_FILE_NAME "../data/county-list.csv"
+#define OUTPUT_FILE_NAME "../data/zip-codes-list.csv"
+#define SQLITE3_DB_NAME "../data/zip_codes_db.sqlite3"
 #define BASE_URL "https://www.zip-codes.com/county/"
 #define URL_SUFFIX ".asp"
 
