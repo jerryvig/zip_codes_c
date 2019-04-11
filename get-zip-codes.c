@@ -49,7 +49,7 @@ static FILE* openOutputFile() {
 }
 
 static void openDb(sqlite3** db) {
-	int rc = sqlite3_open(SQLITE3_DB_NAME, db);
+	const int rc = sqlite3_open(SQLITE3_DB_NAME, db);
 	if ( rc ) {
 		fprintf(stderr, "Failed to open database " SQLITE3_DB_NAME);
 		sqlite3_close( *db );
@@ -61,7 +61,7 @@ static void openDb(sqlite3** db) {
 
 static void beginTransaction(sqlite3** db) {
 	char* err = NULL;
-	int rc = sqlite3_exec(*db, "BEGIN TRANSACTION", NULL, NULL, &err);
+	const int rc = sqlite3_exec(*db, "BEGIN TRANSACTION", NULL, NULL, &err);
 	if ( rc != SQLITE_OK ) {
 		fprintf(stderr, "Failed to BEGIN TRANSACTION.\n");
 		sqlite3_free(err);
@@ -70,7 +70,7 @@ static void beginTransaction(sqlite3** db) {
 
 static void commitTransaction(sqlite3** db) {
 	char* err = NULL;
-	int rc = sqlite3_exec(*db, "COMMIT", NULL, NULL, &err);
+	const int rc = sqlite3_exec(*db, "COMMIT", NULL, NULL, &err);
 	if ( rc != SQLITE_OK ) {
 		fprintf(stderr, "Failed to COMMIT database transaction.\n");
 		sqlite3_free(err);
@@ -81,11 +81,11 @@ static void initDb(sqlite3** db) {
 	beginTransaction(db);
 	fprintf(stderr, "About to create the table named 'zip_codes'.\n");
 	char *error_message = NULL;
-	char *create_stmt = "CREATE TABLE IF NOT EXISTS zip_codes_by_county ( "
+	const char *create_stmt = "CREATE TABLE IF NOT EXISTS zip_codes_by_county ( "
 		"zip_code INTEGER PRIMARY KEY, " 
 		"state TEXT, "
 		"county TEXT );";
-	int rc = sqlite3_exec(*db, create_stmt, NULL, NULL, &error_message);
+	const int rc = sqlite3_exec(*db, create_stmt, NULL, NULL, &error_message);
 	if (rc != SQLITE_OK ) {
 		fputs("Failed to create table.\n", stderr);
 		fprintf(stderr, "error message = %s\n", error_message);
@@ -101,7 +101,7 @@ static void initDb(sqlite3** db) {
 static void doInsert(sqlite3** db, char stmt[]) {
 	char* err = NULL;
 	fprintf(stderr, "running insert statement = '%s'\n", stmt);
-	int rc = sqlite3_exec(*db, stmt, NULL, NULL, &err);
+	const int rc = sqlite3_exec(*db, stmt, NULL, NULL, &err);
 	if ( rc != SQLITE_OK ) {
 		fprintf(stderr, "Failed to exec insert stmt '%s' with error: %s.\n", stmt, err);
 		sqlite3_free(err);
@@ -227,7 +227,7 @@ static void processChunk(char* memory, char state[], char county[], zip_code_nod
 	}
 }
 
-static void getUrl(CURL* curl, char* url, char state[], char county[], zip_code_node_t *zipHead) {
+static void getUrl(CURL* curl, const char* url, char state[], char county[], zip_code_node_t *zipHead) {
 	CURLcode res;
 	memory_t *chunk = (memory_t*)malloc(sizeof(memory_t));
 	chunk->memory = (char*)malloc(1);
@@ -278,7 +278,7 @@ int main(void) {
 		free(url);
 
 		beginTransaction(&db);
-		char insert_fmt[] = "INSERT INTO zip_codes_by_county VALUES ( %s, \"%s\", \"%s\" );";
+		const char insert_fmt[] = "INSERT INTO zip_codes_by_county VALUES ( %s, \"%s\", \"%s\" );";
 		char insert_stmt[64] = {'\0'};
 
 		zip_code_node_t *curZip;
