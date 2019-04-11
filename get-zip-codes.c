@@ -19,17 +19,17 @@ typedef struct CountyNode {
 	struct CountyNode* next;
 } CountyNode;
 
-typedef struct Memory {
-  char* memory;
+typedef struct {
+  char *memory;
   size_t size;
-} Memory;
+} memory_t;
 
 typedef struct ZipCodeNode {
 	char state[8];
 	char county[64];
 	char code[5];
 	struct ZipCodeNode* next;
-} ZipCodeNode;
+} zip_code_node_t;
 
 static FILE* openInputFile() {
 	FILE* input_file = fopen(INPUT_FILE_NAME, "r");
@@ -111,7 +111,7 @@ static void doInsert(sqlite3** db, char stmt[]) {
 static CountyNode* loadLinkedList(FILE* input_file) {
 	char nullStr[128] = {'\0'};
 	char buf[128];
-	CountyNode* head = (CountyNode*)malloc(sizeof(struct CountyNode));
+	CountyNode* head = (CountyNode*)malloc(sizeof(CountyNode));
 	strncpy(head->state, nullStr, 8);
 	strncpy(head->county, nullStr, 64);
 
@@ -119,7 +119,7 @@ static CountyNode* loadLinkedList(FILE* input_file) {
 		char* comma_start = strstr(buf, ",");
 		strncpy(current->county, &comma_start[1], strlen(&comma_start[1]) - 1);
 		strncpy(current->state, buf, strlen(buf) - strlen(comma_start));
-		CountyNode* next = (CountyNode*)malloc(sizeof(struct CountyNode));
+		CountyNode* next = (CountyNode*)malloc(sizeof(CountyNode));
 		strncpy(next->state, nullStr, 8);
 		strncpy(next->county, nullStr, 64);
 
@@ -161,7 +161,7 @@ static char* buildUrl(char* state, char* county) {
 
 static size_t writeCallback(void *contents, size_t size, size_t nmemb, void* userp) {
 	size_t realsize = size * nmemb;
-	Memory* memory = (Memory*)userp;
+	memory_t *memory = (memory_t*)userp;
 
 	char *ptr = realloc(memory->memory, memory->size + realsize + 1);
 	if (ptr == NULL) {
@@ -188,7 +188,7 @@ static CURL* initCurl() {
 	return curl;
 }
 
-static void initZipCodeNode(ZipCodeNode* node) {
+static void initZipCodeNode(zip_code_node_t *node) {
 	char nullStr[64] = {'\0'};
 	node->next = NULL;
 	strncpy(node->state, nullStr, 8);
@@ -196,11 +196,11 @@ static void initZipCodeNode(ZipCodeNode* node) {
 	strncpy(node->code, nullStr, 5);
 }
 
-static void processChunk(char* memory, char state[], char county[], ZipCodeNode* zipHead) {
+static void processChunk(char* memory, char state[], char county[], zip_code_node_t *zipHead) {
 	char* token;
 	char* rest = memory;
 
-	ZipCodeNode* current = zipHead;
+	zip_code_node_t *current = zipHead;
 
 	while ((token = strtok_r(rest, "\n", &rest))) {
 		char* zipCodeStr = strstr(token, "class=\"statTable\"");
@@ -215,7 +215,7 @@ static void processChunk(char* memory, char state[], char county[], ZipCodeNode*
 				strcpy(current->county, county);
 				strcpy(current->code, code);
 
-				ZipCodeNode* next = (ZipCodeNode*)malloc(sizeof(ZipCodeNode));
+				zip_code_node_t *next = (zip_code_node_t*)malloc(sizeof(zip_code_node_t));
 				initZipCodeNode(next);
 				current->next = next;
 				current = next;
@@ -226,9 +226,9 @@ static void processChunk(char* memory, char state[], char county[], ZipCodeNode*
 	}
 }
 
-static void getUrl(CURL* curl, char* url, char state[], char county[], ZipCodeNode* zipHead) {
+static void getUrl(CURL* curl, char* url, char state[], char county[], zip_code_node_t *zipHead) {
 	CURLcode res;
-	Memory* chunk = (Memory*)malloc(sizeof(Memory));
+	memory_t *chunk = (memory_t*)malloc(sizeof(memory_t));
 	chunk->memory = (char*)malloc(1);
 	chunk->size = 0;
 	curl_easy_setopt(curl, CURLOPT_URL, url);
@@ -266,7 +266,7 @@ int main(void) {
 	CURL* curl = initCurl();
 
 	for (CountyNode* current = head; current->next != NULL; current = current->next) {
-		ZipCodeNode* zipCodesHead = (ZipCodeNode*)malloc(sizeof(ZipCodeNode));
+		zip_code_node_t *zipCodesHead = (zip_code_node_t*)malloc(sizeof(zip_code_node_t));
 		initZipCodeNode(zipCodesHead);
 
 		printf("state = %s\n", current->state);
@@ -280,7 +280,7 @@ int main(void) {
 		char insert_fmt[] = "INSERT INTO zip_codes_by_county VALUES ( %s, \"%s\", \"%s\" );";
 		char insert_stmt[64] = {'\0'};
 
-		ZipCodeNode* curZip;
+		zip_code_node_t *curZip;
 		for (curZip = zipCodesHead; curZip != NULL;) {
 			if (strlen(curZip->code) > 0) {
 				fprintf(output_file, "\"%s\",\"%s\",\"%s\"\n",
@@ -289,7 +289,7 @@ int main(void) {
 				sprintf(insert_stmt, insert_fmt, curZip->code, curZip->state, curZip->county );
 				doInsert(&db, insert_stmt);
 			}
-			ZipCodeNode* last = curZip;
+			zip_code_node_t *last = curZip;
 			curZip = curZip->next;
 			free(last);
 		}
