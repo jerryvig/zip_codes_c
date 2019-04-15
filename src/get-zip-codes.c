@@ -27,7 +27,7 @@ typedef struct {
 typedef struct ZipCodeNode {
 	char state[8];
 	char county[64];
-	char code[5];
+	char code[8];
 	struct ZipCodeNode* next;
 } zip_code_node_t;
 
@@ -209,7 +209,7 @@ static void processChunk(char* memory, char state[], char county[], zip_code_nod
 
 		if (zipCodeStr != NULL) {
 			while((zipCodeTitle = strstr(zipCodeStr, "title=\"ZIP Code "))) {
-				char code[5] = {'\0'};
+				char code[8] = {'\0'};
 				strncpy(code, &zipCodeTitle[16], 5);
 				strcpy(current->state, state);
 				strcpy(current->county, county);
@@ -278,7 +278,6 @@ int main(void) {
 
 		beginTransaction(&db);
 		const char insert_fmt[] = "INSERT INTO zip_codes_by_county VALUES ( %s, \"%s\", \"%s\" );";
-		char insert_stmt[64] = {'\0'};
 
 		zip_code_node_t *curZip;
 		for (curZip = zipCodesHead; curZip != NULL;) {
@@ -286,7 +285,9 @@ int main(void) {
 				fprintf(output_file, "\"%s\",\"%s\",\"%s\"\n",
 					curZip->state, curZip->county, curZip->code);
 
+                                char insert_stmt[64] = {'\0'};
 				sprintf(insert_stmt, insert_fmt, curZip->code, curZip->state, curZip->county );
+				printf("insert_stmt = \"%s\"\n", insert_stmt);
 				doInsert(&db, insert_stmt);
 			}
 			zip_code_node_t *last = curZip;
