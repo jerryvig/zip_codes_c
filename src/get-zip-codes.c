@@ -82,7 +82,7 @@ static void initDb(sqlite3** db) {
 	fprintf(stderr, "About to create the table named 'zip_codes'.\n");
 	char *error_message = NULL;
 	const char *create_stmt = "CREATE TABLE IF NOT EXISTS zip_codes_by_county ( "
-		"zip_code INTEGER PRIMARY KEY, " 
+		"zip_code INTEGER PRIMARY KEY, "
 		"state TEXT, "
 		"county TEXT );";
 	const int rc = sqlite3_exec(*db, create_stmt, NULL, NULL, &error_message);
@@ -211,7 +211,6 @@ static void processChunk(char* memory, char state[], char county[], zip_code_nod
 			while((zipCodeTitle = strstr(zipCodeStr, "title=\"ZIP Code "))) {
 				char code[5] = {'\0'};
 				strncpy(code, &zipCodeTitle[16], 5);
-				
 				strcpy(current->state, state);
 				strcpy(current->county, county);
 				strcpy(current->code, code);
@@ -236,7 +235,7 @@ static void getUrl(CURL* curl, const char* url, char state[], char county[], zip
 
 #ifdef SKIP_PEER_VERIFICATION
 	curl_easy_setopt(curl, CURLOPT_SSL_VERIFYPEER, 0L);
-#endif	
+#endif
 #ifdef SKIP_HOSTNAME_VERIFICATION
 	curl_easy_setopt(curl, CURLOPT_SSL_VERIFYHOST, 0L);
 #endif
@@ -306,7 +305,7 @@ int main(void) {
 	}
 
 	curl_easy_cleanup(curl);
-	curl_global_cleanup();	
+	curl_global_cleanup();
 	freeLinkedList(head);
 
 	sqlite3_close(db);
