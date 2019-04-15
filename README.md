@@ -1,3 +1,7 @@
+##Depedencies
+
+The following libraries are required to build this project:
+
 ## Building with Ninja
 
 ```
