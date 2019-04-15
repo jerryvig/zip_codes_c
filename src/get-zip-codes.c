@@ -118,6 +118,7 @@ static void loadLinkedList(FILE* input_file, county_node_t *head) {
 		strncpy(current->county, &comma_start[1], strlen(&comma_start[1]) - 1);
 		strncpy(current->state, buf, strlen(buf) - strlen(comma_start));
 		county_node_t *next = (county_node_t*)malloc(sizeof(county_node_t));
+                next->next = NULL;
 		memset(next->state, 0, sizeof next->state);
 		memset(next->county, 0, sizeof next->county);
 
@@ -131,10 +132,12 @@ static void loadLinkedList(FILE* input_file, county_node_t *head) {
 
 static void freeLinkedList(county_node_t *head) {
 	county_node_t *next;
-	for (county_node_t *current = head; current->next != NULL; current = next) {
+        county_node_t *current = head;
+	for (; current->next != NULL; current = next) {
 		next = current->next;
 		free(current);
 	}
+        free(current);
 }
 
 static char* buildUrl(char* state, char* county) {
@@ -269,8 +272,13 @@ int main(void) {
 		zip_code_node_t *zipCodesHead = (zip_code_node_t*)malloc(sizeof(zip_code_node_t));
 		initZipCodeNode(zipCodesHead);
 
-		fprintf(stderr, "state = %s\n", current->state);
-		fprintf(stderr, "county = %s\n", current->county);
+		fprintf(stderr, "state = \"%s\"\n", current->state);
+		fprintf(stderr, "county = \"%s\"\n", current->county);
+
+                if (strlen(current->state) < 1 || strlen(current->county) < 1) {
+                    printf("breaking out of the loop\n");
+                    break;
+                }
 
 		char* url = buildUrl(current->state, current->county);
 		getUrl(curl, url, current->state, current->county, zipCodesHead);
@@ -287,7 +295,6 @@ int main(void) {
 
                                 char insert_stmt[64] = {'\0'};
 				sprintf(insert_stmt, insert_fmt, curZip->code, curZip->state, curZip->county );
-				printf("insert_stmt = \"%s\"\n", insert_stmt);
 				doInsert(&db, insert_stmt);
 			}
 			zip_code_node_t *last = curZip;
